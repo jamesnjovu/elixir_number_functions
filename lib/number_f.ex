@@ -46,4 +46,13 @@ defmodule NumberF do
   def to_words(amount, main_currence \\ "Kwacha", sec_current \\ "Ngwee") do
     NumberF.NumbersToWords.parse(amount, main_currence, sec_current)
   end
+
+  @doc """
+  Convert a number into words:
+  ## Example
+      iex> NumberF.to_words(20.0)
+  """
+  def memory_size_cal(size) do
+    NumberF.Memory.humanize(size)
+  end
 end
