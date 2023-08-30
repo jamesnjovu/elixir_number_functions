@@ -38,7 +38,12 @@ defmodule NumberF do
     NumberF.Randomizer.gen_password()
   end
 
+  @doc """
+  Convert a number into words:
+  ## Example
+      iex> NumberF.to_words(20.0)
+  """
   def to_words(amount, main_currence \\ "Kwacha", sec_current \\ "Ngwee") do
-    NumberF.Workers.NumbersToWords.parse(amount, main_currence, sec_current)
+    NumberF.NumbersToWords.parse(amount, main_currence, sec_current)
   end
 end
