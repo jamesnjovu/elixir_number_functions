@@ -39,7 +39,7 @@ defmodule NumberF.MixProject do
   defp package do
     [
       licenses: ["MIT"],
-      links: %{"GitHub" => "https://github.com/mveytsman/heroicons_elixir"}
+      links: %{"GitHub" => "https://github.com/jamesnjovu/elixir_number_functions"}
     ]
   end
 
