@@ -4,10 +4,16 @@ defmodule NumberF.MixProject do
   def project do
     [
       app: :number_f,
-      version: "0.1.0",
+      version: "0.1.1",
       elixir: "~> 1.14",
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      deps: deps(),
+      name: "NumberF",
+      source_url: "https://github.com/jamesnjovu/elixir_number_functions",
+      description: "Perform Simple Number Function in elixir",
+      docs: docs(),
+      package: package(),
+      xref: [exclude: [:httpc, :public_key]]
     ]
   end
 
@@ -23,8 +29,21 @@ defmodule NumberF.MixProject do
   defp deps do
     [
       {:number, "~> 1.0.1"},
+      {:ex_doc, "~> 0.29", only: :dev, runtime: false}
       # {:dep_from_hexpm, "~> 0.3.0"},
       # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"}
     ]
+  end
+
+
+  defp package do
+    [
+      licenses: ["MIT"],
+      links: %{"GitHub" => "https://github.com/mveytsman/heroicons_elixir"}
+    ]
+  end
+
+  defp docs do
+    []
   end
 end
