@@ -1,7 +1,5 @@
 defmodule NumberF.Randomizer do
-  @moduledoc """
-  Random string generator module.
-  """
+  @moduledoc false
 
 
 
