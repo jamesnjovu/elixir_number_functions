@@ -56,49 +56,41 @@ defmodule NumberF.MixProject do
   defp docs do
     [
       main: "NumberF",
-      logo: "path/to/logo.png", # Add a logo image if available
+      # logo: "path/to/logo.png",
       extras: ["README.md", "LICENSE"],
       authors: ["James Njovu"],
       formatters: ["html"],
-      source_ref: "v0.1.1",
+      source_ref: "v0.1.3",
       groups_for_modules: [
         "Core Functions": [
           NumberF
         ],
-        "Internal Modules": [
+        "Calculation Modules": [
+          NumberF.Calculations,
+          NumberF.Financial,
+          NumberF.Statistics
+        ],
+        "Formatting Modules": [
           NumberF.Currency,
+          NumberF.Formatter
+        ],
+        "Validation & Utilities": [
+          NumberF.Validation,
           NumberF.Memory,
-          NumberF.Randomizer,
+          NumberF.Randomizer
+        ],
+        "Text Conversion": [
           NumberF.NumbersToWords,
           NumberF.NumberToWord,
           NumberF.Helper
+        ],
+        "Date Handling": [
+          NumberF.DateCalculations
         ],
         "Application": [
           NumberF.Application
         ]
       ],
-      groups_for_functions: [
-        "Formatting": [
-          :currency,
-          :comma_separated,
-          :number_to_delimited
-        ],
-        "Conversion": [
-          :to_words,
-          :to_int,
-          :to_float,
-          :to_decimal,
-          :to_boolean
-        ],
-        "Generation": [
-          :randomizer,
-          :default_password
-        ],
-        "Utilities": [
-          :memory_size_cal,
-          :sum_decimal
-        ]
-      ]
     ]
   end
 end

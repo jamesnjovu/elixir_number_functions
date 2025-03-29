@@ -77,7 +77,7 @@ defmodule NumberF.Statistics do
   Calculates the range (difference between max and min values).
   """
   def range([]), do: nil
-  def range([single]), do: 0.0
+  def range([_single]), do: 0.0
   def range(numbers) do
     Enum.max(numbers) - Enum.min(numbers)
   end
