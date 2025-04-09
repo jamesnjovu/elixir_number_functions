@@ -1,10 +1,11 @@
 defmodule NumberF.MixProject do
   use Mix.Project
+  @version "0.1.3"
 
   def project do
     [
       app: :number_f,
-      version: "0.1.3",
+      version: @version,
       elixir: "~> 1.14",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
@@ -60,7 +61,7 @@ defmodule NumberF.MixProject do
       extras: ["README.md", "LICENSE"],
       authors: ["James Njovu"],
       formatters: ["html"],
-      source_ref: "v0.1.3",
+      source_ref: "v#{@version}",
       groups_for_modules: [
         "Core Functions": [
           NumberF
