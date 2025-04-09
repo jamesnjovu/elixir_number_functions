@@ -1,6 +1,6 @@
 defmodule NumberF.MixProject do
   use Mix.Project
-  @version "0.1.3"
+  @version "0.1.4"
 
   def project do
     [
@@ -29,10 +29,8 @@ defmodule NumberF.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:number, "~> 1.0.1"},
+      {:decimal, "~> 2.0"},
       {:ex_doc, "~> 0.29", only: :dev, runtime: false}
-      # {:dep_from_hexpm, "~> 0.3.0"},
-      # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"}
     ]
   end
 

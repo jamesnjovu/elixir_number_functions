@@ -228,7 +228,7 @@ defmodule NumberF do
       iex> NumberF.to_float(123)
       123.0
   """
-  def to_float(value), do: Number.Conversion.to_float(value)
+  def to_float(value), do: NumberF.CustomFormatter.to_float(value)
 
   @doc """
   Converts a value to a decimal.
@@ -244,7 +244,7 @@ defmodule NumberF do
       iex> NumberF.to_decimal(123)
       #Decimal<123>
   """
-  def to_decimal(value), do: Number.Conversion.to_decimal(value)
+  def to_decimal(value), do: NumberF.CustomFormatter.to_decimal(value)
 
   @doc """
   Converts a string to a boolean value.
@@ -301,7 +301,7 @@ defmodule NumberF do
       "1,234,568"
   """
   def number_to_delimited(number, options \\ []),
-    do: Number.Delimit.number_to_delimited(number, options)
+    do: NumberF.CustomFormatter.number_to_delimited(number, options)
 
   @doc """
   Sums a list of decimal numbers.

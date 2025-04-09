@@ -3,15 +3,11 @@ defmodule NumberF.Currency do
 
   def currency(value, _unit, _precision) when is_nil(value), do: value
 
-  def currency(value, unit, precision) do
-    to_string(value)
-    |> Number.Currency.number_to_currency(unit: unit, precision: precision)
-  end
+  def currency(value, unit, precision),
+    do: NumberF.CustomFormatter.number_to_currency(value, unit: unit, precision: precision)
 
   def comma_separated(value, _precision) when is_nil(value), do: value
 
-  def comma_separated(value, precision) do
-    to_string(value)
-    |> Number.Currency.number_to_currency(unit: "", precision: precision)
-  end
+  def comma_separated(value, precision),
+    do: NumberF.CustomFormatter.number_to_currency(value, unit: "", precision: precision)
 end
