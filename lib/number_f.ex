@@ -6,6 +6,19 @@ defmodule NumberF do
 
   ## Features
 
+
+  ## Installation
+
+  Add `number_f` to your list of dependencies in `mix.exs`:
+
+  ```elixir
+  def deps do
+  [
+    {:number_f, "~> 0.1.3"}
+  ]
+  end
+  ```
+
   ### Formatting
   - Format numbers as currency values with custom units
   - Create comma-separated number formats
