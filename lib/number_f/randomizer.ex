@@ -1,8 +1,6 @@
 defmodule NumberF.Randomizer do
   @moduledoc false
 
-
-
   def gen_password,
     do: String.capitalize(randomizer(3, :downcase)) <> "@" <> randomizer(4, :numeric)
 
