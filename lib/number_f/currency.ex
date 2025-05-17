@@ -1,6 +1,5 @@
 defmodule NumberF.Currency do
   @moduledoc false
-
   def currency(value, _unit, _precision) when is_nil(value), do: value
 
   def currency(value, unit, precision),
