@@ -5,6 +5,16 @@ defmodule NumberF do
   A comprehensive utility module for performing various number-related operations in Elixir.
 
   ## Features
+  - **Number Formatting**: Format numbers as currency, with commas, custom delimiters, abbreviated forms (K, M, B)
+  - **Text Representation**: Convert numbers to words, ordinals, Roman numerals
+  - **Financial Calculations**: Simple/compound interest, EMI calculations, currency conversions
+  - **Statistical Functions**: Mean, median, mode, standard deviation, variance
+  - **Date Calculations**: Age calculation, business days, payment terms
+  - **Validation**: Credit card validation (Luhn algorithm), number format validation
+  - **String Generation**: Random string generation, password creation
+  - **Type Conversions**: Convert between numeric types and formats
+  - **Memory Size**: Convert byte counts to human-readable formats
+  - **Phone Formatting**: Format phone numbers based on country codes
 
 
   ## Installation
@@ -971,7 +981,604 @@ defmodule NumberF do
       iex> NumberF.payment_due_date(invoice_date, 45)
       ~D[2023-03-01]
   """
-  def payment_due_date(invoice_date, terms_days \\ 30) do
+  def payment_due_date(invoice_date, terms_days \\ 30)
+  def payment_due_date(invoice_date, terms_days) do
     Date.add(invoice_date, terms_days)
+  end
+
+
+  ### UNIT CONVERSION FUNCTIONS ###
+
+  @doc """
+  Converts inches to centimeters.
+
+  ## Parameters
+    - `inches`: The length in inches
+
+  ## Examples
+
+      iex> NumberF.inches_to_cm(10)
+      25.4
+
+      iex> NumberF.inches_to_cm(3.5)
+      8.89
+  """
+  def inches_to_cm(inches), do: NumberF.Metrics.inches_to_cm(inches)
+
+  @doc """
+  Converts centimeters to inches.
+
+  ## Parameters
+    - `cm`: The length in centimeters
+
+  ## Examples
+
+      iex> NumberF.cm_to_inches(25.4)
+      10.0
+  """
+  def cm_to_inches(cm), do: NumberF.Metrics.cm_to_inches(cm)
+
+  @doc """
+  Converts miles to kilometers.
+
+  ## Parameters
+    - `miles`: The distance in miles
+
+  ## Examples
+
+      iex> NumberF.miles_to_km(10)
+      16.09
+  """
+  def miles_to_km(miles), do: NumberF.Metrics.miles_to_km(miles)
+
+  @doc """
+  Converts kilometers to miles.
+
+  ## Parameters
+    - `km`: The distance in kilometers
+
+  ## Examples
+
+      iex> NumberF.km_to_miles(16.09)
+      10.0
+  """
+  def km_to_miles(km), do: NumberF.Metrics.km_to_miles(km)
+
+  @doc """
+  Converts Fahrenheit to Celsius.
+
+  ## Parameters
+    - `fahrenheit`: The temperature in Fahrenheit
+
+  ## Examples
+
+      iex> NumberF.fahrenheit_to_celsius(32)
+      0.0
+
+      iex> NumberF.fahrenheit_to_celsius(212)
+      100.0
+  """
+  def fahrenheit_to_celsius(fahrenheit), do: NumberF.Metrics.fahrenheit_to_celsius(fahrenheit)
+
+  @doc """
+  Converts Celsius to Fahrenheit.
+
+  ## Parameters
+    - `celsius`: The temperature in Celsius
+
+  ## Examples
+
+      iex> NumberF.celsius_to_fahrenheit(0)
+      32.0
+
+      iex> NumberF.celsius_to_fahrenheit(100)
+      212.0
+  """
+  def celsius_to_fahrenheit(celsius), do: NumberF.Metrics.celsius_to_fahrenheit(celsius)
+
+  ### PRECISION HANDLING FUNCTIONS ###
+
+  @doc """
+  Rounds a number to a specified number of decimal places.
+
+  ## Parameters
+    - `number`: The number to round
+    - `precision`: Number of decimal places (default: 2)
+
+  ## Examples
+
+      iex> NumberF.round_with_precision(3.14159, 2)
+      3.14
+
+      iex> NumberF.round_with_precision(3.14159, 4)
+      3.1416
+  """
+  def round_with_precision(number, precision \\ 2),
+    do: NumberF.Precision.round_with_precision(number, precision)
+
+  @doc """
+  Rounds a number using banker's rounding (round to even).
+  This is more statistically unbiased than standard rounding.
+
+  ## Parameters
+    - `number`: The number to round
+    - `precision`: Number of decimal places (default: 2)
+
+  ## Examples
+
+      iex> NumberF.bankers_round(2.5, 0)
+      2.0
+
+      iex> NumberF.bankers_round(3.5, 0)
+      4.0
+  """
+  def bankers_round(number, precision \\ 2),
+    do: NumberF.Precision.bankers_round(number, precision)
+
+  @doc """
+  Checks if two floating point numbers are approximately equal.
+
+  ## Parameters
+    - `a`: First number
+    - `b`: Second number
+    - `epsilon`: Maximum allowed difference (default: 1.0e-10)
+
+  ## Examples
+
+      iex> NumberF.approximately_equal(0.1 + 0.2, 0.3)
+      true
+
+      iex> NumberF.approximately_equal(0.1, 0.2)
+      false
+  """
+  def approximately_equal(a, b, epsilon \\ 1.0e-10),
+    do: NumberF.Precision.approximately_equal(a, b, epsilon)
+
+  ### TAX CALCULATION FUNCTIONS ###
+
+  @doc """
+  Calculates Value Added Tax (VAT) for a given amount and rate.
+
+  ## Parameters
+    - `amount`: The amount before tax
+    - `rate`: The VAT rate as a decimal (e.g., 0.2 for 20%)
+    - `included`: Whether the amount already includes VAT (default: false)
+
+  ## Examples
+
+      iex> NumberF.calculate_vat(100, 0.2)
+      %{net: 100.0, vat: 20.0, gross: 120.0}
+
+      iex> NumberF.calculate_vat(120, 0.2, true)
+      %{net: 100.0, vat: 20.0, gross: 120.0}
+  """
+  def calculate_vat(amount, rate, included \\ false),
+    do: NumberF.Tax.calculate_vat(amount, rate, included)
+
+  @doc """
+  Calculates sales tax for a given amount and rate.
+
+  ## Parameters
+    - `amount`: The amount before tax
+    - `rate`: The sales tax rate as a decimal (e.g., 0.06 for 6%)
+    - `options`: Additional options
+      - `:round_to`: Round the tax amount to the nearest value (default: 0.01)
+
+  ## Examples
+
+      iex> NumberF.calculate_sales_tax(100, 0.06)
+      %{subtotal: 100.0, tax: 6.0, total: 106.0}
+  """
+  def calculate_sales_tax(amount, rate, options \\ []),
+    do: NumberF.Tax.calculate_sales_tax(amount, rate, options)
+
+  @doc """
+  Returns common VAT rates for different countries.
+
+  ## Examples
+
+      iex> NumberF.vat_rates()["UK"]
+      0.2
+
+      iex> NumberF.vat_rates()["Germany"]
+      0.19
+  """
+  def vat_rates, do: NumberF.Tax.vat_rates()
+
+  ### INTERNATIONALIZATION FUNCTIONS ###
+
+  @doc """
+  Formats a number according to locale-specific settings.
+
+  ## Parameters
+    - `number`: The number to format
+    - `locale`: The locale code (e.g., "en-US", "fr-FR")
+    - `options`: Additional formatting options
+      - `:precision`: Number of decimal places (default: 2)
+
+  ## Examples
+
+      iex> NumberF.format_number(1234567.89, "en-US")
+      "1,234,567.89"
+
+      iex> NumberF.format_number(1234567.89, "fr-FR")
+      "1 234 567,89"
+  """
+  def format_number(number, locale, options \\ []),
+    do: NumberF.I18n.format_number(number, locale, options)
+
+  @doc """
+  Formats a number as currency according to locale-specific settings.
+
+  ## Parameters
+    - `number`: The number to format
+    - `locale`: The locale code (e.g., "en-US", "fr-FR")
+    - `options`: Additional formatting options
+      - `:precision`: Number of decimal places (default: 2)
+      - `:currency_code`: ISO currency code to override the locale default
+      - `:symbol`: Whether to include the currency symbol (default: true)
+
+  ## Examples
+
+      iex> NumberF.format_currency(1234.56, "en-US")
+      "$1,234.56"
+
+      iex> NumberF.format_currency(1234.56, "fr-FR")
+      "1 234,56 €"
+  """
+  def format_currency(number, locale, options \\ []),
+    do: NumberF.I18n.format_currency(number, locale, options)
+
+  @doc """
+  Spells out a number in the specified language.
+
+  ## Parameters
+    - `number`: The number to spell out
+    - `language`: The language code (e.g., "en", "fr")
+    - `options`: Additional options
+      - `:capitalize`: Whether to capitalize the first letter (default: true)
+      - `:currency`: Whether to add currency names (default: false)
+      - `:currency_code`: ISO currency code (default: nil)
+
+  ## Examples
+
+      iex> NumberF.spell_number(42, "en")
+      "Forty-two"
+
+      iex> NumberF.spell_number(42, "fr")
+      "Quarante-deux"
+  """
+  def spell_number(number, language, options \\ []),
+    do: NumberF.I18n.spell_number(number, language, options)
+
+  ### CURRENCY UTILITY FUNCTIONS ###
+
+  @doc """
+  Returns a map of currency information with ISO codes, symbols, and formatting details.
+
+  ## Examples
+
+      iex> NumberF.currency_data()["USD"]
+      %{
+        name: "US Dollar",
+        symbol: "$",
+        symbol_first: true,
+        symbol_space: false,
+        decimal_places: 2,
+        thousands_separator: ",",
+        decimal_separator: "."
+      }
+  """
+  def currency_data, do: NumberF.Currencies.currency_data()
+
+  @doc """
+  Gets currency details for a specific currency code.
+
+  ## Parameters
+    - `currency_code`: ISO currency code (e.g., "USD", "EUR")
+
+  ## Examples
+
+      iex> NumberF.get_currency("USD")
+      %{
+        name: "US Dollar",
+        symbol: "$",
+        symbol_first: true,
+        symbol_space: false,
+        decimal_places: 2,
+        thousands_separator: ",",
+        decimal_separator: "."
+      }
+  """
+  def get_currency(currency_code), do: NumberF.Currencies.get_currency(currency_code)
+
+  @doc """
+  Formats a currency with the specified currency code's rules.
+
+  ## Parameters
+    - `number`: The number to format
+    - `currency_code`: ISO currency code (e.g., "USD", "EUR")
+    - `options`: Additional options (override currency defaults)
+
+  ## Examples
+
+      iex> NumberF.format_with_currency(1234.56, "USD")
+      "$1,234.56"
+
+      iex> NumberF.format_with_currency(1234.56, "EUR")
+      "1.234,56 €"
+  """
+  def format_with_currency(number, currency_code, options \\ []),
+    do: NumberF.Currencies.format(number, currency_code, options)
+
+  ### REGISTRY AND INFORMATION ###
+
+  @doc """
+  Returns information about all NumberF modules.
+
+  ## Examples
+
+      iex> NumberF.modules() |> Enum.map(& &1.name) |> Enum.take(3)
+      ["NumberF", "NumberF.Registry", "NumberF.Currency"]
+  """
+  def modules, do: NumberF.Registry.modules()
+
+  @doc """
+  Returns information about NumberF modules of a specific type.
+
+  ## Parameters
+    - `type`: The module type (e.g., :formatting, :calculation)
+
+  ## Examples
+
+      iex> NumberF.modules_by_type(:formatting) |> Enum.map(& &1.name)
+      ["NumberF.Currency", "NumberF.CustomFormatter", "NumberF.Formatter", "NumberF.Currencies"]
+  """
+  def modules_by_type(type), do: NumberF.Registry.modules_by_type(type)
+
+  @doc """
+  Returns all function categories available in NumberF.
+
+  ## Examples
+
+      iex> NumberF.function_categories() |> Enum.map(& &1.name) |> Enum.take(3)
+      ["Formatting", "Conversion", "Generation"]
+  """
+  def function_categories, do: NumberF.Registry.function_categories()
+
+  @doc """
+  Returns a markdown documentation of all NumberF modules and functions.
+
+  ## Examples
+
+      iex> markdown = NumberF.documentation()
+      iex> String.starts_with?(markdown, "# NumberF Library")
+      true
+  """
+  def documentation, do: NumberF.Registry.to_markdown()
+
+  ### EXTENDED MATH OPERATIONS ###
+
+  @doc """
+  Calculates the factorial of a non-negative integer.
+
+  ## Parameters
+    - `n`: The non-negative integer
+
+  ## Examples
+
+      iex> NumberF.factorial(5)
+      120
+
+      iex> NumberF.factorial(0)
+      1
+  """
+  def factorial(n) when n >= 0, do: NumberF.Calculations.factorial(n)
+
+  @doc """
+  Calculates combinations (n choose k).
+
+  ## Parameters
+    - `n`: The total number of items
+    - `k`: The number of items to choose
+
+  ## Examples
+
+      iex> NumberF.combinations(5, 2)
+      10.0
+
+      iex> NumberF.combinations(10, 3)
+      120.0
+  """
+  def combinations(n, k) when k <= n, do: NumberF.Calculations.combinations(n, k)
+
+  @doc """
+  Calculates the Greatest Common Divisor (GCD) of two integers.
+
+  ## Parameters
+    - `a`: First integer
+    - `b`: Second integer
+
+  ## Examples
+
+      iex> NumberF.gcd(48, 18)
+      6
+
+      iex> NumberF.gcd(7, 13)
+      1
+  """
+  def gcd(a, b), do: NumberF.Calculations.gcd(a, b)
+
+  @doc """
+  Calculates the Least Common Multiple (LCM) of two integers.
+
+  ## Parameters
+    - `a`: First integer
+    - `b`: Second integer
+
+  ## Examples
+
+      iex> NumberF.lcm(4, 6)
+      12
+
+      iex> NumberF.lcm(21, 6)
+      42
+  """
+  def lcm(a, b), do: NumberF.Calculations.lcm(a, b)
+
+  @doc """
+  Checks if a number is prime.
+
+  ## Parameters
+    - `n`: The number to check
+
+  ## Examples
+
+      iex> NumberF.is_prime?(7)
+      true
+
+      iex> NumberF.is_prime?(6)
+      false
+  """
+  def is_prime?(n), do: NumberF.Calculations.is_prime?(n)
+
+  @doc """
+  Performs a linear interpolation between two points.
+
+  ## Parameters
+    - `x`: The x value to interpolate at
+    - `x0`: The x coordinate of the first point
+    - `y0`: The y coordinate of the first point
+    - `x1`: The x coordinate of the second point
+    - `y1`: The y coordinate of the second point
+
+  ## Examples
+
+      iex> NumberF.interpolate(2.5, 2, 10, 3, 20)
+      15.0
+  """
+  def interpolate(x, x0, y0, x1, y1), do: NumberF.Calculations.interpolate(x, x0, y0, x1, y1)
+
+  @doc """
+  Converts degrees to radians.
+
+  ## Parameters
+    - `degrees`: The angle in degrees
+
+  ## Examples
+
+      iex> NumberF.to_radians(180)
+      3.141592653589793
+  """
+  def to_radians(degrees), do: NumberF.Calculations.to_radians(degrees)
+
+  @doc """
+  Converts radians to degrees.
+
+  ## Parameters
+    - `radians`: The angle in radians
+
+  ## Examples
+
+      iex> NumberF.to_degrees(3.14159)
+      180.0
+  """
+  def to_degrees(radians), do: NumberF.Calculations.to_degrees(radians)
+
+  ### EXTENDED STATISTICS FUNCTIONS ###
+
+  @doc """
+  Calculates the variance of a dataset.
+
+  ## Parameters
+    - `numbers`: A list of numbers
+
+  ## Examples
+
+      iex> NumberF.variance([2, 4, 4, 4, 5, 5, 7, 9])
+      4.0
+  """
+  def variance(numbers), do: NumberF.Statistics.variance(numbers)
+
+  @doc """
+  Calculates the range (difference between max and min values) of a dataset.
+
+  ## Parameters
+    - `numbers`: A list of numbers
+
+  ## Examples
+
+      iex> NumberF.range([2, 4, 4, 4, 5, 5, 7, 9])
+      7.0
+  """
+  def range(numbers), do: NumberF.Statistics.range(numbers)
+
+  ### EXTENDED DATE FUNCTIONS ###
+
+  @doc """
+  Calculates the number of days between two dates.
+
+  ## Parameters
+    - `date1`: The first date
+    - `date2`: The second date
+
+  ## Examples
+
+      iex> NumberF.days_between(~D[2023-01-01], ~D[2023-01-10])
+      9
+  """
+  def days_between(date1, date2), do: NumberF.DateCalculations.days_between(date1, date2)
+
+  @doc """
+  Calculates the number of business days between two dates.
+
+  ## Parameters
+    - `date1`: The first date
+    - `date2`: The second date
+
+  ## Examples
+
+      iex> NumberF.business_days_between(~D[2023-01-02], ~D[2023-01-08])
+      5
+  """
+  def business_days_between(date1, date2),
+    do: NumberF.DateCalculations.business_days_between(date1, date2)
+
+  @doc """
+  Determines if a date is a business day.
+
+  ## Parameters
+    - `date`: The date to check
+
+  ## Examples
+
+      iex> NumberF.is_business_day?(~D[2023-01-02])
+      true
+
+      iex> NumberF.is_business_day?(~D[2023-01-01])
+      false
+  """
+  def is_business_day?(date), do: NumberF.DateCalculations.is_business_day?(date)
+
+  @doc """
+  Returns all modules and their functions as a reference.
+
+  This function provides a comprehensive overview of all available functionality
+  in the NumberF library, organized by module.
+
+  ## Examples
+
+      iex> ref = NumberF.reference()
+      iex> is_map(ref)
+      true
+  """
+  def reference do
+    %{
+      description:
+        "A comprehensive utility library for number formatting, conversion, and manipulation in Elixir",
+      version: "0.2.0",
+      modules: NumberF.Registry.modules(),
+      function_categories: NumberF.Registry.function_categories()
+    }
   end
 end

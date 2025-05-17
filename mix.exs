@@ -1,6 +1,6 @@
 defmodule NumberF.MixProject do
   use Mix.Project
-  @version "0.1.4"
+  @version "0.1.5"
 
   def project do
     [
@@ -62,34 +62,46 @@ defmodule NumberF.MixProject do
       source_ref: "v#{@version}",
       groups_for_modules: [
         "Core Functions": [
-          NumberF
+          NumberF,
+          NumberF.Registry
         ],
         "Calculation Modules": [
           NumberF.Calculations,
           NumberF.Financial,
-          NumberF.Statistics
+          NumberF.Statistics,
+          NumberF.Precision,
+          NumberF.Tax
         ],
         "Formatting Modules": [
           NumberF.Currency,
-          NumberF.Formatter
+          NumberF.Formatter,
+          NumberF.CustomFormatter,
+          NumberF.Currencies
+        ],
+        "Conversion Modules": [
+          NumberF.Metrics,
+          NumberF.NumbersToWords,
+          NumberF.NumberToWord
         ],
         "Validation & Utilities": [
           NumberF.Validation,
           NumberF.Memory,
-          NumberF.Randomizer
-        ],
-        "Text Conversion": [
-          NumberF.NumbersToWords,
-          NumberF.NumberToWord,
+          NumberF.Randomizer,
           NumberF.Helper
         ],
         "Date Handling": [
           NumberF.DateCalculations
         ],
+        "Internationalization": [
+          NumberF.I18n
+        ],
         "Application": [
           NumberF.Application
         ]
       ],
+      nest_modules_by_prefix: [
+        NumberF
+      ]
     ]
   end
 end
