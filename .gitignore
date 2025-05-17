@@ -24,3 +24,7 @@ number_f-*.tar
 
 # Temporary files, for example, from tests.
 /tmp/
+mix.lock
+number_f.iml
+.idea/
+.elixir_ls/

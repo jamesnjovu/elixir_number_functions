@@ -1,6 +1,8 @@
 defmodule NumberF.MixProject do
   use Mix.Project
+
   @version "0.1.5"
+  @github_url "https://github.com/jamesnjovu/elixir_number_functions"
 
   def project do
     [
@@ -10,10 +12,11 @@ defmodule NumberF.MixProject do
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       name: "NumberF",
-      source_url: "https://github.com/jamesnjovu/elixir_number_functions",
-      description: "Comprehensive utility library for number formatting, conversion, and manipulation in Elixir",
-      docs: docs(),
+      description: description(),
       package: package(),
+      docs: docs(),
+      source_url: @github_url,
+      homepage_url: "https://hexdocs.pm/number_f",
       xref: [exclude: [:httpc, :public_key]]
     ]
   end
@@ -34,29 +37,53 @@ defmodule NumberF.MixProject do
     ]
   end
 
+  defp description do
+    """
+    NumberF is a comprehensive utility library for number formatting, calculation, and manipulation
+    in Elixir applications. It provides advanced currency formatting, number-to-word conversion,
+    financial calculations, statistics, unit conversion, tax calculations, internationalization,
+    and much more. Perfect for finance, e-commerce, data analysis, and any application that needs
+    sophisticated number handling.
+    """
+  end
 
   defp package do
     [
-      files: ~w(lib .formatter.exs mix.exs README.md LICENSE),
+      files: ~w(lib .formatter.exs mix.exs README.md LICENSE CHANGELOG.md),
       licenses: ["MIT"],
       links: %{
-        "GitHub" => "https://github.com/jamesnjovu/elixir_number_functions",
-        "Docs" => "https://hexdocs.pm/number_f"
+        "GitHub" => @github_url,
+        "Documentation" => "https://hexdocs.pm/number_f",
+        "Changelog" => "#{@github_url}/blob/main/CHANGELOG.md"
       },
       maintainers: ["James Njovu"],
-      description: """
-      NumberF provides utility functions for number formatting (currency, delimiters),
-      conversion (to words, to different numeric types), random string generation,
-      memory size humanization, and more.
-      """
+      keywords: [
+        "number",
+        "currency",
+        "formatting",
+        "finance",
+        "calculation",
+        "statistics",
+        "internationalization",
+        "i18n",
+        "conversion",
+        "tax",
+        "precision",
+        "mathematics",
+        "utilities"
+      ]
     ]
   end
 
   defp docs do
     [
       main: "NumberF",
-      # logo: "path/to/logo.png",
-      extras: ["README.md", "LICENSE"],
+      logo: "/images/logo.png",
+      extras: [
+        "README.md",
+        "CHANGELOG.md",
+        "LICENSE"
+      ],
       authors: ["James Njovu"],
       formatters: ["html"],
       source_ref: "v#{@version}",
@@ -92,15 +119,18 @@ defmodule NumberF.MixProject do
         "Date Handling": [
           NumberF.DateCalculations
         ],
-        "Internationalization": [
+        Internationalization: [
           NumberF.I18n
         ],
-        "Application": [
+        Application: [
           NumberF.Application
         ]
       ],
       nest_modules_by_prefix: [
         NumberF
+      ],
+      skip_undefined_reference_warnings_on: [
+        "CHANGELOG.md"
       ]
     ]
   end

@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <!-- Background circle -->
+  <circle cx="100" cy="100" r="90" fill="#4A1D96" />
+  <circle cx="100" cy="100" r="85" fill="#5B21B6" />
+  
+  <!-- NumberF text -->
+  <text x="100" y="80" font-family="Arial, sans-serif" font-size="36" font-weight="bold" text-anchor="middle" fill="#ffffff">Number</text>
+  <text x="100" y="130" font-family="Arial, sans-serif" font-size="72" font-weight="bold" text-anchor="middle" fill="#ffffff">F</text>
+  
+  <!-- Mathematical symbols decoration -->
+  <path d="M40,40 L50,30 L60,40 L50,50 Z" fill="#A78BFA" />
+  <path d="M160,40 L170,30 L180,40 L170,50 Z" fill="#A78BFA" />
+  <path d="M40,160 L50,150 L60,160 L50,170 Z" fill="#A78BFA" />
+  <path d="M160,160 L170,150 L180,160 L170,170 Z" fill="#A78BFA" />
+  
+  <!-- Currency symbols -->
+  <text x="35" y="110" font-family="Arial, sans-serif" font-size="24" font-weight="bold" text-anchor="middle" fill="#C4B5FD">$</text>
+  <text x="165" y="110" font-family="Arial, sans-serif" font-size="24" font-weight="bold" text-anchor="middle" fill="#C4B5FD">€</text>
+  <text x="100" y="175" font-family="Arial, sans-serif" font-size="24" font-weight="bold" text-anchor="middle" fill="#C4B5FD">¥ £ ₹</text>
+</svg>

@@ -2,12 +2,13 @@ defmodule NumberF do
   @moduledoc """
   # NumberF
 
-  A comprehensive utility module for performing various number-related operations in Elixir.
+  A comprehensive utility library for number formatting, calculation, and manipulation in Elixir.
 
   ## Features
+
   - **Number Formatting**: Format numbers as currency, with commas, custom delimiters, abbreviated forms (K, M, B)
   - **Text Representation**: Convert numbers to words, ordinals, Roman numerals
-  - **Financial Calculations**: Simple/compound interest, EMI calculations, currency conversions
+  - **Financial Calculations**: Simple/compound interest, EMI calculations, currency conversions, tax calculations
   - **Statistical Functions**: Mean, median, mode, standard deviation, variance
   - **Date Calculations**: Age calculation, business days, payment terms
   - **Validation**: Credit card validation (Luhn algorithm), number format validation
@@ -15,7 +16,10 @@ defmodule NumberF do
   - **Type Conversions**: Convert between numeric types and formats
   - **Memory Size**: Convert byte counts to human-readable formats
   - **Phone Formatting**: Format phone numbers based on country codes
-
+  - **Unit Conversion**: Convert between metric and imperial units
+  - **Tax Calculations**: VAT, sales tax, income tax calculations
+  - **Precision Handling**: Different rounding strategies and precision handling
+  - **Internationalization**: Format numbers according to locale conventions
 
   ## Installation
 
@@ -24,61 +28,115 @@ defmodule NumberF do
   ```elixir
   def deps do
   [
-    {:number_f, "~> 0.1.3"}
+    {:number_f, "~> 0.2.0"}
   ]
   end
   ```
 
-  ### Formatting
-  - Format numbers as currency values with custom units
-  - Create comma-separated number formats
-  - Custom number delimiter formatting
+  ## Key Functionality
 
-  ### Conversion
-  - Convert numbers to words representation
-  - Convert between various numeric types (int, float, decimal)
-  - Convert strings to boolean values
+  ### Currency & Number Formatting
 
-  ### Generation
-  - Generate random strings with customizable properties
-  - Create default passwords with predefined patterns
-
-  ### Utilities
-  - Convert memory sizes to human-readable formats
-  - Sum decimal values, including in nested lists
-
-  ## Examples
+  NumberF provides comprehensive formatting capabilities for currency and numbers:
 
   ```elixir
-  # Currency formatting
+  # Format as currency with default (ZMW)
   NumberF.currency(1234.567)                    # => "ZMW 1,234.57"
-  NumberF.currency(1234.567, "USD", 2)          # => "USD 1,234.57"
-  NumberF.comma_separated(1234567.89)           # => "1,234,567.89"
 
-  # Numbers to words
-  NumberF.to_words(20.0)                        # => "Twenty Kwacha and zero Ngwee"
+  # Format as US Dollars with 2 decimal places
+  NumberF.currency(1234.567, "USD", 2)          # => "USD 1,234.57"
+
+  # Format with French locale (space as thousands separator, comma as decimal)
+  NumberF.format_number(1234567.89, "fr-FR")    # => "1 234 567,89"
+  ```
+
+  ### Number to Words Conversion
+
+  Convert numeric values to their word representations:
+
+  ```elixir
+  # Convert whole number with default currency (Kwacha)
+  NumberF.to_words(42)                          # => "Forty Two Kwacha"
+
+  # Convert decimal with custom currency
   NumberF.to_words(42.75, "Dollars", "Cents")   # => "Forty Two Dollars And Seventy Five Cents"
 
-  # Random generation
-  NumberF.randomizer(10)                        # => "a1B2c3D4e5"
-  NumberF.default_password()                    # => "Dev@2308"
-
-  # Memory size humanization
-  NumberF.memory_size_cal(1048576)              # => "1.0 MB"
-
-  # Type conversions
-  NumberF.to_int("123")                         # => 123
-  NumberF.to_float("123.45")                    # => 123.45
-  NumberF.to_decimal("123.45")                  # => #Decimal<123.45>
-  NumberF.to_boolean("yes")                     # => true
-
-  # Custom formatting
-  NumberF.number_to_delimited(1234567.89, delimiter: ".", separator: ",") # => "1.234.567,89"
+  # Advanced internationalization
+  NumberF.spell_number(42, "fr")                # => "Quarante-deux"
   ```
+
+  ### Financial Calculations
+
+  Perform complex financial operations with ease:
+
+  ```elixir
+  # Calculate simple interest (principal, rate, time)
+  NumberF.simple_interest(1000, 0.05, 2)        # => 100.0
+
+  # Calculate compound interest with monthly compounding
+  NumberF.compound_interest(1000, 0.05, 2, 12)  # => 104.94
+
+  # Calculate loan EMI (principal, rate, term in months)
+  NumberF.calculate_emi(100000, 0.10, 12)       # => 8791.59
+
+  # Calculate VAT
+  NumberF.calculate_vat(100, 0.2)               # => %{net: 100.0, vat: 20.0, gross: 120.0}
+  ```
+
+  ### Statistical Functions
+
+  Analyze numerical data with statistical functions:
+
+  ```elixir
+  NumberF.mean([1, 2, 3, 4, 5])                 # => 3.0
+  NumberF.median([1, 3, 5, 7, 9])               # => 5
+  NumberF.mode([1, 2, 2, 3, 3, 3, 4])           # => [3]
+  NumberF.standard_deviation([2, 4, 4, 4, 5, 5, 7, 9])  # => 2.0
+  ```
+
+  ### Internationalization & Localization
+
+  Format numbers according to locale-specific conventions:
+
+  ```elixir
+  # Format with US locale
+  NumberF.format_currency(1234.56, "en-US")     # => "$1,234.56"
+
+  # Format with French locale
+  NumberF.format_currency(1234.56, "fr-FR")     # => "1 234,56 €"
+
+  # Format with German locale but using USD
+  NumberF.format_currency(1234.56, "de-DE", currency_code: "USD")  # => "1.234,56 $"
+  ```
+
+  ## Module Organization
+
+  NumberF is organized into specialized modules for different functionality areas:
+
+  - **Core**: `NumberF`, `NumberF.Registry`
+  - **Calculation**: `NumberF.Calculations`, `NumberF.Financial`, `NumberF.Statistics`, `NumberF.Precision`, `NumberF.Tax`
+  - **Formatting**: `NumberF.Currency`, `NumberF.Formatter`, `NumberF.CustomFormatter`, `NumberF.Currencies`
+  - **Conversion**: `NumberF.Metrics`, `NumberF.NumbersToWords`, `NumberF.NumberToWord`
+  - **Validation**: `NumberF.Validation`
+  - **Utilities**: `NumberF.Memory`, `NumberF.Randomizer`, `NumberF.Helper`
+  - **Date**: `NumberF.DateCalculations`
+  - **I18n**: `NumberF.I18n`
+
+  While specific functions can be accessed through their respective modules,
+  most common functionality is available directly from the main `NumberF` module
+  for convenience.
+
+  For more information, see the [full documentation on HexDocs](https://hexdocs.pm/number_f).
   """
 
   @doc """
   Formats a number into currency with the specified unit and precision.
+
+  ## Features
+  - Automatic digit grouping with thousands separators
+  - Configurable decimal precision
+  - Support for custom currency symbols/codes
+  - Consistent formatting for financial applications
 
   ## Parameters
     - `number`: The number to format
@@ -93,8 +151,24 @@ defmodule NumberF do
       iex> NumberF.currency(1234.567, "USD", 2)
       "USD 1,234.57"
 
+      iex> NumberF.currency(1234567.89, "€", 0)
+      "€ 1,234,568"
+
       iex> NumberF.currency(nil, "USD", 2)
       nil
+
+  ## Common Use Cases
+  - Financial reporting and analysis
+  - E-commerce price displays
+  - Invoice and receipt generation
+  - Banking and financial applications
+
+  ## Related Functions
+  - `NumberF.comma_separated/2`: Format numbers with commas but no currency
+  - `NumberF.format_currency/3`: Format with locale-specific currency settings
+  - `NumberF.number_to_delimited/2`: Format with custom delimiters
+
+  See also: `NumberF.Currencies` for currency-specific information.
   """
   def currency(number, unit \\ "ZMW", precision \\ 2),
     do: NumberF.Currency.currency(number, unit, precision)
@@ -161,6 +235,12 @@ defmodule NumberF do
   @doc """
   Converts a number into words with customizable currency terms.
 
+  ## Features
+  - Convert integers and decimals to their word representations
+  - Support for custom currency terms for main and fractional units
+  - Handles numbers from zero to trillions
+  - Properly handles decimal values and zero cases
+
   ## Parameters
     - `amount`: The number to convert
     - `main_currency`: The main currency name (default: "Kwacha")
@@ -174,8 +254,24 @@ defmodule NumberF do
       iex> NumberF.to_words(42.75, "Dollars", "Cents")
       "Forty Two Dollars And Seventy Five Cents"
 
+      iex> NumberF.to_words(1234567.89, "Euros", "Cents")
+      "One Million Two Hundred Thirty Four Thousand Five Hundred Sixty Seven Euros And Eighty Nine Cents"
+
       iex> NumberF.to_words(0, "Euros", "Cents")
       "zero Euros"
+
+  ## Common Use Cases
+  - Check writing and financial documents
+  - Legal documents requiring numeric values in words
+  - Invoices and receipts
+  - Educational applications
+
+  ## Related Functions
+  - `NumberF.spell_number/3`: Spell numbers in different languages
+  - `NumberF.to_roman/1`: Convert to Roman numerals
+  - `NumberF.ordinal/1`: Convert to ordinal forms (1st, 2nd, 3rd)
+
+  See also: `NumberF.NumbersToWords` for more advanced word conversion options.
   """
   def to_words(amount, main_currence \\ "Kwacha", sec_current \\ "Ngwee"),
     do: NumberF.NumbersToWords.parse(amount, main_currence, sec_current)
@@ -422,6 +518,12 @@ defmodule NumberF do
   @doc """
   Calculates compound interest with optional compounding frequency.
 
+  ## Features
+  - Support for different compounding frequencies (annual, semi-annual, quarterly, monthly, etc.)
+  - Precise calculations using Elixir's floating-point operations
+  - Results rounded to 2 decimal places by default
+  - Guard clauses ensure valid inputs
+
   ## Parameters
     - `principal`: The principal amount
     - `rate`: The annual interest rate as a decimal (e.g., 0.05 for 5%)
@@ -431,10 +533,38 @@ defmodule NumberF do
   ## Examples
 
       iex> NumberF.compound_interest(1000, 0.05, 2)
-      102.5
+      102.5  # Annual compounding (1 time per year)
 
       iex> NumberF.compound_interest(1000, 0.05, 2, 12)
-      104.94
+      104.94  # Monthly compounding (12 times per year)
+
+      iex> NumberF.compound_interest(10000, 0.08, 5, 4)
+      4693.28  # Quarterly compounding (4 times per year)
+
+  ## Formula
+  The compound interest is calculated using the formula:
+  ```
+  A = P(1 + r/n)^(nt) - P
+  ```
+  Where:
+  - A = Interest amount
+  - P = Principal
+  - r = Annual interest rate (decimal)
+  - n = Compounding frequency
+  - t = Time in years
+
+  ## Common Use Cases
+  - Investment calculations
+  - Loan and mortgage analysis
+  - Retirement planning
+  - Financial education tools
+
+  ## Related Functions
+  - `NumberF.simple_interest/3`: Calculate simple interest
+  - `NumberF.calculate_emi/3`: Calculate equated monthly installments
+  - `NumberF.Tax.calculate_capital_gains_tax/3`: Calculate capital gains tax
+
+  See also: `NumberF.Financial` for more financial calculations.
   """
   def compound_interest(principal, rate, time, frequency \\ 1)
       when is_number(principal) and is_number(rate) and is_number(time) and is_number(frequency) do
@@ -490,6 +620,12 @@ defmodule NumberF do
   @doc """
   Calculates the arithmetic mean of a list of numbers.
 
+  ## Features
+  - Handles lists of any size
+  - Returns nil for empty lists
+  - Works with integers and floating-point numbers
+  - Accurately calculates average using sum and count
+
   ## Parameters
     - `numbers`: A list of numbers
 
@@ -497,6 +633,32 @@ defmodule NumberF do
 
       iex> NumberF.mean([1, 2, 3, 4, 5])
       3.0
+
+      iex> NumberF.mean([1.5, 2.5, 3.5])
+      2.5
+
+      iex> NumberF.mean([42])
+      42.0
+
+      iex> NumberF.mean([])
+      nil
+
+  ## Mathematical Definition
+  The arithmetic mean is the sum of all values divided by the number of values.
+
+  ## Common Use Cases
+  - Data analysis and statistics
+  - Financial analysis (average returns, costs, etc.)
+  - Scientific calculations
+  - Performance metrics
+
+  ## Related Functions
+  - `NumberF.median/1`: Calculate the median value
+  - `NumberF.mode/1`: Find the most frequent value(s)
+  - `NumberF.standard_deviation/1`: Calculate standard deviation
+  - `NumberF.variance/1`: Calculate variance
+
+  See also: `NumberF.Statistics` for more statistical functions.
   """
   def mean([]), do: nil
 
@@ -982,10 +1144,10 @@ defmodule NumberF do
       ~D[2023-03-01]
   """
   def payment_due_date(invoice_date, terms_days \\ 30)
+
   def payment_due_date(invoice_date, terms_days) do
     Date.add(invoice_date, terms_days)
   end
-
 
   ### UNIT CONVERSION FUNCTIONS ###
 
@@ -1210,6 +1372,12 @@ defmodule NumberF do
   @doc """
   Formats a number as currency according to locale-specific settings.
 
+  ## Features
+  - Supports 100+ international locale formats
+  - Proper positioning of currency symbols
+  - Correct thousands and decimal separators for each locale
+  - Configurable precision and currency code
+
   ## Parameters
     - `number`: The number to format
     - `locale`: The locale code (e.g., "en-US", "fr-FR")
@@ -1225,6 +1393,29 @@ defmodule NumberF do
 
       iex> NumberF.format_currency(1234.56, "fr-FR")
       "1 234,56 €"
+
+      iex> NumberF.format_currency(1234.56, "de-DE", currency_code: "USD")
+      "1.234,56 $"
+
+      iex> NumberF.format_currency(1234.56, "en-US", symbol: false)
+      "1,234.56"
+
+  ## Supported Locales
+  This function supports all major world locales including but not limited to:
+  en-US, en-GB, fr-FR, de-DE, es-ES, it-IT, ja-JP, zh-CN, ru-RU, pt-BR, and many more.
+
+  ## Common Use Cases
+  - Multi-language applications
+  - Financial applications with international users
+  - E-commerce with global customers
+  - Travel and currency conversion applications
+
+  ## Related Functions
+  - `NumberF.format_number/3`: Format without currency symbols
+  - `NumberF.get_locale_settings/1`: Get formatting rules for a locale
+  - `NumberF.spell_number/3`: Spell out numbers in different languages
+
+  See also: `NumberF.I18n` for more internationalization functions.
   """
   def format_currency(number, locale, options \\ []),
     do: NumberF.I18n.format_currency(number, locale, options)
