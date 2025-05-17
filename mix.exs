@@ -75,7 +75,7 @@ defmodule NumberF.MixProject do
 
   defp docs do
     [
-      main: "NumberF",
+      main: "readme",
       logo: "priv/static/images/logo.svg",
       extras: [
         "README.md": [title: "Overview"],
