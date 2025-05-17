@@ -78,15 +78,25 @@ defmodule NumberF.MixProject do
   defp docs do
     [
       main: "NumberF",
-      logo: "/images/logo.png",
+      logo: "priv/static/images/logo.svg",
       extras: [
-        "README.md",
-        "CHANGELOG.md",
-        "LICENSE"
+        "README.md": [title: "Overview"],
+        "guides/getting-started.md": [title: "Getting Started"],
+        "guides/currency-formatting.md": [title: "Currency Formatting"],
+        "guides/financial-calculations.md": [title: "Financial Calculations"],
+        "guides/internationalization.md": [title: "Internationalization"],
+        "CHANGELOG.md": [title: "Changelog"],
+        "CONTRIBUTING.md": [title: "Contributing"]
+      ],
+      groups_for_extras: [
+        Guides: Path.wildcard("guides/*.md"),
+        Other: ["CHANGELOG.md", "CONTRIBUTING.md"]
       ],
       authors: ["James Njovu"],
       formatters: ["html"],
       source_ref: "v#{@version}",
+      assets: "priv/static/images",
+      before_closing_body_tag: &before_closing_body_tag/1,
       groups_for_modules: [
         "Core Functions": [
           NumberF,
@@ -134,4 +144,46 @@ defmodule NumberF.MixProject do
       ]
     ]
   end
+
+  defp before_closing_body_tag(:html) do
+    """
+    <script type="text/javascript">
+      // Enhance search engine visibility
+      document.addEventListener('DOMContentLoaded', function() {
+        // Add canonical links
+        var link = document.createElement('link');
+        link.rel = 'canonical';
+        link.href = window.location.href.split('#')[0].split('?')[0];
+        document.head.appendChild(link);
+
+        // Add meta description if none exists
+        if (!document.querySelector('meta[name="description"]')) {
+          var meta = document.createElement('meta');
+          meta.name = 'description';
+          meta.content = 'NumberF - A comprehensive Elixir library for number formatting, calculation, and manipulation with support for currency formatting, financial calculations, and internationalization.';
+          document.head.appendChild(meta);
+        }
+
+        // Add schema.org metadata for better search results
+        var script = document.createElement('script');
+        script.type = 'application/ld+json';
+        script.text = JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "SoftwareSourceCode",
+          "name": "NumberF",
+          "description": "Comprehensive Elixir library for number formatting, calculation, and internationalization",
+          "programmingLanguage": "Elixir",
+          "author": {
+            "@type": "Person",
+            "name": "James Njovu"
+          },
+          "keywords": "elixir, number, formatting, currency, financial, calculation, internationalization"
+        });
+        document.head.appendChild(script);
+      });
+    </script>
+    """
+  end
+
+  defp before_closing_body_tag(_), do: ""
 end
