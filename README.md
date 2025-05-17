@@ -120,7 +120,6 @@ Check the module-specific documentation for details on these advanced features.
 If you need help with NumberF, you can:
 
 1. Read the [full documentation on HexDocs](https://hexdocs.pm/number_f)
-2. Visit the [GitHub repository](https://github.com/jamesnjovu/elixir_number_functions)
-3. Open an issue if you encounter a problem or have a feature request
+2. Open an issue if you encounter a problem or have a feature request
 
 We hope NumberF makes your Elixir development experience more enjoyable!
