@@ -39,11 +39,9 @@ defmodule NumberF.MixProject do
 
   defp description do
     """
-    NumberF is a comprehensive utility library for number formatting, calculation, and manipulation
-    in Elixir applications. It provides advanced currency formatting, number-to-word conversion,
-    financial calculations, statistics, unit conversion, tax calculations, internationalization,
-    and much more. Perfect for finance, e-commerce, data analysis, and any application that needs
-    sophisticated number handling.
+    A comprehensive Elixir library for number formatting, calculation, and internationalization.
+    Features include currency formatting, number-to-word conversion, financial calculations,
+    statistics, unit conversion, and tax calculations.
     """
   end
 
