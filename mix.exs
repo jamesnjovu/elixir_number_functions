@@ -1,7 +1,7 @@
 defmodule NumberF.MixProject do
   use Mix.Project
 
-  @version "0.1.5"
+  @version "0.1.6"
   @github_url "https://github.com/jamesnjovu/elixir_number_functions"
 
   def project do

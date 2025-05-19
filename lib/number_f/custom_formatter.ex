@@ -1,3 +1,4 @@
+
 defmodule NumberF.CustomFormatter do
   @moduledoc """
   Custom implementations for number formatting functions.
@@ -15,6 +16,14 @@ defmodule NumberF.CustomFormatter do
       "USD 1,234.56"
   """
   def number_to_currency(number, opts \\ [])
+
+  # Add a specific clause for Decimal type
+  def number_to_currency(%Decimal{} = decimal, opts) do
+    # Convert Decimal to float for processing
+    decimal
+    |> Decimal.to_float()
+    |> number_to_currency(opts)
+  end
 
   def number_to_currency(number, opts) when is_binary(number) do
     case Float.parse(number) do
@@ -58,6 +67,13 @@ defmodule NumberF.CustomFormatter do
   """
   def number_to_delimited(number, opts \\ [])
 
+  # Add support for Decimal type
+  def number_to_delimited(%Decimal{} = decimal, opts) do
+    decimal
+    |> Decimal.to_float()
+    |> number_to_delimited(opts)
+  end
+
   def number_to_delimited(number, opts) when is_binary(number) do
     case Float.parse(number) do
       {float, _} -> number_to_delimited(float, opts)
@@ -89,6 +105,7 @@ defmodule NumberF.CustomFormatter do
   """
   def to_float(value) when is_float(value), do: value
   def to_float(value) when is_integer(value), do: value * 1.0
+  def to_float(%Decimal{} = value), do: Decimal.to_float(value)
   def to_float(value) when is_binary(value) do
     case Float.parse(value) do
       {float, _} -> float
@@ -113,6 +130,7 @@ defmodule NumberF.CustomFormatter do
   end
   def to_decimal(value) when is_integer(value), do: Decimal.new(value)
   def to_decimal(value) when is_float(value), do: Decimal.from_float(value)
+  def to_decimal(%Decimal{} = value), do: value
 
   # Private helper function to format a number with delimiters
   defp format_with_delimiters(number, delimiter, separator, precision) do
@@ -159,4 +177,5 @@ defmodule NumberF.CustomFormatter do
   # Helper to ensure a number is a float
   defp ensure_float(num) when is_float(num), do: num
   defp ensure_float(num) when is_integer(num), do: num * 1.0
+  defp ensure_float(%Decimal{} = num), do: Decimal.to_float(num)
 end
