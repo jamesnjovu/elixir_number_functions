@@ -1,4 +1,3 @@
-
 defmodule NumberF.CustomFormatter do
   @moduledoc """
   Custom implementations for number formatting functions.
@@ -32,8 +31,22 @@ defmodule NumberF.CustomFormatter do
     end
   end
 
+  # Handle integers directly without converting to float first
   def number_to_currency(number, opts) when is_integer(number) do
-    number_to_currency(number * 1.0, opts)
+    unit = Keyword.get(opts, :unit, "")
+    precision = Keyword.get(opts, :precision, 2)
+    delimiter = Keyword.get(opts, :delimiter, ",")
+    separator = Keyword.get(opts, :separator, ".")
+
+    # Format the integer with delimiters
+    formatted = format_integer_with_delimiters(number, delimiter, separator, precision)
+
+    # Add currency unit if provided
+    if unit == "" do
+      formatted
+    else
+      "#{unit} #{formatted}"
+    end
   end
 
   def number_to_currency(number, opts) when is_float(number) do
@@ -81,8 +94,13 @@ defmodule NumberF.CustomFormatter do
     end
   end
 
+  # Handle integers directly
   def number_to_delimited(number, opts) when is_integer(number) do
-    number_to_delimited(number * 1.0, opts)
+    delimiter = Keyword.get(opts, :delimiter, ",")
+    separator = Keyword.get(opts, :separator, ".")
+    precision = Keyword.get(opts, :precision, 2)
+
+    format_integer_with_delimiters(number, delimiter, separator, precision)
   end
 
   def number_to_delimited(number, opts) when is_float(number) do
@@ -131,6 +149,29 @@ defmodule NumberF.CustomFormatter do
   def to_decimal(value) when is_integer(value), do: Decimal.new(value)
   def to_decimal(value) when is_float(value), do: Decimal.from_float(value)
   def to_decimal(%Decimal{} = value), do: value
+
+  # New helper function to format integers with delimiters
+  defp format_integer_with_delimiters(number, delimiter, separator, precision) do
+    # Convert integer to string and add delimiters
+    int_str = Integer.to_string(number)
+
+    formatted_int =
+      int_str
+      |> String.to_charlist()
+      |> Enum.reverse()
+      |> Enum.chunk_every(3)
+      |> Enum.map(&Enum.reverse/1)
+      |> Enum.reverse()
+      |> Enum.join(delimiter)
+
+    # Add decimal part if precision > 0
+    if precision > 0 do
+      decimal_part = String.duplicate("0", precision)
+      "#{formatted_int}#{separator}#{decimal_part}"
+    else
+      formatted_int
+    end
+  end
 
   # Private helper function to format a number with delimiters
   defp format_with_delimiters(number, delimiter, separator, precision) do
