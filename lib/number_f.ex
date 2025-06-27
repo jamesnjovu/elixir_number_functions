@@ -417,10 +417,10 @@ defmodule NumberF do
 
   ## Examples
 
-      iex> sum_decimal([Decimal.new("1.2"), Decimal.new("3.4"), [Decimal.new("5.6")]])
+      iex> NumberF.sum_decimal([Decimal.new("1.2"), Decimal.new("3.4"), [Decimal.new("5.6")]])
       #Decimal<10.2>
 
-      iex> sum_decimal([])
+      iex> NumberF.sum_decimal([])
       #Decimal<0>
 
   This function flattens any nested lists, then uses `Enum.reduce/3` to sum all the decimal values.

@@ -24,8 +24,9 @@ defmodule NumberF.Financial do
   def calculate_emi(principal, rate, term_months) do
     monthly_rate = rate / 12
 
-    emi = principal * monthly_rate * :math.pow(1 + monthly_rate, term_months) /
-         (:math.pow(1 + monthly_rate, term_months) - 1)
+    emi =
+      principal * monthly_rate * :math.pow(1 + monthly_rate, term_months) /
+        (:math.pow(1 + monthly_rate, term_months) - 1)
 
     Float.round(emi, 2)
   end

@@ -56,9 +56,10 @@ defmodule NumberF.CustomFormatter do
     separator = Keyword.get(opts, :separator, ".")
 
     # Format the number with proper precision
-    formatted = number
-                |> Float.round(precision)
-                |> format_with_delimiters(delimiter, separator, precision)
+    formatted =
+      number
+      |> Float.round(precision)
+      |> format_with_delimiters(delimiter, separator, precision)
 
     # Add currency unit if provided
     if unit == "" do
@@ -124,6 +125,7 @@ defmodule NumberF.CustomFormatter do
   def to_float(value) when is_float(value), do: value
   def to_float(value) when is_integer(value), do: value * 1.0
   def to_float(%Decimal{} = value), do: Decimal.to_float(value)
+
   def to_float(value) when is_binary(value) do
     case Float.parse(value) do
       {float, _} -> float
@@ -146,6 +148,7 @@ defmodule NumberF.CustomFormatter do
   rescue
     _ -> raise ArgumentError, "could not convert #{inspect(value)} to decimal"
   end
+
   def to_decimal(value) when is_integer(value), do: Decimal.new(value)
   def to_decimal(value) when is_float(value), do: Decimal.from_float(value)
   def to_decimal(%Decimal{} = value), do: value
@@ -201,12 +204,16 @@ defmodule NumberF.CustomFormatter do
     # Format decimal part to have exactly the specified precision
     formatted_dec =
       if precision > 0 do
-        dec_part = case dec_parts do
-          [part] -> part
-          [] -> ""
-        end
-        dec_formatted = String.pad_trailing(dec_part, precision, "0")
-                        |> String.slice(0, precision)
+        dec_part =
+          case dec_parts do
+            [part] -> part
+            [] -> ""
+          end
+
+        dec_formatted =
+          String.pad_trailing(dec_part, precision, "0")
+          |> String.slice(0, precision)
+
         "#{separator}#{dec_formatted}"
       else
         ""

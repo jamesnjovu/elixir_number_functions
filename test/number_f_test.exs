@@ -1,4 +1,3 @@
-
 defmodule NumberFTest do
   use ExUnit.Case
   doctest NumberF
@@ -29,15 +28,15 @@ defmodule NumberFTest do
 
   describe "comma_separated formatting" do
     test "formats numbers with default precision" do
-      assert NumberF.comma_separated(1234567.89) == "1,234,567.89"
+      assert NumberF.comma_separated(1_234_567.89) == "1,234,567.89"
       assert NumberF.comma_separated(1234) == "1,234.00"
       assert NumberF.comma_separated(0) == "0.00"
     end
 
     test "formats numbers with custom precision" do
-      assert NumberF.comma_separated(1234567.89, 0) == "1,234,568"
-      assert NumberF.comma_separated(1234567.89, 1) == "1,234,567.9"
-      assert NumberF.comma_separated(1234567.89, 3) == "1,234,567.890"
+      assert NumberF.comma_separated(1_234_567.89, 0) == "1,234,568"
+      assert NumberF.comma_separated(1_234_567.89, 1) == "1,234,567.9"
+      assert NumberF.comma_separated(1_234_567.89, 3) == "1,234,567.890"
     end
 
     test "returns nil when input is nil" do
@@ -170,18 +169,21 @@ defmodule NumberFTest do
 
   describe "number_to_delimited" do
     test "with default options" do
-      assert NumberF.number_to_delimited(1234567.89) == "1,234,567.89"
+      assert NumberF.number_to_delimited(1_234_567.89) == "1,234,567.89"
       assert NumberF.number_to_delimited(1234) == "1,234.00"
     end
 
     test "with custom delimiter and separator" do
-      assert NumberF.number_to_delimited(1234567.89, delimiter: ".", separator: ",") == "1.234.567,89"
-      assert NumberF.number_to_delimited(1234567.89, delimiter: " ", separator: ".") == "1 234 567.89"
+      assert NumberF.number_to_delimited(1_234_567.89, delimiter: ".", separator: ",") ==
+               "1.234.567,89"
+
+      assert NumberF.number_to_delimited(1_234_567.89, delimiter: " ", separator: ".") ==
+               "1 234 567.89"
     end
 
     test "with custom precision" do
-      assert NumberF.number_to_delimited(1234567.89, precision: 0) == "1,234,568"
-      assert NumberF.number_to_delimited(1234567.89, precision: 3) == "1,234,567.890"
+      assert NumberF.number_to_delimited(1_234_567.89, precision: 0) == "1,234,568"
+      assert NumberF.number_to_delimited(1_234_567.89, precision: 3) == "1,234,567.890"
     end
   end
 
@@ -237,7 +239,7 @@ defmodule NumberFTest do
     end
 
     test "calculate_emi" do
-      assert NumberF.calculate_emi(100000, 0.10, 12) == 8791.59
+      assert NumberF.calculate_emi(100_000, 0.10, 12) == 8791.59
     end
 
     test "convert_currency" do
@@ -318,13 +320,13 @@ defmodule NumberFTest do
     test "abbreviate_number with default precision" do
       assert NumberF.abbreviate_number(123) == "123"
       assert NumberF.abbreviate_number(1234) == "1.2K"
-      assert NumberF.abbreviate_number(1234567) == "1.2M"
-      assert NumberF.abbreviate_number(1234567890) == "1.2B"
+      assert NumberF.abbreviate_number(1_234_567) == "1.2M"
+      assert NumberF.abbreviate_number(1_234_567_890) == "1.2B"
     end
 
     test "abbreviate_number with custom precision" do
       assert NumberF.abbreviate_number(1234, 2) == "1.23K"
-      assert NumberF.abbreviate_number(1234567, 3) == "1.235M"
+      assert NumberF.abbreviate_number(1_234_567, 3) == "1.235M"
     end
   end
 

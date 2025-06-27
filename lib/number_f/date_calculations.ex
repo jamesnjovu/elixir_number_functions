@@ -47,7 +47,8 @@ defmodule NumberF.DateCalculations do
     # Count days that are not weekends
     Enum.count(dates, fn date ->
       day_of_week = Date.day_of_week(date)
-      day_of_week != 6 and day_of_week != 7  # Not Saturday or Sunday
+      # Not Saturday or Sunday
+      day_of_week != 6 and day_of_week != 7
     end)
   end
 
@@ -59,6 +60,7 @@ defmodule NumberF.DateCalculations do
   end
 
   defp add_business_days_recursively(date, 0), do: date
+
   defp add_business_days_recursively(date, days_left) do
     next_date = Date.add(date, 1)
     day_of_week = Date.day_of_week(next_date)
@@ -77,7 +79,8 @@ defmodule NumberF.DateCalculations do
   """
   def is_business_day?(date) do
     day_of_week = Date.day_of_week(date)
-    day_of_week != 6 and day_of_week != 7  # Not Saturday or Sunday
+    # Not Saturday or Sunday
+    day_of_week != 6 and day_of_week != 7
   end
 
   @doc """

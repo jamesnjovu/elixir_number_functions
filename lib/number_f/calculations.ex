@@ -7,7 +7,7 @@ defmodule NumberF.Calculations do
   Calculates a percentage with specified precision.
   """
   def percentage(value, total, precision) do
-    result = (value / total) * 100
+    result = value / total * 100
     Float.round(result, precision)
   end
 
@@ -50,6 +50,7 @@ defmodule NumberF.Calculations do
   def is_prime?(n) when n <= 1, do: false
   def is_prime?(2), do: true
   def is_prime?(n) when rem(n, 2) == 0, do: false
+
   def is_prime?(n) do
     limit = :math.sqrt(n) |> Float.ceil() |> trunc()
 

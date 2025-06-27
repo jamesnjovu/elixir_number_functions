@@ -26,6 +26,7 @@ defmodule NumberF.NumbersToWords do
 
     whole = String.to_integer(whole)
     floating = String.to_integer(floating)
+
     if floating == 0 do
       parse(whole, main_c, sec_c)
     else

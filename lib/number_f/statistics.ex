@@ -7,6 +7,7 @@ defmodule NumberF.Statistics do
   Calculates the arithmetic mean of a list of numbers.
   """
   def mean([]), do: nil
+
   def mean(numbers) do
     total = Enum.sum(numbers)
     count = length(numbers)
@@ -17,6 +18,7 @@ defmodule NumberF.Statistics do
   Finds the median value from a list of numbers.
   """
   def median([]), do: nil
+
   def median(numbers) do
     sorted = Enum.sort(numbers)
     count = length(sorted)
@@ -35,10 +37,12 @@ defmodule NumberF.Statistics do
   Finds the most frequently occurring value(s) in a list.
   """
   def mode([]), do: []
+
   def mode(numbers) do
-    frequencies = Enum.reduce(numbers, %{}, fn num, acc ->
-      Map.update(acc, num, 1, &(&1 + 1))
-    end)
+    frequencies =
+      Enum.reduce(numbers, %{}, fn num, acc ->
+        Map.update(acc, num, 1, &(&1 + 1))
+      end)
 
     {_count, max_freq} = Enum.max_by(frequencies, fn {_num, count} -> count end)
 
@@ -52,11 +56,14 @@ defmodule NumberF.Statistics do
   """
   def standard_deviation([]), do: nil
   def standard_deviation([_single]), do: 0.0
+
   def standard_deviation(numbers) do
     avg = mean(numbers)
-    variance = Enum.reduce(numbers, 0, fn num, sum ->
-      sum + :math.pow(num - avg, 2)
-    end) / (length(numbers) - 1)
+
+    variance =
+      Enum.reduce(numbers, 0, fn num, sum ->
+        sum + :math.pow(num - avg, 2)
+      end) / (length(numbers) - 1)
 
     :math.sqrt(variance)
   end
@@ -66,8 +73,10 @@ defmodule NumberF.Statistics do
   """
   def variance([]), do: nil
   def variance([_single]), do: 0.0
+
   def variance(numbers) do
     avg = mean(numbers)
+
     Enum.reduce(numbers, 0, fn num, sum ->
       sum + :math.pow(num - avg, 2)
     end) / (length(numbers) - 1)
@@ -78,6 +87,7 @@ defmodule NumberF.Statistics do
   """
   def range([]), do: nil
   def range([_single]), do: 0.0
+
   def range(numbers) do
     Enum.max(numbers) - Enum.min(numbers)
   end

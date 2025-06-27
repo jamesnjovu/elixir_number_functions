@@ -1,4 +1,3 @@
-
 defmodule NumberF.Precision do
   @moduledoc """
   Functions for handling numerical precision issues and implementing various rounding strategies.
@@ -19,7 +18,8 @@ defmodule NumberF.Precision do
       iex> NumberF.Precision.round_with_precision(3.14159, 4)
       3.1416
   """
-  def round_with_precision(number, precision \\ 2) when is_number(number) and is_integer(precision) do
+  def round_with_precision(number, precision \\ 2)
+      when is_number(number) and is_integer(precision) do
     Float.round(number, precision)
   end
 
@@ -132,7 +132,6 @@ defmodule NumberF.Precision do
   """
   def round_to(number, increment \\ 1.0, strategy \\ :nearest)
       when is_number(number) and is_number(increment) do
-
     case strategy do
       :nearest ->
         Float.round(number / increment) * increment
@@ -169,7 +168,6 @@ defmodule NumberF.Precision do
   """
   def approximately_equal(a, b, epsilon \\ 1.0e-10)
       when is_number(a) and is_number(b) and is_number(epsilon) do
-
     abs(a - b) < epsilon
   end
 
@@ -191,7 +189,7 @@ defmodule NumberF.Precision do
   """
   def precise_format(number, precision \\ 2) when is_number(number) and is_integer(precision) do
     # Convert to string with high precision
-    str = :erlang.float_to_binary(number * 1.0, [decimals: precision + 5])
+    str = :erlang.float_to_binary(number * 1.0, decimals: precision + 5)
 
     # Split into integer and decimal parts
     [int_part, dec_part] = String.split(str, ".")
@@ -237,54 +235,54 @@ defmodule NumberF.Precision do
   """
   def custom_round(number, precision, mode \\ :half_up)
       when is_number(number) and is_integer(precision) do
-
     # Shift decimal point right by precision
     shifted = number * :math.pow(10, precision)
 
     # Apply rounding based on mode
-    rounded = case mode do
-      :half_up ->
-        Float.round(shifted)
-
-      :half_down ->
-        # Integer part
-        int_part = trunc(shifted)
-        # Fraction part
-        frac_part = abs(shifted - int_part)
-
-        # If exactly 0.5, round down, otherwise normal rounding
-        if frac_part == 0.5 do
-          int_part
-        else
+    rounded =
+      case mode do
+        :half_up ->
           Float.round(shifted)
-        end
 
-      :half_even ->
-        # Integer part
-        int_part = trunc(shifted)
-        # Fraction part
-        frac_part = abs(shifted - int_part)
+        :half_down ->
+          # Integer part
+          int_part = trunc(shifted)
+          # Fraction part
+          frac_part = abs(shifted - int_part)
 
-        # If exactly 0.5, round to even number
-        if frac_part == 0.5 do
-          if rem(int_part, 2) == 0 do
+          # If exactly 0.5, round down, otherwise normal rounding
+          if frac_part == 0.5 do
             int_part
           else
-            int_part + if shifted >= 0, do: 1, else: -1
+            Float.round(shifted)
           end
-        else
-          Float.round(shifted)
-        end
 
-      :ceiling ->
-        Float.ceil(shifted)
+        :half_even ->
+          # Integer part
+          int_part = trunc(shifted)
+          # Fraction part
+          frac_part = abs(shifted - int_part)
 
-      :floor ->
-        Float.floor(shifted)
+          # If exactly 0.5, round to even number
+          if frac_part == 0.5 do
+            if rem(int_part, 2) == 0 do
+              int_part
+            else
+              int_part + if shifted >= 0, do: 1, else: -1
+            end
+          else
+            Float.round(shifted)
+          end
 
-      :truncate ->
-        trunc(shifted)
-    end
+        :ceiling ->
+          Float.ceil(shifted)
+
+        :floor ->
+          Float.floor(shifted)
+
+        :truncate ->
+          trunc(shifted)
+      end
 
     # Shift decimal point back left
     rounded / :math.pow(10, precision)
@@ -324,7 +322,8 @@ defmodule NumberF.Precision do
         _ -> value
       end
     else
-      value * 1.0 # Convert to float
+      # Convert to float
+      value * 1.0
     end
   end
 
