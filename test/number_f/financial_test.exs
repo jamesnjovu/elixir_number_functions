@@ -30,7 +30,7 @@ defmodule NumberF.FinancialTest do
   describe "calculate_emi/3" do
     test "calculates EMI correctly" do
       assert NumberF.Financial.calculate_emi(100_000, 0.10, 12) == 8791.59
-      assert NumberF.Financial.calculate_emi(50000, 0.05, 24) == 2194.65
+      assert NumberF.Financial.calculate_emi(50000, 0.05, 24) == 2193.57
     end
   end
 

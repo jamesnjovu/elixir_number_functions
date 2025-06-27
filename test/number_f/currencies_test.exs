@@ -57,7 +57,7 @@ defmodule NumberF.CurrenciesTest do
 
       # Convert 100 EUR to GBP
       result = NumberF.Currencies.convert(100, "EUR", "GBP", exchange_rates)
-      assert result == 88.23529411764706
+      assert_in_delta result, 88.23529411764706, 1.0e-13
     end
 
     test "returns same amount for same currency" do

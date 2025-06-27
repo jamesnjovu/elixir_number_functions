@@ -213,7 +213,7 @@ defmodule NumberF do
       10
 
       iex> result = NumberF.randomizer(5, :numeric)
-      iex> String.length(result) == 5 and Regex.match?(~r/^\d+$/, result)
+      iex> String.length(result) == 5 and String.match?(result, ~r/^[0-9]+$/)
       true
 
       iex> result = NumberF.randomizer(6, :upcase)
@@ -253,7 +253,7 @@ defmodule NumberF do
   ## Examples
 
       iex> NumberF.to_words(20.0)
-      "Twenty Kwacha and zero Ngwee"
+      "Twenty Kwacha"
 
       iex> NumberF.to_words(42.75, "Dollars", "Cents")
       "Forty Two Dollars And Seventy Five Cents"
@@ -477,8 +477,8 @@ defmodule NumberF do
   """
   def round_to_nearest(value, nearest \\ 1.0) do
     result = round(value / nearest) * nearest
-    # Convert to float if nearest is a float
-    if is_float(nearest), do: result * 1.0, else: result
+    # Always convert to float for consistency
+    result * 1.0
   end
 
   @doc """
@@ -518,9 +518,15 @@ defmodule NumberF do
   """
   def simple_interest(principal, rate, time)
       when is_number(principal) and is_number(rate) and is_number(time) do
+    if time < 0 do
+      raise ArgumentError, "time period cannot be negative"
+    end
+
     result = principal * rate * time
     Float.round(result, 2)
   end
+
+  def simple_interest(_, _, _), do: raise(ArgumentError, "simple_interest/3 expects numeric arguments")
 
   @doc """
   Calculates compound interest with optional compounding frequency.
@@ -546,7 +552,7 @@ defmodule NumberF do
       104.94  # Monthly compounding (12 times per year)
 
       iex> NumberF.compound_interest(10000, 0.08, 5, 4)
-      4693.28  # Quarterly compounding (4 times per year)
+      4859.47  # Quarterly compounding (4 times per year)
 
   ## Formula
   The compound interest is calculated using the formula:
@@ -575,8 +581,11 @@ defmodule NumberF do
   """
   def compound_interest(principal, rate, time, frequency \\ 1)
       when is_number(principal) and is_number(rate) and is_number(time) and is_number(frequency) do
-    result = principal * :math.pow(1 + rate / frequency, frequency * time) - principal
-    Float.round(result, 2)
+    # A = P(1 + r/n)^(nt)
+    # Interest = A - P
+    amount = principal * :math.pow(1 + rate / frequency, frequency * time)
+    interest = amount - principal
+    Float.round(interest, 2)
   end
 
   @doc """
@@ -671,10 +680,17 @@ defmodule NumberF do
   def mean([]), do: nil
 
   def mean(numbers) when is_list(numbers) do
+    # Check for invalid values in the list
+    if Enum.any?(numbers, fn x -> not is_number(x) end) do
+      raise ArgumentError, "mean/1 expects a list of numbers, found non-numeric value"
+    end
+
     total = Enum.sum(numbers)
     count = length(numbers)
     total / count
   end
+
+  def mean(_), do: raise(ArgumentError, "mean/1 expects a list of numbers")
 
   @doc """
   Finds the median value from a list of numbers.
@@ -910,10 +926,9 @@ defmodule NumberF do
             " " <>
             String.slice(digits, 5, 3) <> " " <> String.slice(digits, 8, 4)
         else
-          "0" <>
-            String.slice(digits, 0, 2) <>
+          String.slice(digits, 0, 3) <>
             " " <>
-            String.slice(digits, 2, 3) <> " " <> String.slice(digits, 5, 4)
+            String.slice(digits, 3, 3) <> " " <> String.slice(digits, 6, 4)
         end
 
       "US" ->
@@ -936,10 +951,9 @@ defmodule NumberF do
             " " <>
             String.slice(digits, 4, 4) <> " " <> String.slice(digits, 8, 4)
         else
-          "0" <>
-            String.slice(digits, 0, 2) <>
+          String.slice(digits, 0, 3) <>
             " " <>
-            String.slice(digits, 2, 4) <> " " <> String.slice(digits, 6, 4)
+            String.slice(digits, 3, 4) <> " " <> String.slice(digits, 7, 4)
         end
 
       _ ->
@@ -1059,6 +1073,14 @@ defmodule NumberF do
     result
   end
 
+  def to_roman(number) when is_integer(number) and number >= 4000 do
+    raise ArgumentError, "Roman numerals only support numbers from 1 to 3999"
+  end
+
+  def to_roman(number) when is_integer(number) and number <= 0 do
+    raise ArgumentError, "Roman numerals only support numbers from 1 to 3999"
+  end
+
   @doc """
   Converts Roman numerals to Arabic numbers.
 
@@ -1117,7 +1139,8 @@ defmodule NumberF do
 
       iex> birth_date = ~D[1990-01-15]
       iex> age = NumberF.calculate_age(birth_date)
-      # Returns the current age based on today's date
+      iex> is_integer(age) and age >= 0
+      true
   """
   def calculate_age(birth_date) do
     today = Date.utc_today()
@@ -1589,7 +1612,7 @@ defmodule NumberF do
   ## Examples
 
       iex> NumberF.modules() |> Enum.map(& &1.name) |> Enum.take(3)
-      ["NumberF", "NumberF.Registry", "NumberF.Currency"]
+      ["NumberF", "NumberF.Currency", "NumberF.CustomFormatter"]
   """
   def modules, do: NumberF.Registry.modules()
 
@@ -1751,7 +1774,7 @@ defmodule NumberF do
   ## Examples
 
       iex> NumberF.to_degrees(3.14159)
-      180.0
+      179.99984796050427
   """
   def to_degrees(radians), do: NumberF.Calculations.to_degrees(radians)
 

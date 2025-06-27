@@ -28,7 +28,7 @@ defmodule NumberF.Tax do
       %{
         net: Float.round(net, 2),
         vat: Float.round(vat, 2),
-        gross: amount
+        gross: amount * 1.0
       }
     else
       # Add VAT to exclusive amount
@@ -36,7 +36,7 @@ defmodule NumberF.Tax do
       gross = amount + vat
 
       %{
-        net: amount,
+        net: amount * 1.0,
         vat: Float.round(vat, 2),
         gross: Float.round(gross, 2)
       }
@@ -78,7 +78,7 @@ defmodule NumberF.Tax do
     total = amount + rounded_tax
 
     %{
-      subtotal: amount,
+      subtotal: amount * 1.0,
       tax: rounded_tax,
       total: Float.round(total, 2)
     }
@@ -257,7 +257,7 @@ defmodule NumberF.Tax do
     net = amount - tax
 
     %{
-      gross: amount,
+      gross: amount * 1.0,
       tax: Float.round(tax, 2),
       net: Float.round(net, 2)
     }
@@ -280,7 +280,7 @@ defmodule NumberF.Tax do
     after_tax = profit - tax
 
     %{
-      profit: profit,
+      profit: profit * 1.0,
       tax: Float.round(tax, 2),
       after_tax: Float.round(after_tax, 2)
     }
@@ -311,8 +311,8 @@ defmodule NumberF.Tax do
     net = gain - tax
 
     %{
-      gain: gain,
-      taxable_gain: taxable_gain,
+      gain: gain * 1.0,
+      taxable_gain: taxable_gain * 1.0,
       tax: Float.round(tax, 2),
       net: Float.round(net, 2)
     }
@@ -346,7 +346,7 @@ defmodule NumberF.Tax do
     take_home = salary - employee_contribution
 
     %{
-      salary: salary,
+      salary: salary * 1.0,
       employee_contribution: Float.round(employee_contribution, 2),
       employer_contribution: Float.round(employer_contribution, 2),
       total_cost: Float.round(total_cost, 2),

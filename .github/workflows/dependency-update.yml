@@ -1,0 +1,251 @@
+name: Dependency Update
+
+on:
+  schedule:
+    # Run weekly on Mondays at 9 AM UTC
+    - cron: '0 9 * * 1'
+  workflow_dispatch: # Allow manual triggering
+
+env:
+  MIX_ENV: test
+
+jobs:
+  update-dependencies:
+    name: Update Dependencies
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Set up Elixir
+      uses: erlef/setup-beam@v1
+      with:
+        elixir-version: '1.16'
+        otp-version: '26'
+
+    - name: Cache dependencies
+      uses: actions/cache@v3
+      with:
+        path: |
+          deps
+          _build
+        key: deps-update-${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
+        restore-keys: |
+          deps-update-${{ runner.os }}-mix-
+
+    - name: Install dependencies
+      run: mix deps.get
+
+    - name: Check for outdated dependencies
+      id: outdated
+      run: |
+        echo "Checking for outdated dependencies..."
+        mix hex.outdated > outdated.txt 2>&1 || true
+        if grep -q "All dependencies up to date" outdated.txt; then
+          echo "has_updates=false" >> $GITHUB_OUTPUT
+        else
+          echo "has_updates=true" >> $GITHUB_OUTPUT
+        fi
+        cat outdated.txt
+
+    - name: Update dependencies
+      if: steps.outdated.outputs.has_updates == 'true'
+      run: |
+        echo "Updating dependencies..."
+        mix deps.update --all
+
+    - name: Run tests after update
+      if: steps.outdated.outputs.has_updates == 'true'
+      run: |
+        echo "Running tests with updated dependencies..."
+        mix test.numberf_fast
+
+    - name: Check for security vulnerabilities
+      if: steps.outdated.outputs.has_updates == 'true'
+      run: |
+        echo "Checking for security vulnerabilities..."
+        mix deps.audit
+
+    - name: Create Pull Request
+      if: steps.outdated.outputs.has_updates == 'true'
+      uses: peter-evans/create-pull-request@v5
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        commit-message: 'chore: update dependencies'
+        title: 'chore: update dependencies'
+        body: |
+          ## Dependency Updates
+          
+          This PR updates the project dependencies to their latest versions.
+          
+          ### Changes
+          - Updated all outdated dependencies
+          - All tests pass with the new versions
+          - Security audit completed
+          
+          ### Outdated Dependencies Report
+          ```
+          $(cat outdated.txt)
+          ```
+          
+          ### Testing
+          - [x] Fast test suite passes
+          - [x] Security audit passes
+          
+          This PR was automatically created by the dependency update workflow.
+        branch: dependency-updates
+        delete-branch: true
+
+  security-audit:
+    name: Security Audit
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Elixir
+      uses: erlef/setup-beam@v1
+      with:
+        elixir-version: '1.16'
+        otp-version: '26'
+
+    - name: Cache dependencies
+      uses: actions/cache@v3
+      with:
+        path: |
+          deps
+          _build
+        key: security-${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
+        restore-keys: |
+          security-${{ runner.os }}-mix-
+
+    - name: Install dependencies
+      run: mix deps.get
+
+    - name: Run security audit
+      id: audit
+      run: |
+        echo "Running security audit..."
+        mix deps.audit > audit_report.txt 2>&1
+        audit_exit_code=$?
+        cat audit_report.txt
+        
+        if [ $audit_exit_code -ne 0 ]; then
+          echo "has_vulnerabilities=true" >> $GITHUB_OUTPUT
+        else
+          echo "has_vulnerabilities=false" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Create security issue
+      if: steps.audit.outputs.has_vulnerabilities == 'true'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          const auditReport = fs.readFileSync('audit_report.txt', 'utf8');
+          
+          const issue = await github.rest.issues.create({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            title: '🚨 Security vulnerabilities detected in dependencies',
+            body: `## Security Audit Report
+            
+            Security vulnerabilities have been detected in the project dependencies.
+            
+            ### Audit Report
+            \`\`\`
+            ${auditReport}
+            \`\`\`
+            
+            ### Action Required
+            Please review and update the affected dependencies as soon as possible.
+            
+            This issue was automatically created by the security audit workflow.`,
+            labels: ['security', 'dependencies', 'high-priority']
+          });
+          
+          console.log(`Created security issue #${issue.data.number}`);
+
+  check-elixir-updates:
+    name: Check Elixir Updates
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Check latest Elixir version
+      id: elixir_check
+      run: |
+        # Get latest Elixir version from GitHub API
+        latest_version=$(curl -s https://api.github.com/repos/elixir-lang/elixir/releases/latest | jq -r '.tag_name' | sed 's/^v//')
+        echo "latest_version=$latest_version" >> $GITHUB_OUTPUT
+        
+        # Get current version from mix.exs
+        current_version=$(grep -o 'elixir: "~> [0-9.]*"' mix.exs | sed 's/elixir: "~> //' | sed 's/"//')
+        echo "current_version=$current_version" >> $GITHUB_OUTPUT
+        
+        echo "Latest Elixir version: $latest_version"
+        echo "Current required version: $current_version"
+        
+        # Simple version comparison (works for most cases)
+        if [ "$latest_version" != "$current_version" ]; then
+          echo "needs_update=true" >> $GITHUB_OUTPUT
+        else
+          echo "needs_update=false" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Create Elixir update issue
+      if: steps.elixir_check.outputs.needs_update == 'true'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const currentVersion = '${{ steps.elixir_check.outputs.current_version }}';
+          const latestVersion = '${{ steps.elixir_check.outputs.latest_version }}';
+          
+          // Check if issue already exists
+          const existingIssues = await github.rest.issues.listForRepo({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            labels: 'elixir-update',
+            state: 'open'
+          });
+          
+          if (existingIssues.data.length === 0) {
+            const issue = await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `📦 Elixir ${latestVersion} is available`,
+              body: `## Elixir Version Update Available
+              
+              A new version of Elixir is available for consideration.
+              
+              ### Current Version
+              - Required: ~> ${currentVersion}
+              
+              ### Latest Version
+              - Available: ${latestVersion}
+              
+              ### Action Items
+              - [ ] Review changelog for breaking changes
+              - [ ] Update \`mix.exs\` Elixir requirement
+              - [ ] Update GitHub Actions workflows
+              - [ ] Test compatibility
+              - [ ] Update documentation if needed
+              
+              ### Resources
+              - [Elixir Changelog](https://github.com/elixir-lang/elixir/blob/main/CHANGELOG.md)
+              - [Elixir Releases](https://github.com/elixir-lang/elixir/releases)
+              
+              This issue was automatically created by the dependency update workflow.`,
+              labels: ['elixir-update', 'enhancement']
+            });
+            
+            console.log(`Created Elixir update issue #${issue.data.number}`);
+          } else {
+            console.log('Elixir update issue already exists');
+          }

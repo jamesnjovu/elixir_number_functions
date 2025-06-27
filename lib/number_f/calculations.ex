@@ -54,7 +54,7 @@ defmodule NumberF.Calculations do
   def is_prime?(n) do
     limit = :math.sqrt(n) |> Float.ceil() |> trunc()
 
-    !Enum.any?(3..limit, fn i ->
+    !Enum.any?(3..limit//2, fn i ->
       i < n && rem(n, i) == 0
     end)
   end

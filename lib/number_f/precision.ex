@@ -43,7 +43,7 @@ defmodule NumberF.Precision do
       2.12
 
       iex> NumberF.Precision.bankers_round(2.135, 2)
-      2.13
+      2.14
   """
   def bankers_round(number, precision \\ 2) when is_number(number) and is_integer(precision) do
     custom_round(number, precision, :half_even)
@@ -189,20 +189,13 @@ defmodule NumberF.Precision do
       "3.1416"
   """
   def precise_format(number, precision \\ 2) when is_number(number) and is_integer(precision) do
-    # Convert to string with high precision
-    str = :erlang.float_to_binary(number * 1.0, decimals: precision + 5)
+    # Use Float.round for proper rounding, then format as string
+    rounded = Float.round(number, precision)
 
-    # Split into integer and decimal parts
-    [int_part, dec_part] = String.split(str, ".")
-
-    # Truncate decimal part to desired precision
-    truncated_dec = String.slice(dec_part, 0, precision)
-
-    # Combine with appropriate precision
     if precision > 0 do
-      "#{int_part}.#{truncated_dec}"
+      :erlang.float_to_binary(rounded, decimals: precision)
     else
-      int_part
+      Integer.to_string(round(rounded))
     end
   end
 
@@ -265,8 +258,8 @@ defmodule NumberF.Precision do
           frac_part = abs(shifted - int_part)
 
           # If exactly 0.5, round to even number
-          if frac_part == 0.5 do
-            if rem(int_part, 2) == 0 do
+          if abs(frac_part - 0.5) < 1.0e-10 do
+            if rem(trunc(int_part), 2) == 0 do
               int_part
             else
               int_part + if shifted >= 0, do: 1, else: -1

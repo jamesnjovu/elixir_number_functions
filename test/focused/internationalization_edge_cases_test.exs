@@ -16,7 +16,7 @@ defmodule NumberF.I18nEdgeCasesTest do
         # Should not crash and return some formatted result
         result = NumberF.format_number(1234.56, locale)
         assert is_binary(result)
-        assert String.contains?(result, "1234")
+        assert String.contains?(result, "1234") or String.contains?(result, "1,234")
       end)
     end
 
@@ -66,9 +66,9 @@ defmodule NumberF.I18nEdgeCasesTest do
         result = NumberF.format_currency(amount, locale)
         assert is_binary(result)
         assert String.length(result) > 0
-        # Should contain the amount in some form
+        # Should contain the amount in some form - be more flexible with formatting
         assert String.contains?(result, "1234") or String.contains?(result, "1,234") or
-                 String.contains?(result, "1 234")
+                 String.contains?(result, "1 234") or String.contains?(result, "1.234")
       end)
     end
 

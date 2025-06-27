@@ -27,29 +27,22 @@ defmodule NumberF.NumbersToWords do
     whole = String.to_integer(whole)
     floating = String.to_integer(floating)
 
-    if floating == 0 do
-      parse(whole, main_c, sec_c)
-    else
-      amount =
-        to_word(whole)
+    amount =
+      to_word(whole)
+      |> List.flatten()
+      |> Enum.filter(& &1)
+      |> Enum.join(" ")
+
+    if floating > 0 do
+      floating_words =
+        to_word(floating)
         |> List.flatten()
         |> Enum.filter(& &1)
         |> Enum.join(" ")
 
-      trailing =
-        if(floating > 0) do
-          floating =
-            to_word(floating)
-            |> List.flatten()
-            |> Enum.filter(& &1)
-            |> Enum.join(" ")
-
-          " #{main_c} And " <> floating <> " #{sec_c}"
-        else
-          " "
-        end
-
-      amount <> trailing
+      amount <> " #{main_c} And " <> floating_words <> " #{sec_c}"
+    else
+      amount <> " #{main_c}"
     end
   end
 
@@ -168,8 +161,8 @@ defmodule NumberF.NumberToWord do
   def separator(_remainder), do: ", "
 
   @spec format(integer, String.t(), String.t(), integer) :: iodata
-  def format(number, illion, _separator, 0), do: [say_io(number) | illion]
+  def format(number, illion, _separator, 0), do: [say_io(number), illion]
 
   def format(number, illion, separator, remainder),
-    do: [say_io(number), illion, separator | say_io(remainder)]
+    do: [say_io(number), illion, separator, say_io(remainder)]
 end

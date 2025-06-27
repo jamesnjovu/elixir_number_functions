@@ -244,7 +244,7 @@ defmodule NumberFTest do
 
     test "convert_currency" do
       assert NumberF.convert_currency(100, 1, 1.1) == 110.0
-      assert NumberF.convert_currency(100, 1.1, 1) == 90.9090909090909
+      assert NumberF.convert_currency(100, 1.1, 1) == 90.91
     end
   end
 

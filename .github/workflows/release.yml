@@ -1,0 +1,227 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  release:
+    types: [published]
+
+env:
+  MIX_ENV: prod
+
+jobs:
+  test-before-release:
+    name: Test Before Release
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Elixir
+      uses: erlef/setup-beam@v1
+      with:
+        elixir-version: '1.16'
+        otp-version: '26'
+
+    - name: Cache dependencies
+      uses: actions/cache@v3
+      with:
+        path: |
+          deps
+          _build
+        key: release-${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
+        restore-keys: |
+          release-${{ runner.os }}-mix-
+
+    - name: Install dependencies
+      run: mix deps.get
+
+    - name: Compile project
+      run: mix compile --warnings-as-errors
+
+    - name: Run comprehensive test suite
+      run: |
+        MIX_ENV=test mix test.numberf_all --cover --slowest 20
+
+    - name: Generate documentation
+      run: mix docs
+
+    - name: Verify package can be built
+      run: mix hex.build
+
+  publish-hex:
+    name: Publish to Hex.pm
+    runs-on: ubuntu-latest
+    needs: test-before-release
+    if: startsWith(github.ref, 'refs/tags/v')
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Elixir
+      uses: erlef/setup-beam@v1
+      with:
+        elixir-version: '1.16'
+        otp-version: '26'
+
+    - name: Cache dependencies
+      uses: actions/cache@v3
+      with:
+        path: |
+          deps
+          _build
+        key: hex-${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
+        restore-keys: |
+          hex-${{ runner.os }}-mix-
+
+    - name: Install dependencies
+      run: mix deps.get
+
+    - name: Compile project
+      run: mix compile
+
+    - name: Publish to Hex.pm
+      env:
+        HEX_API_KEY: ${{ secrets.HEX_API_KEY }}
+      run: |
+        mix hex.publish --yes
+
+  publish-docs:
+    name: Publish Documentation
+    runs-on: ubuntu-latest
+    needs: test-before-release
+    if: startsWith(github.ref, 'refs/tags/v')
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Elixir
+      uses: erlef/setup-beam@v1
+      with:
+        elixir-version: '1.16'
+        otp-version: '26'
+
+    - name: Cache dependencies
+      uses: actions/cache@v3
+      with:
+        path: |
+          deps
+          _build
+        key: docs-${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
+        restore-keys: |
+          docs-${{ runner.os }}-mix-
+
+    - name: Install dependencies
+      run: mix deps.get
+
+    - name: Compile project
+      run: mix compile
+
+    - name: Generate documentation
+      run: mix docs
+
+    - name: Publish documentation to HexDocs
+      env:
+        HEX_API_KEY: ${{ secrets.HEX_API_KEY }}
+      run: |
+        mix hex.publish docs --yes
+
+  create-github-release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: [test-before-release, publish-hex]
+    if: startsWith(github.ref, 'refs/tags/v')
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set up Elixir
+      uses: erlef/setup-beam@v1
+      with:
+        elixir-version: '1.16'
+        otp-version: '26'
+
+    - name: Install dependencies
+      run: mix deps.get
+
+    - name: Generate documentation
+      run: mix docs
+
+    - name: Create release archive
+      run: |
+        tar -czf number_f-${{ github.ref_name }}.tar.gz \
+          lib/ \
+          guides/ \
+          priv/ \
+          mix.exs \
+          README.md \
+          LICENSE \
+          CHANGELOG.md \
+          .formatter.exs
+
+    - name: Extract version from tag
+      id: version
+      run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+    - name: Generate changelog for release
+      id: changelog
+      run: |
+        # Extract changelog section for this version
+        if [ -f CHANGELOG.md ]; then
+          # Try to extract the section for this version
+          awk '/^## \[?'${{ steps.version.outputs.VERSION }}'\]?/{flag=1; next} /^## \[?[0-9]/{flag=0} flag' CHANGELOG.md > release_notes.md
+          if [ ! -s release_notes.md ]; then
+            echo "Release notes for version ${{ steps.version.outputs.VERSION }}" > release_notes.md
+            echo "" >> release_notes.md
+            echo "See [CHANGELOG.md](CHANGELOG.md) for details." >> release_notes.md
+          fi
+        else
+          echo "Release notes for version ${{ steps.version.outputs.VERSION }}" > release_notes.md
+        fi
+
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v1
+      with:
+        body_path: release_notes.md
+        files: |
+          number_f-${{ github.ref_name }}.tar.gz
+          doc/**/*
+        draft: false
+        prerelease: ${{ contains(github.ref_name, 'rc') || contains(github.ref_name, 'beta') || contains(github.ref_name, 'alpha') }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  notify-release:
+    name: Notify Release
+    runs-on: ubuntu-latest
+    needs: [publish-hex, publish-docs, create-github-release]
+    if: always() && startsWith(github.ref, 'refs/tags/v')
+    
+    steps:
+    - name: Extract version from tag
+      id: version
+      run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+    - name: Notify success
+      if: ${{ !contains(needs.*.result, 'failure') }}
+      run: |
+        echo "🎉 Successfully released NumberF v${{ steps.version.outputs.VERSION }}!"
+        echo "📦 Package published to Hex.pm"
+        echo "📚 Documentation published to HexDocs"
+        echo "🏷️ GitHub release created"
+
+    - name: Notify failure
+      if: contains(needs.*.result, 'failure')
+      run: |
+        echo "❌ Release failed for NumberF v${{ steps.version.outputs.VERSION }}"
+        echo "Check the logs for details:"
+        echo "Hex Publish: ${{ needs.publish-hex.result }}"
+        echo "Docs Publish: ${{ needs.publish-docs.result }}"
+        echo "GitHub Release: ${{ needs.create-github-release.result }}"
