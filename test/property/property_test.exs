@@ -1,8 +1,8 @@
 defmodule NumberF.PropertyTest do
   use ExUnit.Case
 
-  @tag :property
   describe "property-based tests" do
+    @describetag :property
     test "currency formatting is reversible with parsing" do
       # Generate random amounts
       amounts = TestHelper.random_numbers(100)

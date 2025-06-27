@@ -63,7 +63,7 @@ defmodule NumberF.Statistics do
     variance =
       Enum.reduce(numbers, 0, fn num, sum ->
         sum + :math.pow(num - avg, 2)
-      end) / (length(numbers) - 1)
+      end) / length(numbers)
 
     :math.sqrt(variance)
   end
@@ -79,7 +79,7 @@ defmodule NumberF.Statistics do
 
     Enum.reduce(numbers, 0, fn num, sum ->
       sum + :math.pow(num - avg, 2)
-    end) / (length(numbers) - 1)
+    end) / length(numbers)
   end
 
   @doc """
@@ -89,6 +89,6 @@ defmodule NumberF.Statistics do
   def range([_single]), do: 0.0
 
   def range(numbers) do
-    Enum.max(numbers) - Enum.min(numbers)
+    (Enum.max(numbers) - Enum.min(numbers)) * 1.0
   end
 end

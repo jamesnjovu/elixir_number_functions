@@ -18,7 +18,7 @@ defmodule NumberF.RealWorldScenariosTest do
 
       # Format for display
       formatted_base = NumberF.currency(base_price, "USD")
-      formatted_discount = NumberF.currency(discount_amount, "USD")
+      _formatted_discount = NumberF.currency(discount_amount, "USD")
       formatted_final = NumberF.currency(final_price, "USD")
 
       # Convert to words for check writing
@@ -50,12 +50,12 @@ defmodule NumberF.RealWorldScenariosTest do
       # Calculate first month's interest and principal
       monthly_rate = annual_rate / 12
       first_month_interest = loan_amount * monthly_rate
-      first_month_principal = monthly_payment - first_month_interest
+      _first_month_principal = monthly_payment - first_month_interest
 
       # Format results
       formatted_loan = NumberF.currency(loan_amount, "USD")
-      formatted_payment = NumberF.currency(monthly_payment, "USD")
-      formatted_total_interest = NumberF.currency(total_interest, "USD")
+      _formatted_payment = NumberF.currency(monthly_payment, "USD")
+      _formatted_total_interest = NumberF.currency(total_interest, "USD")
 
       # Calculate percentage of payment going to interest in first month
       interest_percentage = NumberF.percentage(first_month_interest, monthly_payment, 1)
@@ -106,7 +106,7 @@ defmodule NumberF.RealWorldScenariosTest do
 
       # Format results
       formatted_total = NumberF.currency(total_future_value, "USD")
-      formatted_gain = NumberF.currency(total_gain, "USD")
+      _formatted_gain = NumberF.currency(total_gain, "USD")
 
       # Assertions
       assert total_future_value > total_invested
@@ -205,8 +205,8 @@ defmodule NumberF.RealWorldScenariosTest do
         annual_savings + NumberF.compound_interest(annual_savings, 0.07, 30, 1)
 
       # Format all amounts
-      formatted_salary = NumberF.currency(annual_salary, "USD")
-      formatted_take_home = NumberF.currency(monthly_take_home, "USD")
+      _formatted_salary = NumberF.currency(annual_salary, "USD")
+      _formatted_take_home = NumberF.currency(monthly_take_home, "USD")
       formatted_retirement = NumberF.currency(retirement_projection, "USD")
 
       # Convert retirement projection to words
@@ -234,7 +234,7 @@ defmodule NumberF.RealWorldScenariosTest do
 
       # Perform calculations with converted values
       # Assuming 2-hour journey
-      speed_mph = distance_miles / 2.0
+      _speed_mph = distance_miles / 2.0
 
       # Calculate statistics on multiple measurements
       temperature_readings = [23.5, 24.0, 25.0, 25.5, 26.0]
@@ -242,8 +242,8 @@ defmodule NumberF.RealWorldScenariosTest do
       temp_std_dev = NumberF.standard_deviation(temperature_readings)
 
       # Format for scientific reporting
-      formatted_temp_c = NumberF.round_with_precision(temp_mean, 1)
-      formatted_temp_f = NumberF.round_with_precision(NumberF.celsius_to_fahrenheit(temp_mean), 1)
+      _formatted_temp_c = NumberF.round_with_precision(temp_mean, 1)
+      _formatted_temp_f = NumberF.round_with_precision(NumberF.celsius_to_fahrenheit(temp_mean), 1)
       formatted_std_dev = NumberF.round_with_precision(temp_std_dev, 2)
 
       # Assertions

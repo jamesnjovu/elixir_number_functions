@@ -208,14 +208,17 @@ defmodule NumberF do
 
   ## Examples
 
-      iex> NumberF.randomizer(10)
-      "a1B2c3D4e5" # Example output, actual value will vary
+      iex> result = NumberF.randomizer(10)
+      iex> String.length(result)
+      10
 
-      iex> NumberF.randomizer(5, :numeric)
-      "23579" # Example output, actual value will vary
+      iex> result = NumberF.randomizer(5, :numeric)
+      iex> String.length(result) == 5 and Regex.match?(~r/^\d+$/, result)
+      true
 
-      iex> NumberF.randomizer(6, :upcase)
-      "ABCDEF" # Example output, actual value will vary
+      iex> result = NumberF.randomizer(6, :upcase)
+      iex> String.length(result) == 6 and Regex.match?(~r/^[A-Z]+$/, result)
+      true
   """
   def randomizer(length, type \\ :all),
     do: NumberF.Randomizer.randomizer(length, type)
@@ -226,8 +229,9 @@ defmodule NumberF do
 
   ## Examples
 
-      iex> NumberF.default_password()
-      "Dev@2308" # Example output, actual value will vary
+      iex> result = NumberF.default_password()
+      iex> String.length(result) == 8 and String.contains?(result, "@")
+      true
 
   """
   def default_password(), do: NumberF.Randomizer.gen_password()
@@ -345,10 +349,10 @@ defmodule NumberF do
   ## Examples
 
       iex> NumberF.to_decimal("123.45")
-      #Decimal<123.45>
+      Decimal.new("123.45")
 
       iex> NumberF.to_decimal(123)
-      #Decimal<123>
+      Decimal.new("123")
   """
   def to_decimal(value), do: NumberF.CustomFormatter.to_decimal(value)
 
@@ -418,10 +422,10 @@ defmodule NumberF do
   ## Examples
 
       iex> NumberF.sum_decimal([Decimal.new("1.2"), Decimal.new("3.4"), [Decimal.new("5.6")]])
-      #Decimal<10.2>
+      Decimal.new("10.2")
 
       iex> NumberF.sum_decimal([])
-      #Decimal<0>
+      Decimal.new("0")
 
   This function flattens any nested lists, then uses `Enum.reduce/3` to sum all the decimal values.
   """
@@ -472,7 +476,9 @@ defmodule NumberF do
       12.5
   """
   def round_to_nearest(value, nearest \\ 1.0) do
-    round(value / nearest) * nearest
+    result = round(value / nearest) * nearest
+    # Convert to float if nearest is a float
+    if is_float(nearest), do: result * 1.0, else: result
   end
 
   @doc """
@@ -512,7 +518,8 @@ defmodule NumberF do
   """
   def simple_interest(principal, rate, time)
       when is_number(principal) and is_number(rate) and is_number(time) do
-    principal * rate * time
+    result = principal * rate * time
+    Float.round(result, 2)
   end
 
   @doc """
@@ -612,7 +619,8 @@ defmodule NumberF do
   def convert_currency(amount, from_rate, to_rate)
       when is_number(amount) and is_number(from_rate) and is_number(to_rate) and from_rate > 0 and
              to_rate > 0 do
-    amount * to_rate / from_rate
+    result = amount * to_rate / from_rate
+    Float.round(result, 2)
   end
 
   ### STATISTICAL FUNCTIONS ###
@@ -747,7 +755,7 @@ defmodule NumberF do
     variance =
       Enum.reduce(numbers, 0, fn num, sum ->
         sum + :math.pow(num - avg, 2)
-      end) / (length(numbers) - 1)
+      end) / length(numbers)
 
     :math.sqrt(variance)
   end
@@ -1238,6 +1246,19 @@ defmodule NumberF do
   """
   def celsius_to_fahrenheit(celsius), do: NumberF.Metrics.celsius_to_fahrenheit(celsius)
 
+  @doc """
+  Converts kilograms to pounds.
+
+  ## Parameters
+    - `kg`: The weight in kilograms
+
+  ## Examples
+
+      iex> NumberF.kg_to_pounds(4.54)
+      10.01
+  """
+  def kg_to_pounds(kg), do: NumberF.Metrics.kg_to_pounds(kg)
+
   ### PRECISION HANDLING FUNCTIONS ###
 
   @doc """
@@ -1276,6 +1297,64 @@ defmodule NumberF do
   """
   def bankers_round(number, precision \\ 2),
     do: NumberF.Precision.bankers_round(number, precision)
+
+  @doc """
+  Rounds a number up to a specified precision (ceiling).
+
+  ## Parameters
+    - `number`: The number to round
+    - `precision`: Number of decimal places (default: 2)
+
+  ## Examples
+
+      iex> NumberF.ceiling(3.14159, 2)
+      3.15
+
+      iex> NumberF.ceiling(3.14159, 1)
+      3.2
+  """
+  def ceiling(number, precision \\ 2),
+    do: NumberF.Precision.ceiling(number, precision)
+
+  @doc """
+  Rounds a number down to a specified precision (floor).
+
+  ## Parameters
+    - `number`: The number to round
+    - `precision`: Number of decimal places (default: 2)
+
+  ## Examples
+
+      iex> NumberF.floor(3.14159, 2)
+      3.14
+
+      iex> NumberF.floor(3.14159, 1)
+      3.1
+  """
+  def floor(number, precision \\ 2),
+    do: NumberF.Precision.floor(number, precision)
+
+  @doc """
+  Rounds a number to a specific increment.
+
+  ## Parameters
+    - `number`: The number to round
+    - `increment`: The increment to round to (default: 1.0)
+    - `strategy`: The rounding strategy (:nearest, :up, :down, or :bankers)
+
+  ## Examples
+
+      iex> NumberF.round_to(3.14159, 0.05, :nearest)
+      3.15
+
+      iex> NumberF.round_to(3.14159, 0.1, :up)
+      3.2
+
+      iex> NumberF.round_to(3.14159, 0.1, :down)
+      3.1
+  """
+  def round_to(number, increment \\ 1.0, strategy \\ :nearest),
+    do: NumberF.Precision.round_to(number, increment, strategy)
 
   @doc """
   Checks if two floating point numbers are approximately equal.

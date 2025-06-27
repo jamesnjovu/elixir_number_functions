@@ -1,8 +1,8 @@
 defmodule NumberF.BenchmarkTest do
   use ExUnit.Case
 
-  @tag :benchmark
   describe "benchmark tests" do
+    @describetag :benchmark
     test "currency formatting benchmark" do
       amounts = TestHelper.random_numbers(1000)
 

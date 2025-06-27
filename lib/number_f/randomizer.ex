@@ -5,16 +5,17 @@ defmodule NumberF.Randomizer do
     do: String.capitalize(randomizer(3, :downcase)) <> "@" <> randomizer(4, :numeric)
 
   def randomizer(length, type) do
-    alphabets = "ABCDEFGHJKMNPQRSTUVWXYZabcdefghjklmnpqrstuvwxyz"
+    uppercase = "ABCDEFGHJKMNPQRSTUVWXYZ"
+    lowercase = "abcdefghjklmnpqrstuvwxyz"
     numbers = "23456789"
 
     lists =
       cond do
-        type == :alpha -> alphabets <> String.downcase(alphabets) <> numbers
+        type == :alpha -> uppercase <> lowercase <> numbers
         type == :numeric -> numbers
-        type == :upcase -> alphabets
-        type == :downcase -> String.downcase(alphabets)
-        true -> alphabets <> String.downcase(alphabets) <> numbers
+        type == :upcase -> uppercase
+        type == :downcase -> lowercase
+        true -> uppercase <> lowercase <> numbers
       end
       |> String.split("", trim: true)
 

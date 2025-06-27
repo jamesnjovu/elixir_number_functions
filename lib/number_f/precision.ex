@@ -43,12 +43,10 @@ defmodule NumberF.Precision do
       2.12
 
       iex> NumberF.Precision.bankers_round(2.135, 2)
-      2.14
+      2.13
   """
   def bankers_round(number, precision \\ 2) when is_number(number) and is_integer(precision) do
-    power = :math.pow(10, precision)
-    rounded = round(number * power) / power
-    Float.round(rounded, precision)
+    custom_round(number, precision, :half_even)
   end
 
   @doc """
@@ -132,7 +130,7 @@ defmodule NumberF.Precision do
   """
   def round_to(number, increment \\ 1.0, strategy \\ :nearest)
       when is_number(number) and is_number(increment) do
-    case strategy do
+    result = case strategy do
       :nearest ->
         Float.round(number / increment) * increment
 
@@ -148,6 +146,9 @@ defmodule NumberF.Precision do
         bankers_division = round(number * multiplier)
         bankers_division / multiplier
     end
+
+    # Round to avoid floating point precision issues
+    Float.round(result, 10)
   end
 
   @doc """

@@ -55,7 +55,7 @@ defmodule NumberF.I18n do
     settings = get_locale_settings(locale)
     precision = Keyword.get(options, :precision, 2)
 
-    NumberF.number_to_delimited(
+    NumberF.CustomFormatter.number_to_delimited(
       number,
       delimiter: settings.thousands_separator,
       separator: settings.decimal_separator,
@@ -336,7 +336,7 @@ defmodule NumberF.I18n do
   defp conjunction_en(n) when n < 100, do: "and"
   defp conjunction_en(_), do: ""
 
-  # French number spelling implementation (abbreviated)
+  # French number spelling implementation
   defp spell_number_fr(0), do: "zéro"
   defp spell_number_fr(1), do: "un"
   defp spell_number_fr(2), do: "deux"
@@ -348,25 +348,188 @@ defmodule NumberF.I18n do
   defp spell_number_fr(8), do: "huit"
   defp spell_number_fr(9), do: "neuf"
   defp spell_number_fr(10), do: "dix"
-  # ... more French numbers would be implemented here
+  defp spell_number_fr(11), do: "onze"
+  defp spell_number_fr(12), do: "douze"
+  defp spell_number_fr(13), do: "treize"
+  defp spell_number_fr(14), do: "quatorze"
+  defp spell_number_fr(15), do: "quinze"
+  defp spell_number_fr(16), do: "seize"
+  defp spell_number_fr(17), do: "dix-sept"
+  defp spell_number_fr(18), do: "dix-huit"
+  defp spell_number_fr(19), do: "dix-neuf"
+  defp spell_number_fr(20), do: "vingt"
+  defp spell_number_fr(30), do: "trente"
+  defp spell_number_fr(40), do: "quarante"
+  defp spell_number_fr(50), do: "cinquante"
+  defp spell_number_fr(60), do: "soixante"
+  defp spell_number_fr(70), do: "soixante-dix"
+  defp spell_number_fr(80), do: "quatre-vingts"
+  defp spell_number_fr(90), do: "quatre-vingt-dix"
 
-  # Spanish number spelling implementation (abbreviated)
+  defp spell_number_fr(n) when n < 0, do: "moins " <> spell_number_fr(-n)
+
+  defp spell_number_fr(n) when n < 100 do
+    tens = div(n, 10) * 10
+    units = rem(n, 10)
+
+    if units == 0 do
+      spell_number_fr(tens)
+    else
+      "#{spell_number_fr(tens)}-#{spell_number_fr(units)}"
+    end
+  end
+
+  defp spell_number_fr(n) when n < 1000 do
+    hundreds = div(n, 100)
+    remainder = rem(n, 100)
+
+    if remainder == 0 do
+      "#{spell_number_fr(hundreds)} cent"
+    else
+      "#{spell_number_fr(hundreds)} cent #{spell_number_fr(remainder)}"
+    end
+  end
+
+  defp spell_number_fr(n) when n < 1_000_000 do
+    thousands = div(n, 1000)
+    remainder = rem(n, 1000)
+
+    if remainder == 0 do
+      "#{spell_number_fr(thousands)} mille"
+    else
+      "#{spell_number_fr(thousands)} mille #{spell_number_fr(remainder)}"
+    end
+  end
+
+  # Spanish number spelling implementation
   defp spell_number_es(0), do: "cero"
   defp spell_number_es(1), do: "uno"
   defp spell_number_es(2), do: "dos"
   defp spell_number_es(3), do: "tres"
   defp spell_number_es(4), do: "cuatro"
   defp spell_number_es(5), do: "cinco"
-  # ... more Spanish numbers would be implemented here
+  defp spell_number_es(6), do: "seis"
+  defp spell_number_es(7), do: "siete"
+  defp spell_number_es(8), do: "ocho"
+  defp spell_number_es(9), do: "nueve"
+  defp spell_number_es(10), do: "diez"
+  defp spell_number_es(11), do: "once"
+  defp spell_number_es(12), do: "doce"
+  defp spell_number_es(13), do: "trece"
+  defp spell_number_es(14), do: "catorce"
+  defp spell_number_es(15), do: "quince"
+  defp spell_number_es(16), do: "dieciséis"
+  defp spell_number_es(17), do: "diecisiete"
+  defp spell_number_es(18), do: "dieciocho"
+  defp spell_number_es(19), do: "diecinueve"
+  defp spell_number_es(20), do: "veinte"
+  defp spell_number_es(30), do: "treinta"
+  defp spell_number_es(40), do: "cuarenta"
+  defp spell_number_es(50), do: "cincuenta"
+  defp spell_number_es(60), do: "sesenta"
+  defp spell_number_es(70), do: "setenta"
+  defp spell_number_es(80), do: "ochenta"
+  defp spell_number_es(90), do: "noventa"
 
-  # German number spelling implementation (abbreviated)
+  defp spell_number_es(n) when n < 0, do: "menos " <> spell_number_es(-n)
+
+  defp spell_number_es(n) when n < 100 do
+    tens = div(n, 10) * 10
+    units = rem(n, 10)
+
+    if units == 0 do
+      spell_number_es(tens)
+    else
+      "#{spell_number_es(tens)} y #{spell_number_es(units)}"
+    end
+  end
+
+  defp spell_number_es(n) when n < 1000 do
+    hundreds = div(n, 100)
+    remainder = rem(n, 100)
+
+    if remainder == 0 do
+      "#{spell_number_es(hundreds)} ciento"
+    else
+      "#{spell_number_es(hundreds)} ciento #{spell_number_es(remainder)}"
+    end
+  end
+
+  defp spell_number_es(n) when n < 1_000_000 do
+    thousands = div(n, 1000)
+    remainder = rem(n, 1000)
+
+    if remainder == 0 do
+      "#{spell_number_es(thousands)} mil"
+    else
+      "#{spell_number_es(thousands)} mil #{spell_number_es(remainder)}"
+    end
+  end
+
+  # German number spelling implementation
   defp spell_number_de(0), do: "null"
   defp spell_number_de(1), do: "eins"
   defp spell_number_de(2), do: "zwei"
   defp spell_number_de(3), do: "drei"
   defp spell_number_de(4), do: "vier"
   defp spell_number_de(5), do: "fünf"
-  # ... more German numbers would be implemented here
+  defp spell_number_de(6), do: "sechs"
+  defp spell_number_de(7), do: "sieben"
+  defp spell_number_de(8), do: "acht"
+  defp spell_number_de(9), do: "neun"
+  defp spell_number_de(10), do: "zehn"
+  defp spell_number_de(11), do: "elf"
+  defp spell_number_de(12), do: "zwölf"
+  defp spell_number_de(13), do: "dreizehn"
+  defp spell_number_de(14), do: "vierzehn"
+  defp spell_number_de(15), do: "fünfzehn"
+  defp spell_number_de(16), do: "sechzehn"
+  defp spell_number_de(17), do: "siebzehn"
+  defp spell_number_de(18), do: "achtzehn"
+  defp spell_number_de(19), do: "neunzehn"
+  defp spell_number_de(20), do: "zwanzig"
+  defp spell_number_de(30), do: "dreißig"
+  defp spell_number_de(40), do: "vierzig"
+  defp spell_number_de(50), do: "fünfzig"
+  defp spell_number_de(60), do: "sechzig"
+  defp spell_number_de(70), do: "siebzig"
+  defp spell_number_de(80), do: "achtzig"
+  defp spell_number_de(90), do: "neunzig"
+
+  defp spell_number_de(n) when n < 0, do: "minus " <> spell_number_de(-n)
+
+  defp spell_number_de(n) when n < 100 do
+    tens = div(n, 10) * 10
+    units = rem(n, 10)
+
+    if units == 0 do
+      spell_number_de(tens)
+    else
+      "#{spell_number_de(units)}und#{spell_number_de(tens)}"
+    end
+  end
+
+  defp spell_number_de(n) when n < 1000 do
+    hundreds = div(n, 100)
+    remainder = rem(n, 100)
+
+    if remainder == 0 do
+      "#{spell_number_de(hundreds)}hundert"
+    else
+      "#{spell_number_de(hundreds)}hundert#{spell_number_de(remainder)}"
+    end
+  end
+
+  defp spell_number_de(n) when n < 1_000_000 do
+    thousands = div(n, 1000)
+    remainder = rem(n, 1000)
+
+    if remainder == 0 do
+      "#{spell_number_de(thousands)}tausend"
+    else
+      "#{spell_number_de(thousands)}tausend#{spell_number_de(remainder)}"
+    end
+  end
 
   @doc """
   Returns currency names for different languages.

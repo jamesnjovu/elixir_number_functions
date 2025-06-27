@@ -1,8 +1,8 @@
 defmodule NumberF.ConcurrencyTest do
   use ExUnit.Case
 
-  @tag :concurrency
   describe "concurrent operations" do
+    @describetag :concurrency
     test "currency formatting is thread-safe" do
       # Spawn multiple processes doing currency formatting
       tasks =

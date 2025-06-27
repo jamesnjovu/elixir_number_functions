@@ -7,7 +7,8 @@ defmodule NumberF.Financial do
   Calculates simple interest.
   """
   def simple_interest(principal, rate, time) do
-    principal * rate * time
+    result = principal * rate * time
+    Float.round(result, 2)
   end
 
   @doc """
@@ -35,6 +36,7 @@ defmodule NumberF.Financial do
   Converts currency based on exchange rates.
   """
   def convert_currency(amount, from_rate, to_rate) do
-    amount * to_rate / from_rate
+    result = amount * to_rate / from_rate
+    Float.round(result, 2)
   end
 end

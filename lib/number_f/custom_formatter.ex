@@ -138,10 +138,10 @@ defmodule NumberF.CustomFormatter do
 
   ## Examples
       iex> NumberF.CustomFormatter.to_decimal("123.45")
-      #Decimal<123.45>
+      Decimal.new("123.45")
 
       iex> NumberF.CustomFormatter.to_decimal(123)
-      #Decimal<123>
+      Decimal.new("123")
   """
   def to_decimal(value) when is_binary(value) do
     Decimal.new(value)
@@ -155,8 +155,11 @@ defmodule NumberF.CustomFormatter do
 
   # New helper function to format integers with delimiters
   defp format_integer_with_delimiters(number, delimiter, separator, precision) do
+    # Handle negative numbers
+    {sign, abs_number} = if number < 0, do: {"-", abs(number)}, else: {"", number}
+
     # Convert integer to string and add delimiters
-    int_str = Integer.to_string(number)
+    int_str = Integer.to_string(abs_number)
 
     formatted_int =
       int_str
@@ -168,12 +171,15 @@ defmodule NumberF.CustomFormatter do
       |> Enum.join(delimiter)
 
     # Add decimal part if precision > 0
-    if precision > 0 do
+    result = if precision > 0 do
       decimal_part = String.duplicate("0", precision)
       "#{formatted_int}#{separator}#{decimal_part}"
     else
       formatted_int
     end
+
+    # Add sign back
+    "#{sign}#{result}"
   end
 
   # Private helper function to format a number with delimiters
@@ -181,11 +187,15 @@ defmodule NumberF.CustomFormatter do
     # Ensure number is a float
     float_number = ensure_float(number)
 
+    # Handle negative numbers
+    {sign, abs_number} = if float_number < 0, do: {"-", abs(float_number)}, else: {"", float_number}
+
     # Round the number to the required precision
-    rounded_number = Float.round(float_number, precision)
+    rounded_number = Float.round(abs_number, precision)
 
     # Convert to string and split into integer and decimal parts
-    number_str = Float.to_string(rounded_number)
+    # Use :erlang.float_to_binary to avoid scientific notation
+    number_str = :erlang.float_to_binary(rounded_number, [:compact, {:decimals, precision}])
     parts = String.split(number_str, ".")
 
     # Handle both integer and float cases
@@ -219,7 +229,8 @@ defmodule NumberF.CustomFormatter do
         ""
       end
 
-    formatted_int <> formatted_dec
+    # Add sign back
+    "#{sign}#{formatted_int}#{formatted_dec}"
   end
 
   # Helper to ensure a number is a float

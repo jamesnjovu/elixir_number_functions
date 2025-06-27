@@ -1,8 +1,8 @@
 defmodule NumberFPerformanceTest do
   use ExUnit.Case
 
-  @tag :performance
   describe "performance tests" do
+    @describetag :performance
     test "currency formatting performance" do
       numbers = Enum.to_list(1..1000)
 

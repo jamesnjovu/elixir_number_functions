@@ -1,8 +1,8 @@
 defmodule NumberF.CoverageAnalysisTest do
   use ExUnit.Case
 
-  @tag :coverage
   describe "coverage analysis" do
+    @describetag :coverage
     test "all public functions are tested" do
       # Get all modules in NumberF
       numberf_modules = [
@@ -52,7 +52,7 @@ defmodule NumberF.CoverageAnalysisTest do
 
       # Filter out private functions and those we know are tested
       public_functions =
-        Enum.filter(main_functions, fn {name, arity} ->
+        Enum.filter(main_functions, fn {name, _arity} ->
           # Exclude private functions and module metadata
           not String.starts_with?(Atom.to_string(name), "__")
         end)
