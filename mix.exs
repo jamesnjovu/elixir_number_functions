@@ -33,7 +33,8 @@ defmodule NumberF.MixProject do
   defp deps do
     [
       {:decimal, "~> 2.0"},
-      {:ex_doc, "~> 0.29", only: :dev, runtime: false}
+      {:ex_doc, "~> 0.29", only: :dev, runtime: false},
+      {:mix_audit, "~> 2.0", only: [:dev, :test], runtime: false}
     ]
   end
 
