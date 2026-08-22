@@ -14,7 +14,9 @@ on:
         default: true
 
 permissions:
-  contents: read
+  # `write` so the release job can create a GitHub Release. The docs job below
+  # does not need it, but permissions are declared per-workflow here.
+  contents: write
 
 jobs:
   docs:
@@ -81,3 +83,30 @@ jobs:
         env:
           HEX_API_KEY: ${{ secrets.HEX_API_KEY }}
         run: mix hex.publish --yes
+
+      # A tag with no GitHub Release leaves the repository's Releases page
+      # advertising whatever was last released by hand — this repository sat on
+      # v0.1.5 for a year that way. The notes are the matching CHANGELOG section,
+      # so they cannot drift from what actually shipped.
+      - name: Extract this version's changelog section
+        id: notes
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          awk -v v="$version" '
+            $0 ~ "^## \\[" v "\\]" { found = 1; next }
+            found && /^## \[/ { exit }
+            found { print }
+          ' CHANGELOG.md > release_notes.md
+
+          if [ ! -s release_notes.md ]; then
+            echo "::error::no CHANGELOG section found for $version"
+            exit 1
+          fi
+          echo "Release notes:"; head -20 release_notes.md
+
+      - name: Create the GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          body_path: release_notes.md
+          # Anything with a pre-release suffix should not become "Latest".
+          prerelease: ${{ contains(github.ref_name, '-') }}
