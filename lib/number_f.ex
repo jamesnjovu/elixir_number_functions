@@ -28,7 +28,7 @@ defmodule NumberF do
   ```elixir
   def deps do
   [
-    {:number_f, "~> 0.2.0"}
+    {:number_f, "~> 0.3.0"}
   ]
   end
   ```
@@ -171,6 +171,7 @@ defmodule NumberF do
 
   See also: `NumberF.Currencies` for currency-specific information.
   """
+  @doc group: "Currency"
   defdelegate currency(number, unit \\ "ZMW", precision \\ 2), to: NumberF.Currency
 
   @doc """
@@ -191,6 +192,7 @@ defmodule NumberF do
       iex> NumberF.comma_separated(nil, 2)
       nil
   """
+  @doc group: "Currency"
   defdelegate comma_separated(number, precision \\ 2), to: NumberF.Currency
 
   @doc """
@@ -219,6 +221,7 @@ defmodule NumberF do
       iex> String.length(result) == 6 and Regex.match?(~r/^[A-Z]+$/, result)
       true
   """
+  @doc group: "Humanize"
   defdelegate randomizer(length, type \\ :all), to: NumberF.Randomizer
 
   @doc """
@@ -232,6 +235,7 @@ defmodule NumberF do
       true
 
   """
+  @doc group: "Humanize"
   defdelegate default_password(), to: NumberF.Randomizer, as: :gen_password
 
   @doc """
@@ -275,6 +279,7 @@ defmodule NumberF do
 
   See also: `NumberF.NumbersToWords` for more advanced word conversion options.
   """
+  @doc group: "Text"
   defdelegate to_words(amount, main_currency \\ "Kwacha", sec_currency \\ "Ngwee"),
     to: NumberF.NumbersToWords,
     as: :parse
@@ -300,6 +305,7 @@ defmodule NumberF do
       iex> NumberF.memory_size_cal(1073741824)
       "1.0 GB"
   """
+  @doc group: "Humanize"
   defdelegate memory_size_cal(size), to: NumberF.Memory, as: :humanize
 
   @doc """
@@ -317,6 +323,7 @@ defmodule NumberF do
       123
 
   """
+  @doc group: "Formatting"
   defdelegate to_int(value), to: NumberF.CustomFormatter
 
   @doc """
@@ -333,6 +340,7 @@ defmodule NumberF do
       iex> NumberF.to_float(123)
       123.0
   """
+  @doc group: "Formatting"
   defdelegate to_float(value), to: NumberF.CustomFormatter
 
   @doc """
@@ -349,6 +357,7 @@ defmodule NumberF do
       iex> NumberF.to_decimal(123)
       Decimal.new("123")
   """
+  @doc group: "Formatting"
   defdelegate to_decimal(value), to: NumberF.CustomFormatter
 
   @doc """
@@ -374,6 +383,7 @@ defmodule NumberF do
       iex> NumberF.to_boolean("no")
       false
   """
+  @doc group: "Formatting"
   defdelegate to_boolean(value), to: NumberF.CustomFormatter
 
   @doc """
@@ -397,6 +407,7 @@ defmodule NumberF do
       iex> NumberF.number_to_delimited(1234567.89, precision: 0)
       "1,234,568"
   """
+  @doc group: "Formatting"
   defdelegate number_to_delimited(number, options \\ []), to: NumberF.CustomFormatter
 
   @doc """
@@ -415,6 +426,7 @@ defmodule NumberF do
 
   This function flattens any nested lists, then uses `Enum.reduce/3` to sum all the decimal values.
   """
+  @doc group: "Formatting"
   defdelegate sum_decimal(list), to: NumberF.CustomFormatter
 
   ### NUMERIC CALCULATIONS ###
@@ -435,6 +447,7 @@ defmodule NumberF do
       iex> NumberF.percentage(1, 3, 2)
       33.33
   """
+  @doc group: "Math"
   defdelegate percentage(value, total, precision \\ 2), to: NumberF.Calculations
 
   @doc """
@@ -455,6 +468,7 @@ defmodule NumberF do
       iex> NumberF.round_to_nearest(12.3, 0.5)
       12.5
   """
+  @doc group: "Math"
   defdelegate round_to_nearest(value, nearest \\ 1.0), to: NumberF.Calculations
 
   @doc """
@@ -473,6 +487,7 @@ defmodule NumberF do
       iex> NumberF.in_range?(15, 1, 10)
       false
   """
+  @doc group: "Math"
   defdelegate in_range?(value, min, max), to: NumberF.Calculations
 
   ### FINANCIAL FUNCTIONS ###
@@ -490,6 +505,7 @@ defmodule NumberF do
       iex> NumberF.simple_interest(1000, 0.05, 2)
       100.0
   """
+  @doc group: "Financial"
   defdelegate simple_interest(principal, rate, time), to: NumberF.Financial
 
   @doc """
@@ -543,6 +559,7 @@ defmodule NumberF do
 
   See also: `NumberF.Financial` for more financial calculations.
   """
+  @doc group: "Financial"
   defdelegate compound_interest(principal, rate, time, frequency \\ 1), to: NumberF.Financial
 
   @doc """
@@ -558,6 +575,7 @@ defmodule NumberF do
       iex> NumberF.calculate_emi(100000, 0.10, 12)
       8791.59
   """
+  @doc group: "Financial"
   defdelegate calculate_emi(principal, rate, term_months), to: NumberF.Financial
 
   @doc """
@@ -573,6 +591,7 @@ defmodule NumberF do
       iex> NumberF.convert_currency(100, 1, 1.1)
       110.0
   """
+  @doc group: "Financial"
   defdelegate convert_currency(amount, from_rate, to_rate), to: NumberF.Financial
 
   ### STATISTICAL FUNCTIONS ###
@@ -620,6 +639,7 @@ defmodule NumberF do
 
   See also: `NumberF.Statistics` for more statistical functions.
   """
+  @doc group: "Statistics"
   defdelegate mean(numbers), to: NumberF.Statistics
 
   @doc """
@@ -636,6 +656,7 @@ defmodule NumberF do
       iex> NumberF.median([1, 3, 5, 7])
       4.0
   """
+  @doc group: "Statistics"
   defdelegate median(numbers), to: NumberF.Statistics
 
   @doc """
@@ -652,6 +673,7 @@ defmodule NumberF do
       iex> NumberF.mode([1, 1, 2, 2, 3])
       [1, 2]
   """
+  @doc group: "Statistics"
   defdelegate mode(numbers), to: NumberF.Statistics
 
   @doc """
@@ -665,6 +687,7 @@ defmodule NumberF do
       iex> NumberF.standard_deviation([2, 4, 4, 4, 5, 5, 7, 9])
       2.0
   """
+  @doc group: "Statistics"
   defdelegate standard_deviation(numbers), to: NumberF.Statistics
 
   ### NUMBER VALIDATION ###
@@ -686,6 +709,7 @@ defmodule NumberF do
       iex> NumberF.is_valid_number?("abc")
       false
   """
+  @doc group: "Validation"
   defdelegate is_valid_number?(str), to: NumberF.Validation
 
   @doc """
@@ -702,6 +726,7 @@ defmodule NumberF do
       iex> NumberF.is_valid_integer?("123.45")
       false
   """
+  @doc group: "Validation"
   defdelegate is_valid_integer?(str), to: NumberF.Validation
 
   @doc """
@@ -720,6 +745,7 @@ defmodule NumberF do
       iex> NumberF.is_valid_credit_card?("4111111111111112")
       false
   """
+  @doc group: "Validation"
   defdelegate is_valid_credit_card?(number, type \\ :any), to: NumberF.Validation
 
   ### FORMATTING ENHANCEMENTS ###
@@ -739,6 +765,7 @@ defmodule NumberF do
       iex> NumberF.format_phone("14155552671", "US")
       "+1 (415) 555-2671"
   """
+  @doc group: "Formatting"
   defdelegate format_phone(number, country_code \\ "ZM"), to: NumberF.Formatter
 
   @doc """
@@ -759,6 +786,7 @@ defmodule NumberF do
       iex> NumberF.abbreviate_number(1234567890)
       "1.2B"
   """
+  @doc group: "Formatting"
   defdelegate abbreviate_number(number, precision \\ 1), to: NumberF.Formatter
 
   @doc """
@@ -781,6 +809,7 @@ defmodule NumberF do
       iex> NumberF.ordinal(4)
       "4th"
   """
+  @doc group: "Formatting"
   defdelegate ordinal(number), to: NumberF.Formatter
 
   @doc """
@@ -800,6 +829,7 @@ defmodule NumberF do
       iex> NumberF.to_roman(1999)
       "MCMXCIX"
   """
+  @doc group: "Formatting"
   defdelegate to_roman(number), to: NumberF.Formatter
 
   @doc """
@@ -819,6 +849,7 @@ defmodule NumberF do
       iex> NumberF.from_roman("MCMXCIX")
       1999
   """
+  @doc group: "Formatting"
   defdelegate from_roman(roman), to: NumberF.Formatter
 
   ### DATE-BASED CALCULATIONS ###
@@ -836,6 +867,7 @@ defmodule NumberF do
       iex> is_integer(age) and age >= 0
       true
   """
+  @doc group: "Dates"
   defdelegate calculate_age(birth_date), to: NumberF.DateCalculations
 
   @doc """
@@ -855,6 +887,7 @@ defmodule NumberF do
       iex> NumberF.payment_due_date(invoice_date, 45)
       ~D[2023-03-01]
   """
+  @doc group: "Dates"
   defdelegate payment_due_date(invoice_date, terms_days \\ 30), to: NumberF.DateCalculations
 
   ### UNIT CONVERSION FUNCTIONS ###
@@ -873,6 +906,7 @@ defmodule NumberF do
       iex> NumberF.inches_to_cm(3.5)
       8.89
   """
+  @doc group: "Units"
   defdelegate inches_to_cm(inches), to: NumberF.Metrics
 
   @doc """
@@ -886,6 +920,7 @@ defmodule NumberF do
       iex> NumberF.cm_to_inches(25.4)
       10.0
   """
+  @doc group: "Units"
   defdelegate cm_to_inches(cm), to: NumberF.Metrics
 
   @doc """
@@ -899,6 +934,7 @@ defmodule NumberF do
       iex> NumberF.miles_to_km(10)
       16.09
   """
+  @doc group: "Units"
   defdelegate miles_to_km(miles), to: NumberF.Metrics
 
   @doc """
@@ -912,6 +948,7 @@ defmodule NumberF do
       iex> NumberF.km_to_miles(16.09)
       10.0
   """
+  @doc group: "Units"
   defdelegate km_to_miles(km), to: NumberF.Metrics
 
   @doc """
@@ -928,6 +965,7 @@ defmodule NumberF do
       iex> NumberF.fahrenheit_to_celsius(212)
       100.0
   """
+  @doc group: "Units"
   defdelegate fahrenheit_to_celsius(fahrenheit), to: NumberF.Metrics
 
   @doc """
@@ -944,6 +982,7 @@ defmodule NumberF do
       iex> NumberF.celsius_to_fahrenheit(100)
       212.0
   """
+  @doc group: "Units"
   defdelegate celsius_to_fahrenheit(celsius), to: NumberF.Metrics
 
   @doc """
@@ -957,6 +996,7 @@ defmodule NumberF do
       iex> NumberF.kg_to_pounds(4.54)
       10.01
   """
+  @doc group: "Units"
   defdelegate kg_to_pounds(kg), to: NumberF.Metrics
   ### PRECISION HANDLING FUNCTIONS ###
 
@@ -975,6 +1015,7 @@ defmodule NumberF do
       iex> NumberF.round_with_precision(3.14159, 4)
       3.1416
   """
+  @doc group: "Precision"
   defdelegate round_with_precision(number, precision \\ 2), to: NumberF.Precision
 
   @doc """
@@ -993,6 +1034,7 @@ defmodule NumberF do
       iex> NumberF.bankers_round(3.5, 0)
       4.0
   """
+  @doc group: "Precision"
   defdelegate bankers_round(number, precision \\ 2), to: NumberF.Precision
 
   @doc """
@@ -1010,6 +1052,7 @@ defmodule NumberF do
       iex> NumberF.ceiling(3.14159, 1)
       3.2
   """
+  @doc group: "Precision"
   defdelegate ceiling(number, precision \\ 2), to: NumberF.Precision
 
   @doc """
@@ -1027,6 +1070,7 @@ defmodule NumberF do
       iex> NumberF.floor(3.14159, 1)
       3.1
   """
+  @doc group: "Precision"
   defdelegate floor(number, precision \\ 2), to: NumberF.Precision
 
   @doc """
@@ -1048,6 +1092,7 @@ defmodule NumberF do
       iex> NumberF.round_to(3.14159, 0.1, :down)
       3.1
   """
+  @doc group: "Precision"
   defdelegate round_to(number, increment \\ 1.0, strategy \\ :nearest), to: NumberF.Precision
 
   @doc """
@@ -1066,6 +1111,7 @@ defmodule NumberF do
       iex> NumberF.approximately_equal(0.1, 0.2)
       false
   """
+  @doc group: "Precision"
   defdelegate approximately_equal(a, b, epsilon \\ 1.0e-10), to: NumberF.Precision
   ### TAX CALCULATION FUNCTIONS ###
 
@@ -1085,6 +1131,7 @@ defmodule NumberF do
       iex> NumberF.calculate_vat(120, 0.2, true)
       %{net: 100.0, vat: 20.0, gross: 120.0}
   """
+  @doc group: "Tax"
   defdelegate calculate_vat(amount, rate, included \\ false), to: NumberF.Tax
 
   @doc """
@@ -1101,6 +1148,7 @@ defmodule NumberF do
       iex> NumberF.calculate_sales_tax(100, 0.06)
       %{subtotal: 100.0, tax: 6.0, total: 106.0}
   """
+  @doc group: "Tax"
   defdelegate calculate_sales_tax(amount, rate, options \\ []), to: NumberF.Tax
 
   @doc """
@@ -1114,6 +1162,7 @@ defmodule NumberF do
       iex> NumberF.vat_rates()["Germany"]
       0.19
   """
+  @doc group: "Tax"
   defdelegate vat_rates(), to: NumberF.Tax
 
   ### INTERNATIONALIZATION FUNCTIONS ###
@@ -1135,6 +1184,7 @@ defmodule NumberF do
       iex> NumberF.format_number(1234567.89, "fr-FR")
       "1 234 567,89"
   """
+  @doc group: "Internationalization"
   defdelegate format_number(number, locale, options \\ []), to: NumberF.I18n
 
   @doc """
@@ -1185,6 +1235,7 @@ defmodule NumberF do
 
   See also: `NumberF.I18n` for more internationalization functions.
   """
+  @doc group: "Internationalization"
   defdelegate format_currency(number, locale, options \\ []), to: NumberF.I18n
 
   @doc """
@@ -1206,6 +1257,7 @@ defmodule NumberF do
       iex> NumberF.spell_number(42, "fr")
       "Quarante-deux"
   """
+  @doc group: "Internationalization"
   defdelegate spell_number(number, language, options \\ []), to: NumberF.I18n
   ### CURRENCY UTILITY FUNCTIONS ###
 
@@ -1225,6 +1277,7 @@ defmodule NumberF do
         decimal_separator: "."
       }
   """
+  @doc group: "Currency"
   defdelegate currency_data(), to: NumberF.Currencies
 
   @doc """
@@ -1246,6 +1299,7 @@ defmodule NumberF do
         decimal_separator: "."
       }
   """
+  @doc group: "Currency"
   defdelegate get_currency(currency_code), to: NumberF.Currencies
 
   @doc """
@@ -1264,6 +1318,7 @@ defmodule NumberF do
       iex> NumberF.format_with_currency(1234.56, "EUR")
       "1.234,56 €"
   """
+  @doc group: "Currency"
   defdelegate format_with_currency(number, currency_code, options \\ []),
     to: NumberF.Currencies,
     as: :format
@@ -1278,6 +1333,7 @@ defmodule NumberF do
       iex> NumberF.modules() |> Enum.map(& &1.name) |> Enum.take(3)
       ["NumberF", "NumberF.Currency", "NumberF.CustomFormatter"]
   """
+  @doc group: "Introspection"
   defdelegate modules(), to: NumberF.Registry
 
   @doc """
@@ -1291,6 +1347,7 @@ defmodule NumberF do
       iex> NumberF.modules_by_type(:formatting) |> Enum.map(& &1.name)
       ["NumberF.Currency", "NumberF.CustomFormatter", "NumberF.Formatter", "NumberF.Currencies"]
   """
+  @doc group: "Introspection"
   defdelegate modules_by_type(type), to: NumberF.Registry
 
   @doc """
@@ -1301,6 +1358,7 @@ defmodule NumberF do
       iex> NumberF.function_categories() |> Enum.map(& &1.name) |> Enum.take(3)
       ["Formatting", "Conversion", "Generation"]
   """
+  @doc group: "Introspection"
   defdelegate function_categories(), to: NumberF.Registry
 
   @doc """
@@ -1312,6 +1370,7 @@ defmodule NumberF do
       iex> String.starts_with?(markdown, "# NumberF Library")
       true
   """
+  @doc group: "Introspection"
   defdelegate documentation(), to: NumberF.Registry, as: :to_markdown
 
   ### EXTENDED MATH OPERATIONS ###
@@ -1330,6 +1389,7 @@ defmodule NumberF do
       iex> NumberF.factorial(0)
       1
   """
+  @doc group: "Math"
   defdelegate factorial(n), to: NumberF.Calculations
 
   @doc """
@@ -1347,6 +1407,7 @@ defmodule NumberF do
       iex> NumberF.combinations(10, 3)
       120
   """
+  @doc group: "Math"
   defdelegate combinations(n, k), to: NumberF.Calculations
 
   @doc """
@@ -1364,6 +1425,7 @@ defmodule NumberF do
       iex> NumberF.gcd(7, 13)
       1
   """
+  @doc group: "Math"
   defdelegate gcd(a, b), to: NumberF.Calculations
 
   @doc """
@@ -1381,6 +1443,7 @@ defmodule NumberF do
       iex> NumberF.lcm(21, 6)
       42
   """
+  @doc group: "Math"
   defdelegate lcm(a, b), to: NumberF.Calculations
 
   @doc """
@@ -1397,6 +1460,7 @@ defmodule NumberF do
       iex> NumberF.is_prime?(6)
       false
   """
+  @doc group: "Math"
   defdelegate is_prime?(n), to: NumberF.Calculations
 
   @doc """
@@ -1414,6 +1478,7 @@ defmodule NumberF do
       iex> NumberF.interpolate(2.5, 2, 10, 3, 20)
       15.0
   """
+  @doc group: "Math"
   defdelegate interpolate(x, x0, y0, x1, y1), to: NumberF.Calculations
 
   @doc """
@@ -1427,6 +1492,7 @@ defmodule NumberF do
       iex> NumberF.to_radians(180)
       3.141592653589793
   """
+  @doc group: "Math"
   defdelegate to_radians(degrees), to: NumberF.Calculations
 
   @doc """
@@ -1440,6 +1506,7 @@ defmodule NumberF do
       iex> NumberF.to_degrees(3.14159)
       179.99984796050427
   """
+  @doc group: "Math"
   defdelegate to_degrees(radians), to: NumberF.Calculations
   ### EXTENDED STATISTICS FUNCTIONS ###
 
@@ -1454,6 +1521,7 @@ defmodule NumberF do
       iex> NumberF.variance([2, 4, 4, 4, 5, 5, 7, 9])
       4.0
   """
+  @doc group: "Statistics"
   defdelegate variance(numbers), to: NumberF.Statistics
 
   @doc """
@@ -1474,6 +1542,7 @@ defmodule NumberF do
       iex> NumberF.sample_variance([2, 4, 4, 4, 5, 5, 7, 9])
       4.571428571428571
   """
+  @doc group: "Statistics"
   defdelegate sample_variance(numbers), to: NumberF.Statistics
 
   @doc """
@@ -1486,6 +1555,7 @@ defmodule NumberF do
       iex> NumberF.sample_standard_deviation([2, 4, 4, 4, 5, 5, 7, 9])
       2.138089935299395
   """
+  @doc group: "Statistics"
   defdelegate sample_standard_deviation(numbers), to: NumberF.Statistics
 
   @doc """
@@ -1500,6 +1570,7 @@ defmodule NumberF do
       iex> NumberF.spelling_languages()
       ["de", "en", "es", "fr"]
   """
+  @doc group: "Internationalization"
   defdelegate spelling_languages(), to: NumberF.I18n, as: :supported_languages
 
   @doc """
@@ -1513,6 +1584,7 @@ defmodule NumberF do
       iex> NumberF.range([2, 4, 4, 4, 5, 5, 7, 9])
       7.0
   """
+  @doc group: "Statistics"
   defdelegate range(numbers), to: NumberF.Statistics
   ### EXTENDED DATE FUNCTIONS ###
 
@@ -1528,6 +1600,7 @@ defmodule NumberF do
       iex> NumberF.days_between(~D[2023-01-01], ~D[2023-01-10])
       9
   """
+  @doc group: "Dates"
   defdelegate days_between(date1, date2), to: NumberF.DateCalculations
 
   @doc """
@@ -1542,6 +1615,7 @@ defmodule NumberF do
       iex> NumberF.business_days_between(~D[2023-01-02], ~D[2023-01-08])
       5
   """
+  @doc group: "Dates"
   defdelegate business_days_between(date1, date2), to: NumberF.DateCalculations
 
   @doc """
@@ -1558,7 +1632,1026 @@ defmodule NumberF do
       iex> NumberF.is_business_day?(~D[2023-01-01])
       false
   """
+  @doc group: "Dates"
   defdelegate is_business_day?(date), to: NumberF.DateCalculations
+
+  ### STATISTICS (v0.3.0) ###
+
+  @doc """
+  Returns the value at the given percentile (0..100), by linear interpolation.
+
+  ## Examples
+
+      iex> NumberF.percentile([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 25)
+      3.25
+  """
+  @doc group: "Statistics"
+  defdelegate percentile(numbers, p), to: NumberF.Statistics
+
+  @doc """
+  Returns the first, second and third quartiles.
+
+  ## Examples
+
+      iex> NumberF.quartiles([1, 2, 3, 4, 5, 6, 7, 8])
+      %{q1: 2.75, q2: 4.5, q3: 6.25}
+  """
+  @doc group: "Statistics"
+  defdelegate quartiles(numbers), to: NumberF.Statistics
+
+  @doc """
+  Interquartile range — the spread of the middle half of the data.
+
+  ## Examples
+
+      iex> NumberF.iqr([1, 2, 3, 4, 5, 6, 7, 8])
+      3.5
+  """
+  @doc group: "Statistics"
+  defdelegate iqr(numbers), to: NumberF.Statistics
+
+  @doc """
+  How many standard deviations a value sits from the mean.
+
+  ## Examples
+
+      iex> NumberF.z_score(6, 4, 2)
+      1.0
+  """
+  @doc group: "Statistics"
+  defdelegate z_score(value, mean, stddev), to: NumberF.Statistics
+
+  @doc """
+  Standardises a list to zero mean and unit variance.
+
+  ## Examples
+
+      iex> NumberF.z_scores([2, 4, 6])
+      [-1.224744871391589, 0.0, 1.224744871391589]
+  """
+  @doc group: "Statistics"
+  defdelegate z_scores(numbers), to: NumberF.Statistics
+
+  @doc """
+  Pearson correlation coefficient between two equal-length lists, in -1..1.
+
+  ## Examples
+
+      iex> NumberF.correlation([1, 2, 3, 4, 5], [2, 4, 5, 4, 5])
+      0.7745966692414833
+  """
+  @doc group: "Statistics"
+  defdelegate correlation(xs, ys), to: NumberF.Statistics
+
+  @doc """
+  Population covariance of two equal-length lists.
+
+  ## Examples
+
+      iex> NumberF.covariance([1, 2, 3, 4, 5], [2, 4, 5, 4, 5])
+      1.2
+  """
+  @doc group: "Statistics"
+  defdelegate covariance(xs, ys), to: NumberF.Statistics
+
+  @doc """
+  Least-squares linear regression, returning slope, intercept and r-squared.
+
+  ## Examples
+
+      iex> NumberF.linear_regression([1, 2, 3, 4, 5], [2, 4, 5, 4, 5]).slope
+      0.6
+  """
+  @doc group: "Statistics"
+  defdelegate linear_regression(xs, ys), to: NumberF.Statistics
+
+  @doc """
+  Mean weighted by a matching list of weights.
+
+  ## Examples
+
+      iex> NumberF.weighted_mean([90, 80, 70], [0.5, 0.3, 0.2])
+      83.0
+  """
+  @doc group: "Statistics"
+  defdelegate weighted_mean(values, weights), to: NumberF.Statistics
+
+  @doc """
+  Geometric mean — the correct average for growth rates and ratios.
+
+  ## Examples
+
+      iex> NumberF.geometric_mean([1, 4, 16]) |> Float.round(4)
+      4.0
+  """
+  @doc group: "Statistics"
+  defdelegate geometric_mean(numbers), to: NumberF.Statistics
+
+  @doc """
+  Harmonic mean — the correct average for rates over a fixed distance.
+
+  ## Examples
+
+      iex> NumberF.harmonic_mean([40, 60]) |> Float.round(6)
+      48.0
+  """
+  @doc group: "Statistics"
+  defdelegate harmonic_mean(numbers), to: NumberF.Statistics
+
+  @doc """
+  A one-call description of a dataset: count, min, quartiles, max, mean, stddev.
+
+  ## Examples
+
+      iex> NumberF.summary([1, 2, 3, 4, 5]).median
+      3
+  """
+  @doc group: "Statistics"
+  defdelegate summary(numbers), to: NumberF.Statistics
+
+  @doc """
+  Simple moving average over a sliding window.
+
+  ## Examples
+
+      iex> NumberF.moving_average([1, 2, 3, 4, 5], 3)
+      [2.0, 3.0, 4.0]
+  """
+  @doc group: "Statistics"
+  defdelegate moving_average(numbers, window), to: NumberF.Statistics
+
+  @doc """
+  Running total of a list.
+
+  ## Examples
+
+      iex> NumberF.cumulative_sum([1, 2, 3, 4])
+      [1, 3, 6, 10]
+  """
+  @doc group: "Statistics"
+  defdelegate cumulative_sum(numbers), to: NumberF.Statistics
+
+  @doc """
+  Rescales a list to the 0..1 range.
+
+  ## Examples
+
+      iex> NumberF.normalize([10, 20, 30])
+      [0.0, 0.5, 1.0]
+  """
+  @doc group: "Statistics"
+  defdelegate normalize(numbers), to: NumberF.Statistics
+
+  @doc """
+  Values falling outside the expected spread. `method: :iqr` (default) or `:zscore`.
+
+  ## Examples
+
+      iex> NumberF.outliers([1, 2, 3, 4, 1000])
+      [1000]
+  """
+  @doc group: "Statistics"
+  defdelegate outliers(numbers, options \\ []), to: NumberF.Statistics
+
+  @doc """
+  The list with its outliers removed.
+
+  ## Examples
+
+      iex> NumberF.remove_outliers([1, 2, 3, 4, 1000])
+      [1, 2, 3, 4]
+  """
+  @doc group: "Statistics"
+  defdelegate remove_outliers(numbers, options \\ []), to: NumberF.Statistics
+
+  @doc """
+  Counts how often each value occurs.
+
+  ## Examples
+
+      iex> NumberF.frequency_distribution([1, 2, 2, 3, 3, 3])
+      %{1 => 1, 2 => 2, 3 => 3}
+  """
+  @doc group: "Statistics"
+  defdelegate frequency_distribution(numbers), to: NumberF.Statistics
+
+  @doc """
+  Mean after discarding a proportion from each end — robust to unreliable extremes.
+
+  ## Examples
+
+      iex> NumberF.trimmed_mean([1, 2, 3, 4, 100], 0.2)
+      3.0
+  """
+  @doc group: "Statistics"
+  defdelegate trimmed_mean(numbers, proportion \\ 0.1), to: NumberF.Statistics
+
+  @doc """
+  Standard deviation as a proportion of the mean — a unitless measure of spread.
+
+  ## Examples
+
+      iex> NumberF.coefficient_of_variation([2, 4, 4, 4, 5, 5, 7, 9])
+      0.4
+  """
+  @doc group: "Statistics"
+  defdelegate coefficient_of_variation(numbers), to: NumberF.Statistics
+
+  ### PRECISION AND FINANCIAL (v0.3.0) ###
+
+  @doc """
+  Constrains a value to a range.
+
+  ## Examples
+
+      iex> NumberF.clamp(15, 0, 10)
+      10
+
+      iex> NumberF.clamp(-5, 0, 10)
+      0
+  """
+  @doc group: "Precision"
+  defdelegate clamp(value, min, max), to: NumberF.Precision
+
+  @doc """
+  Divides, returning `default` instead of raising when the denominator is zero.
+
+  ## Examples
+
+      iex> NumberF.safe_divide(10, 0)
+      0.0
+
+      iex> NumberF.safe_divide(10, 4)
+      2.5
+  """
+  @doc group: "Precision"
+  defdelegate safe_divide(numerator, denominator, default \\ 0.0), to: NumberF.Precision
+
+  @doc """
+  Returns -1, 0 or 1 according to the sign of the number.
+
+  ## Examples
+
+      iex> NumberF.sign(-4.2)
+      -1
+  """
+  @doc group: "Precision"
+  defdelegate sign(number), to: NumberF.Precision
+
+  @doc """
+  Rounds half away from zero — "round half up" as most people mean it.
+
+  Contrast `bankers_round/2`, which rounds half to even to avoid upward bias.
+
+  ## Examples
+
+      iex> NumberF.round_half_away_from_zero(-2.5, 0)
+      -3.0
+  """
+  @doc group: "Precision"
+  defdelegate round_half_away_from_zero(number, precision \\ 2), to: NumberF.Precision
+
+  @doc """
+  Rounds half to even. A discoverable alias for `bankers_round/2`.
+
+  ## Examples
+
+      iex> NumberF.round_half_even(2.5, 0)
+      2.0
+  """
+  @doc group: "Precision"
+  defdelegate round_half_even(number, precision \\ 2), to: NumberF.Precision
+
+  @doc """
+  Present value of a future sum.
+
+  ## Examples
+
+      iex> NumberF.present_value(1000, 0.05, 10)
+      613.91
+  """
+  @doc group: "Financial"
+  defdelegate present_value(future_value, rate, periods), to: NumberF.Financial
+
+  @doc """
+  Future value of a present sum.
+
+  ## Examples
+
+      iex> NumberF.future_value(1000, 0.05, 10)
+      1628.89
+  """
+  @doc group: "Financial"
+  defdelegate future_value(present_value, rate, periods), to: NumberF.Financial
+
+  @doc """
+  Net present value of a series of cash flows, the first at t=0.
+
+  ## Examples
+
+      iex> NumberF.npv(0.1, [-1000, 300, 400, 500, 600])
+      388.77
+  """
+  @doc group: "Financial"
+  defdelegate npv(rate, cash_flows), to: NumberF.Financial
+
+  @doc """
+  Internal rate of return. Returns `{:ok, rate}` or an error tuple.
+
+  ## Examples
+
+      iex> {:ok, rate} = NumberF.irr([-1000, 300, 400, 500, 600])
+      iex> Float.round(rate, 4)
+      0.2489
+  """
+  @doc group: "Financial"
+  defdelegate irr(cash_flows, options \\ []), to: NumberF.Financial
+
+  @doc """
+  Full amortization schedule for a loan, one entry per period.
+
+  ## Examples
+
+      iex> NumberF.amortization_schedule(100_000, 0.10, 12) |> List.last() |> Map.get(:balance)
+      0.0
+  """
+  @doc group: "Financial"
+  defdelegate amortization_schedule(principal, annual_rate, term_months), to: NumberF.Financial
+
+  @doc """
+  Return on investment, as a percentage.
+
+  ## Examples
+
+      iex> NumberF.roi(1500, 1000)
+      50.0
+  """
+  @doc group: "Financial"
+  defdelegate roi(gain, cost), to: NumberF.Financial
+
+  @doc """
+  Compound annual growth rate, as a percentage.
+
+  ## Examples
+
+      iex> NumberF.cagr(1000, 2000, 5)
+      14.87
+  """
+  @doc group: "Financial"
+  defdelegate cagr(beginning_value, ending_value, years), to: NumberF.Financial
+
+  @doc """
+  Effective annual rate for a nominal rate compounded n times per year.
+
+  ## Examples
+
+      iex> NumberF.effective_annual_rate(0.12, 12)
+      0.1268
+  """
+  @doc group: "Financial"
+  defdelegate effective_annual_rate(nominal_rate, compounds_per_year), to: NumberF.Financial
+
+  @doc """
+  Level loan payment. Unlike `calculate_emi/3`'s history, safe at a zero rate.
+
+  ## Examples
+
+      iex> NumberF.loan_payment(100_000, 0.0, 12)
+      8333.33
+  """
+  @doc group: "Financial"
+  defdelegate loan_payment(principal, annual_rate, term_months), to: NumberF.Financial
+
+  @doc """
+  Payment required to amortise a present value over n periods.
+
+  ## Examples
+
+      iex> NumberF.annuity_payment(10_000, 0.05, 10)
+      1295.05
+  """
+  @doc group: "Financial"
+  defdelegate annuity_payment(present_value, rate, periods), to: NumberF.Financial
+
+  @doc """
+  Present value of a stream of equal payments.
+
+  ## Examples
+
+      iex> NumberF.annuity_present_value(100, 0.05, 10)
+      772.17
+  """
+  @doc group: "Financial"
+  defdelegate annuity_present_value(payment, rate, periods), to: NumberF.Financial
+
+  @doc """
+  Future value of a stream of equal payments.
+
+  ## Examples
+
+      iex> NumberF.annuity_future_value(100, 0.05, 10)
+      1257.79
+  """
+  @doc group: "Financial"
+  defdelegate annuity_future_value(payment, rate, periods), to: NumberF.Financial
+
+  @doc """
+  Straight-line depreciation per year.
+
+  ## Examples
+
+      iex> NumberF.depreciation_straight_line(10_000, 1_000, 5)
+      1800.0
+  """
+  @doc group: "Financial"
+  defdelegate depreciation_straight_line(cost, salvage, life_years), to: NumberF.Financial
+
+  @doc """
+  Declining-balance depreciation schedule. `factor` defaults to 2.
+
+  ## Examples
+
+      iex> NumberF.depreciation_declining_balance(10_000, 1_000, 5) |> hd()
+      %{year: 1, depreciation: 4000.0, book_value: 6000.0}
+  """
+  @doc group: "Financial"
+  defdelegate depreciation_declining_balance(cost, salvage, life_years, factor \\ 2),
+    to: NumberF.Financial
+
+  @doc """
+  Units that must be sold to cover fixed costs.
+
+  ## Examples
+
+      iex> NumberF.break_even_point(10_000, 25, 15)
+      1000.0
+  """
+  @doc group: "Financial"
+  defdelegate break_even_point(fixed_costs, price_per_unit, variable_cost_per_unit),
+    to: NumberF.Financial
+
+  @doc """
+  Years until cumulative cash flows repay an initial investment.
+
+  ## Examples
+
+      iex> NumberF.payback_period(1000, [300, 400, 500])
+      {:ok, 2.6}
+  """
+  @doc group: "Financial"
+  defdelegate payback_period(initial_investment, cash_flows), to: NumberF.Financial
+
+  ### MATH, FORMATTING, VALIDATION AND DATES (v0.3.0) ###
+
+  @doc """
+  Ordered arrangements of k items from n (nPk).
+
+  ## Examples
+
+      iex> NumberF.permutations(5, 2)
+      20
+  """
+  @doc group: "Math"
+  defdelegate permutations(n, k), to: NumberF.Calculations
+
+  @doc """
+  The nth Fibonacci number, exact for any n.
+
+  ## Examples
+
+      iex> NumberF.fibonacci(10)
+      55
+  """
+  @doc group: "Math"
+  defdelegate fibonacci(n), to: NumberF.Calculations
+
+  @doc """
+  The first n Fibonacci numbers.
+
+  ## Examples
+
+      iex> NumberF.fibonacci_sequence(8)
+      [0, 1, 1, 2, 3, 5, 8, 13]
+  """
+  @doc group: "Math"
+  defdelegate fibonacci_sequence(n), to: NumberF.Calculations
+
+  @doc """
+  Prime factorisation, ascending and with repeats.
+
+  ## Examples
+
+      iex> NumberF.prime_factors(360)
+      [2, 2, 2, 3, 3, 5]
+  """
+  @doc group: "Math"
+  defdelegate prime_factors(n), to: NumberF.Calculations
+
+  @doc """
+  All positive divisors of n, ascending.
+
+  ## Examples
+
+      iex> NumberF.divisors(28)
+      [1, 2, 4, 7, 14, 28]
+  """
+  @doc group: "Math"
+  defdelegate divisors(n), to: NumberF.Calculations
+
+  @doc """
+  The decimal digits of an integer.
+
+  ## Examples
+
+      iex> NumberF.digits(12345)
+      [1, 2, 3, 4, 5]
+  """
+  @doc group: "Math"
+  defdelegate digits(n), to: NumberF.Calculations
+
+  @doc """
+  Sum of the decimal digits.
+
+  ## Examples
+
+      iex> NumberF.digit_sum(12345)
+      15
+  """
+  @doc group: "Math"
+  defdelegate digit_sum(n), to: NumberF.Calculations
+
+  @doc """
+  Repeatedly sums the digits until one remains.
+
+  ## Examples
+
+      iex> NumberF.digital_root(12345)
+      6
+  """
+  @doc group: "Math"
+  defdelegate digital_root(n), to: NumberF.Calculations
+
+  @doc """
+  The integer with its digits reversed.
+
+  ## Examples
+
+      iex> NumberF.reverse_number(12345)
+      54321
+  """
+  @doc group: "Math"
+  defdelegate reverse_number(n), to: NumberF.Calculations
+
+  @doc """
+  Whether the digits read the same both ways.
+
+  ## Examples
+
+      iex> NumberF.palindrome?(12321)
+      true
+  """
+  @doc group: "Math"
+  defdelegate palindrome?(n), to: NumberF.Calculations
+
+  @doc """
+  Whether n is a perfect square, without float error.
+
+  ## Examples
+
+      iex> NumberF.perfect_square?(144)
+      true
+  """
+  @doc group: "Math"
+  defdelegate perfect_square?(n), to: NumberF.Calculations
+
+  @doc """
+  The real nth root of a number.
+
+  ## Examples
+
+      iex> NumberF.nth_root(27, 3)
+      3.0
+  """
+  @doc group: "Math"
+  defdelegate nth_root(number, n), to: NumberF.Calculations
+
+  @doc """
+  Logarithm in an arbitrary base.
+
+  ## Examples
+
+      iex> NumberF.log_base(1024, 2)
+      10.0
+  """
+  @doc group: "Math"
+  defdelegate log_base(number, base), to: NumberF.Calculations
+
+  @doc """
+  Renders an integer in a base from 2 to 36.
+
+  ## Examples
+
+      iex> NumberF.to_base(255, 16)
+      "FF"
+  """
+  @doc group: "Math"
+  defdelegate to_base(number, base), to: NumberF.Calculations
+
+  @doc """
+  Parses an integer written in a base from 2 to 36.
+
+  ## Examples
+
+      iex> NumberF.from_base("FF", 16)
+      255
+  """
+  @doc group: "Math"
+  defdelegate from_base(string, base), to: NumberF.Calculations
+
+  @doc """
+  Renders an integer in hexadecimal.
+
+  ## Examples
+
+      iex> NumberF.to_hex(255)
+      "FF"
+  """
+  @doc group: "Math"
+  defdelegate to_hex(number), to: NumberF.Calculations
+
+  @doc """
+  Parses a hexadecimal integer.
+
+  ## Examples
+
+      iex> NumberF.from_hex("FF")
+      255
+  """
+  @doc group: "Math"
+  defdelegate from_hex(string), to: NumberF.Calculations
+
+  @doc """
+  Renders an integer in binary.
+
+  ## Examples
+
+      iex> NumberF.to_binary(5)
+      "101"
+  """
+  @doc group: "Math"
+  defdelegate to_binary(number), to: NumberF.Calculations
+
+  @doc """
+  Parses a binary integer.
+
+  ## Examples
+
+      iex> NumberF.from_binary("101")
+      5
+  """
+  @doc group: "Math"
+  defdelegate from_binary(string), to: NumberF.Calculations
+
+  @doc """
+  Renders an integer in octal.
+
+  ## Examples
+
+      iex> NumberF.to_octal(8)
+      "10"
+  """
+  @doc group: "Math"
+  defdelegate to_octal(number), to: NumberF.Calculations
+
+  @doc """
+  Parses an octal integer.
+
+  ## Examples
+
+      iex> NumberF.from_octal("10")
+      8
+  """
+  @doc group: "Math"
+  defdelegate from_octal(string), to: NumberF.Calculations
+
+  @doc """
+  Accounting format: negatives in parentheses.
+
+  ## Examples
+
+      iex> NumberF.accounting_format(-1234.56, unit: "$")
+      "($1,234.56)"
+  """
+  @doc group: "Formatting"
+  defdelegate accounting_format(number, options \\ []), to: NumberF.Formatter
+
+  @doc """
+  Human-readable byte size. `base: :binary` for KiB/MiB.
+
+  ## Examples
+
+      iex> NumberF.format_bytes(1_500_000)
+      "1.5 MB"
+  """
+  @doc group: "Formatting"
+  defdelegate format_bytes(bytes, options \\ []), to: NumberF.Formatter
+
+  @doc """
+  Human-readable duration. `format:` `:short`, `:long` or `:clock`.
+
+  ## Examples
+
+      iex> NumberF.format_duration(3725)
+      "1h 2m 5s"
+  """
+  @doc group: "Formatting"
+  defdelegate format_duration(seconds, options \\ []), to: NumberF.Formatter
+
+  @doc """
+  Rounds to a number of significant figures.
+
+  ## Examples
+
+      iex> NumberF.significant_figures(1234.5678, 3)
+      1230.0
+  """
+  @doc group: "Formatting"
+  defdelegate significant_figures(number, digits), to: NumberF.Formatter
+
+  @doc """
+  Formats to significant figures, keeping trailing zeros.
+
+  ## Examples
+
+      iex> NumberF.format_significant(1.5, 4)
+      "1.500"
+  """
+  @doc group: "Formatting"
+  defdelegate format_significant(number, digits), to: NumberF.Formatter
+
+  @doc """
+  Prefixes a number with an explicit sign.
+
+  ## Examples
+
+      iex> NumberF.with_sign(42)
+      "+42"
+  """
+  @doc group: "Formatting"
+  defdelegate with_sign(number, options \\ []), to: NumberF.Formatter
+
+  @doc """
+  Pads a number to a fixed width.
+
+  ## Examples
+
+      iex> NumberF.pad_number(42, 6, char: "0")
+      "000042"
+  """
+  @doc group: "Formatting"
+  defdelegate pad_number(number, width, options \\ []), to: NumberF.Formatter
+
+  @doc """
+  Pairs a count with a correctly pluralised noun.
+
+  ## Examples
+
+      iex> NumberF.pluralize(3, "person", "people")
+      "3 people"
+  """
+  @doc group: "Formatting"
+  defdelegate pluralize(count, singular, plural \\ nil), to: NumberF.Formatter
+
+  @doc """
+  Validates an IBAN by its mod-97 checksum.
+
+  ## Examples
+
+      iex> NumberF.valid_iban?("GB82 WEST 1234 5698 7654 32")
+      true
+  """
+  @doc group: "Validation"
+  defdelegate valid_iban?(iban), to: NumberF.Validation
+
+  @doc """
+  Validates an ISBN-10 or ISBN-13.
+
+  ## Examples
+
+      iex> NumberF.valid_isbn?("978-3-16-148410-0")
+      true
+  """
+  @doc group: "Validation"
+  defdelegate valid_isbn?(isbn), to: NumberF.Validation
+
+  @doc """
+  Validates an EAN-8 or EAN-13 barcode.
+
+  ## Examples
+
+      iex> NumberF.valid_ean?("4006381333931")
+      true
+  """
+  @doc group: "Validation"
+  defdelegate valid_ean?(code), to: NumberF.Validation
+
+  @doc """
+  Validates a UPC-A barcode.
+
+  ## Examples
+
+      iex> NumberF.valid_upc?("036000291452")
+      true
+  """
+  @doc group: "Validation"
+  defdelegate valid_upc?(code), to: NumberF.Validation
+
+  @doc """
+  Identifies a card network from its number.
+
+  ## Examples
+
+      iex> NumberF.card_brand("4111111111111111")
+      :visa
+  """
+  @doc group: "Validation"
+  defdelegate card_brand(number), to: NumberF.Validation
+
+  @doc """
+  Computes the Luhn check digit for a number.
+
+  ## Examples
+
+      iex> NumberF.luhn_check_digit("411111111111111")
+      1
+  """
+  @doc group: "Validation"
+  defdelegate luhn_check_digit(partial), to: NumberF.Validation
+
+  @doc """
+  Validates any Luhn-checksummed number.
+
+  ## Examples
+
+      iex> NumberF.valid_luhn?("4111111111111111")
+      true
+  """
+  @doc group: "Validation"
+  defdelegate valid_luhn?(number), to: NumberF.Validation
+
+  @doc """
+  Validates a US ABA routing number.
+
+  ## Examples
+
+      iex> NumberF.valid_routing_number?("021000021")
+      true
+  """
+  @doc group: "Validation"
+  defdelegate valid_routing_number?(number), to: NumberF.Validation
+
+  @doc """
+  Validates a 15-digit IMEI.
+
+  ## Examples
+
+      iex> NumberF.valid_imei?("490154203237518")
+      true
+  """
+  @doc group: "Validation"
+  defdelegate valid_imei?(imei), to: NumberF.Validation
+
+  @doc """
+  Whether the code is a currency this library knows.
+
+  ## Examples
+
+      iex> NumberF.valid_currency_code?("USD")
+      true
+  """
+  @doc group: "Validation"
+  defdelegate valid_currency_code?(code), to: NumberF.Validation
+
+  @doc """
+  Whether a value is a number in 0..100.
+
+  ## Examples
+
+      iex> NumberF.valid_percentage?(42.5)
+      true
+  """
+  @doc group: "Validation"
+  defdelegate valid_percentage?(value), to: NumberF.Validation
+
+  @doc """
+  Calendar quarter of a date, 1 to 4.
+
+  ## Examples
+
+      iex> NumberF.quarter(~D[2024-08-22])
+      3
+  """
+  @doc group: "Dates"
+  defdelegate quarter(date), to: NumberF.DateCalculations
+
+  @doc """
+  First day of the date's quarter.
+
+  ## Examples
+
+      iex> NumberF.quarter_start(~D[2024-08-22])
+      ~D[2024-07-01]
+  """
+  @doc group: "Dates"
+  defdelegate quarter_start(date), to: NumberF.DateCalculations
+
+  @doc """
+  Last day of the date's quarter.
+
+  ## Examples
+
+      iex> NumberF.quarter_end(~D[2024-08-22])
+      ~D[2024-09-30]
+  """
+  @doc group: "Dates"
+  defdelegate quarter_end(date), to: NumberF.DateCalculations
+
+  @doc """
+  Fiscal year containing the date, named for the year it ends in.
+
+  ## Examples
+
+      iex> NumberF.fiscal_year(~D[2024-08-22], 4)
+      2025
+  """
+  @doc group: "Dates"
+  defdelegate fiscal_year(date, start_month \\ 4), to: NumberF.DateCalculations
+
+  @doc """
+  Number of days in a month.
+
+  ## Examples
+
+      iex> NumberF.days_in_month(2024, 2)
+      29
+  """
+  @doc group: "Dates"
+  defdelegate days_in_month(year, month), to: NumberF.DateCalculations
+
+  @doc """
+  Whether a year is a leap year.
+
+  ## Examples
+
+      iex> NumberF.leap_year?(2024)
+      true
+  """
+  @doc group: "Dates"
+  defdelegate leap_year?(year), to: NumberF.DateCalculations
+
+  @doc """
+  ISO-8601 week number.
+
+  ## Examples
+
+      iex> NumberF.week_number(~D[2024-08-22])
+      34
+  """
+  @doc group: "Dates"
+  defdelegate week_number(date), to: NumberF.DateCalculations
+
+  @doc """
+  First day of the date's month.
+
+  ## Examples
+
+      iex> NumberF.month_start(~D[2024-08-22])
+      ~D[2024-08-01]
+  """
+  @doc group: "Dates"
+  defdelegate month_start(date), to: NumberF.DateCalculations
+
+  @doc """
+  Last day of the date's month.
+
+  ## Examples
+
+      iex> NumberF.month_end(~D[2024-02-10])
+      ~D[2024-02-29]
+  """
+  @doc group: "Dates"
+  defdelegate month_end(date), to: NumberF.DateCalculations
+
+  @doc """
+  Age in whole months.
+
+  ## Examples
+
+      iex> NumberF.age_in_months(~D[2020-01-15], ~D[2024-08-22])
+      55
+  """
+  @doc group: "Dates"
+  defdelegate age_in_months(birth_date, as_of \\ Date.utc_today()), to: NumberF.DateCalculations
 
   ### PREVIOUSLY SUBMODULE-ONLY ###
   #
@@ -1579,6 +2672,7 @@ defmodule NumberF do
       iex> NumberF.custom_round(2.565, 2, :half_down)
       2.56
   """
+  @doc group: "Precision"
   defdelegate custom_round(number, precision, mode \\ :half_up), to: NumberF.Precision
 
   @doc """
@@ -1591,6 +2685,7 @@ defmodule NumberF do
       iex> NumberF.precise_format(3.14159, 3)
       "3.142"
   """
+  @doc group: "Precision"
   defdelegate precise_format(number, precision \\ 2), to: NumberF.Precision
 
   @doc """
@@ -1601,6 +2696,7 @@ defmodule NumberF do
       iex> NumberF.sanitize_float(:nan)
       0.0
   """
+  @doc group: "Precision"
   defdelegate sanitize_float(value, default \\ 0.0), to: NumberF.Precision
 
   @doc """
@@ -1611,6 +2707,7 @@ defmodule NumberF do
       iex> NumberF.truncate(3.999, 2)
       3.99
   """
+  @doc group: "Precision"
   defdelegate truncate(number, precision \\ 2), to: NumberF.Precision
 
   @doc """
@@ -1623,6 +2720,7 @@ defmodule NumberF do
       iex> is_number(result.tax) and is_number(result.effective_rate)
       true
   """
+  @doc group: "Tax"
   defdelegate calculate_income_tax(income, brackets), to: NumberF.Tax
 
   @doc """
@@ -1636,18 +2734,23 @@ defmodule NumberF do
       iex> NumberF.income_tax_brackets() |> Map.keys() |> Enum.sort()
       ["Germany", "UK", "US", "Zambia"]
   """
+  @doc group: "Tax"
   defdelegate income_tax_brackets(), to: NumberF.Tax
 
   @doc "Calculates capital gains tax on a gain."
+  @doc group: "Tax"
   defdelegate calculate_capital_gains_tax(gain, rate, exemption \\ 0), to: NumberF.Tax
 
   @doc "Calculates corporate tax on a profit."
+  @doc group: "Tax"
   defdelegate calculate_corporate_tax(profit, rate), to: NumberF.Tax
 
   @doc "Calculates withholding tax on a gross amount."
+  @doc group: "Tax"
   defdelegate calculate_withholding_tax(amount, rate), to: NumberF.Tax
 
   @doc "Calculates employee and employer payroll contributions."
+  @doc group: "Tax"
   defdelegate calculate_payroll_tax(salary, employee_rate, employer_rate, cap \\ nil),
     to: NumberF.Tax
 
@@ -1659,6 +2762,7 @@ defmodule NumberF do
       iex> NumberF.scientific_notation(0.000123)
       "1.23e-4"
   """
+  @doc group: "Formatting"
   defdelegate scientific_notation(number, precision \\ 2), to: NumberF.Formatter
 
   @doc """
@@ -1669,46 +2773,59 @@ defmodule NumberF do
       iex> NumberF.engineering_notation(0.000123)
       "123.0e-6"
   """
+  @doc group: "Formatting"
   defdelegate engineering_notation(number, precision \\ 2), to: NumberF.Formatter
 
   @doc "Formats a value as a percentage string."
+  @doc group: "Formatting"
   defdelegate format_percentage(value, total, precision \\ 2), to: NumberF.Formatter
 
   @doc "Formats a numerator and denominator as a fraction."
+  @doc group: "Formatting"
   defdelegate format_fraction(numerator, denominator, options \\ []), to: NumberF.Formatter
 
   @doc "Approximates a decimal as a fraction."
+  @doc group: "Formatting"
   defdelegate decimal_to_fraction(decimal, options \\ []), to: NumberF.Formatter
 
   @doc "Formats a number with a custom prefix and suffix."
+  @doc group: "Formatting"
   defdelegate format_with_units(number, options \\ []), to: NumberF.Formatter
 
   @doc "Formats a number as currency using the low-level formatter."
+  @doc group: "Formatting"
   defdelegate number_to_currency(number, options \\ []), to: NumberF.CustomFormatter
 
   @doc "Converts between two currencies using a rate table."
+  @doc group: "Currency"
   defdelegate convert_between_currencies(amount, from, to, rates, base_currency \\ "USD"),
     to: NumberF.Currencies,
     as: :convert
 
   @doc "Parses a currency string into a number."
+  @doc group: "Currency"
   defdelegate parse_currency(currency_string, currency_code \\ nil),
     to: NumberF.Currencies,
     as: :parse
 
   @doc "Converts pounds to kilograms."
+  @doc group: "Units"
   defdelegate pounds_to_kg(pounds), to: NumberF.Metrics
 
   @doc "Converts millilitres to fluid ounces."
+  @doc group: "Units"
   defdelegate ml_to_oz(ml), to: NumberF.Metrics
 
   @doc "Converts fluid ounces to millilitres."
+  @doc group: "Units"
   defdelegate oz_to_ml(oz), to: NumberF.Metrics
 
   @doc "Converts acres to hectares."
+  @doc group: "Units"
   defdelegate acres_to_hectares(acres), to: NumberF.Metrics
 
   @doc "Converts hectares to acres."
+  @doc group: "Units"
   defdelegate hectares_to_acres(hectares), to: NumberF.Metrics
 
   @doc """
@@ -1721,18 +2838,23 @@ defmodule NumberF do
       iex> NumberF.convert_units(100, "km", "mi", NumberF.length_units()) |> Float.round(2)
       62.14
   """
+  @doc group: "Units"
   defdelegate convert_units(value, from, to, units), to: NumberF.Metrics
 
   @doc "Length conversion factors, relative to metres."
+  @doc group: "Units"
   defdelegate length_units(), to: NumberF.Metrics
 
   @doc "Weight conversion factors, relative to kilograms."
+  @doc group: "Units"
   defdelegate weight_units(), to: NumberF.Metrics
 
   @doc "Volume conversion factors, relative to litres."
+  @doc group: "Units"
   defdelegate volume_units(), to: NumberF.Metrics
 
   @doc "Area conversion factors, relative to square metres."
+  @doc group: "Units"
   defdelegate area_units(), to: NumberF.Metrics
 
   @doc """
@@ -1743,6 +2865,7 @@ defmodule NumberF do
       iex> NumberF.add_business_days(~D[2024-01-15], -3)
       ~D[2024-01-10]
   """
+  @doc group: "Dates"
   defdelegate add_business_days(date, num_days), to: NumberF.DateCalculations
 
   @doc """
@@ -1753,6 +2876,7 @@ defmodule NumberF do
       iex> NumberF.next_business_day(~D[2024-01-12])
       ~D[2024-01-15]
   """
+  @doc group: "Dates"
   defdelegate next_business_day(date), to: NumberF.DateCalculations
 
   @doc """
@@ -1763,6 +2887,7 @@ defmodule NumberF do
       iex> NumberF.get_locale_settings("en-US").currency_symbol
       "$"
   """
+  @doc group: "Internationalization"
   defdelegate get_locale_settings(locale), to: NumberF.I18n
 
   @doc """
@@ -1773,15 +2898,19 @@ defmodule NumberF do
       iex> NumberF.parse_number("1.234,56", "de-DE")
       1234.56
   """
+  @doc group: "Internationalization"
   defdelegate parse_number(text, locale), to: NumberF.I18n
 
   @doc "Returns the main and sub unit names for a currency in a given language."
+  @doc group: "Internationalization"
   defdelegate get_currency_names(currency_code, language), to: NumberF.I18n
 
   @doc "Returns metadata for a single NumberF module."
+  @doc group: "Introspection"
   defdelegate module_details(name), to: NumberF.Registry
 
   @doc "Returns metadata for a single function category."
+  @doc group: "Introspection"
   defdelegate category_details(name), to: NumberF.Registry
 
   ### END PREVIOUSLY SUBMODULE-ONLY ###
@@ -1798,6 +2927,7 @@ defmodule NumberF do
       iex> is_map(ref)
       true
   """
+  @doc group: "Introspection"
   def reference do
     %{
       description:

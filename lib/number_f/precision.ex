@@ -332,4 +332,116 @@ defmodule NumberF.Precision do
   end
 
   def sanitize_float(_value, default), do: default
+
+  @doc """
+  Constrains a value to a range.
+
+  The single most reached-for utility that was missing.
+
+  ## Examples
+
+      iex> NumberF.Precision.clamp(15, 0, 10)
+      10
+
+      iex> NumberF.Precision.clamp(-5, 0, 10)
+      0
+
+      iex> NumberF.Precision.clamp(5, 0, 10)
+      5
+  """
+  def clamp(value, min, max) when is_number(value) and is_number(min) and is_number(max) do
+    if min > max do
+      raise ArgumentError, "clamp/3 requires min <= max, got min=#{min}, max=#{max}"
+    end
+
+    value |> max(min) |> min(max)
+  end
+
+  @doc """
+  Divides, returning `default` instead of raising when the denominator is zero.
+
+  ## Edge cases
+
+  Use this at boundaries where a zero denominator is expected and meaningful —
+  a rate over an empty period, for instance. Where zero indicates a bug, let the
+  division raise instead of hiding it behind a default.
+
+  ## Examples
+
+      iex> NumberF.Precision.safe_divide(10, 4)
+      2.5
+
+      iex> NumberF.Precision.safe_divide(10, 0)
+      0.0
+
+      iex> NumberF.Precision.safe_divide(10, 0, :infinity)
+      :infinity
+  """
+  def safe_divide(numerator, denominator, default \\ 0.0)
+  def safe_divide(_numerator, 0, default), do: default
+  def safe_divide(_numerator, +0.0, default), do: default
+
+  def safe_divide(numerator, denominator, _default)
+      when is_number(numerator) and is_number(denominator) do
+    numerator / denominator
+  end
+
+  @doc """
+  Returns -1, 0 or 1 according to the sign of the number.
+
+  ## Examples
+
+      iex> NumberF.Precision.sign(-4.2)
+      -1
+
+      iex> NumberF.Precision.sign(0)
+      0
+
+      iex> NumberF.Precision.sign(17)
+      1
+  """
+  def sign(number) when is_number(number) and number > 0, do: 1
+  def sign(number) when is_number(number) and number < 0, do: -1
+  def sign(number) when is_number(number), do: 0
+
+  @doc """
+  Rounds half away from zero.
+
+  ## Precision
+
+  This is the rounding most people mean by "round half up", and it differs from
+  Elixir's `round/1` for negatives: `round(-2.5)` is `-3` in Elixir but many
+  languages return `-2`. It also differs from `bankers_round/2`, which rounds
+  half to even to avoid systematic bias. Use this for presentation and
+  `bankers_round/2` for money that accumulates.
+
+  ## Examples
+
+      iex> NumberF.Precision.round_half_away_from_zero(2.5, 0)
+      3.0
+
+      iex> NumberF.Precision.round_half_away_from_zero(-2.5, 0)
+      -3.0
+  """
+  def round_half_away_from_zero(number, precision \\ 2)
+      when is_number(number) and is_integer(precision) do
+    factor = :math.pow(10, precision)
+    shifted = number * factor
+    rounded = if shifted < 0, do: -Float.floor(-shifted + 0.5), else: Float.floor(shifted + 0.5)
+
+    rounded / factor
+  end
+
+  @doc """
+  Rounds half to even. An alias for `bankers_round/2`, named for discoverability.
+
+  ## Examples
+
+      iex> NumberF.Precision.round_half_even(2.5, 0)
+      2.0
+
+      iex> NumberF.Precision.round_half_even(3.5, 0)
+      4.0
+  """
+  def round_half_even(number, precision \\ 2), do: bankers_round(number, precision)
 end

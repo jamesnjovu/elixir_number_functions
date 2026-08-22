@@ -13,7 +13,7 @@ Add it to `deps` in `mix.exs` and run `mix deps.get`:
 
 ```elixir
 def deps do
-  [{:number_f, "~> 0.2.0"}]
+  [{:number_f, "~> 0.3.0"}]
 end
 ```
 

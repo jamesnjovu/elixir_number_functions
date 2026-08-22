@@ -98,4 +98,139 @@ defmodule NumberF.DateCalculations do
       next_business_day(next_date)
     end
   end
+
+  @doc """
+  Calendar quarter of a date, 1 to 4.
+
+  ## Examples
+
+      iex> NumberF.DateCalculations.quarter(~D[2024-08-22])
+      3
+  """
+  def quarter(%Date{month: month}), do: div(month - 1, 3) + 1
+
+  @doc """
+  First day of the date's calendar quarter.
+
+  ## Examples
+
+      iex> NumberF.DateCalculations.quarter_start(~D[2024-08-22])
+      ~D[2024-07-01]
+  """
+  def quarter_start(%Date{year: year} = date) do
+    Date.new!(year, (quarter(date) - 1) * 3 + 1, 1)
+  end
+
+  @doc """
+  Last day of the date's calendar quarter.
+
+  ## Examples
+
+      iex> NumberF.DateCalculations.quarter_end(~D[2024-08-22])
+      ~D[2024-09-30]
+  """
+  def quarter_end(%Date{year: year} = date) do
+    month = quarter(date) * 3
+    Date.new!(year, month, days_in_month(year, month))
+  end
+
+  @doc """
+  Fiscal year containing the date, given the month the fiscal year starts in.
+
+  The year returned is the one the fiscal year *ends* in, which is the common
+  convention: with an April start, 2024-08-22 falls in FY2025.
+
+  ## Examples
+
+      iex> NumberF.DateCalculations.fiscal_year(~D[2024-08-22], 4)
+      2025
+
+      iex> NumberF.DateCalculations.fiscal_year(~D[2024-02-10], 4)
+      2024
+  """
+  def fiscal_year(%Date{year: year, month: month}, start_month \\ 4)
+      when is_integer(start_month) and start_month in 1..12 do
+    if month >= start_month, do: year + 1, else: year
+  end
+
+  @doc """
+  Number of days in a given month.
+
+  ## Examples
+
+      iex> NumberF.DateCalculations.days_in_month(2024, 2)
+      29
+
+      iex> NumberF.DateCalculations.days_in_month(2023, 2)
+      28
+  """
+  def days_in_month(year, month) when is_integer(year) and is_integer(month) and month in 1..12 do
+    :calendar.last_day_of_the_month(year, month)
+  end
+
+  @doc """
+  Whether a year is a leap year in the proleptic Gregorian calendar.
+
+  ## Examples
+
+      iex> NumberF.DateCalculations.leap_year?(2024)
+      true
+
+      iex> NumberF.DateCalculations.leap_year?(1900)
+      false
+  """
+  def leap_year?(year) when is_integer(year), do: :calendar.is_leap_year(year)
+
+  @doc """
+  ISO-8601 week number.
+
+  ## Edge cases
+
+  ISO weeks belong to the year containing their Thursday, so the first days of
+  January can fall in week 52 or 53 of the previous year.
+
+  ## Examples
+
+      iex> NumberF.DateCalculations.week_number(~D[2024-08-22])
+      34
+  """
+  def week_number(%Date{} = date) do
+    {_year, week} = date |> Date.to_erl() |> :calendar.iso_week_number()
+    week
+  end
+
+  @doc """
+  First day of the date's month.
+
+  ## Examples
+
+      iex> NumberF.DateCalculations.month_start(~D[2024-08-22])
+      ~D[2024-08-01]
+  """
+  def month_start(%Date{year: year, month: month}), do: Date.new!(year, month, 1)
+
+  @doc """
+  Last day of the date's month.
+
+  ## Examples
+
+      iex> NumberF.DateCalculations.month_end(~D[2024-02-10])
+      ~D[2024-02-29]
+  """
+  def month_end(%Date{year: year, month: month}),
+    do: Date.new!(year, month, days_in_month(year, month))
+
+  @doc """
+  Age in whole months.
+
+  ## Examples
+
+      iex> NumberF.DateCalculations.age_in_months(~D[2020-01-15], ~D[2024-08-22])
+      55
+  """
+  def age_in_months(%Date{} = birth_date, %Date{} = as_of \\ Date.utc_today()) do
+    months = (as_of.year - birth_date.year) * 12 + (as_of.month - birth_date.month)
+
+    if as_of.day < birth_date.day, do: months - 1, else: months
+  end
 end

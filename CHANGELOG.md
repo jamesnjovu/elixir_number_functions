@@ -5,6 +5,68 @@ All notable changes to the NumberF library will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2026-08-22
+
+Roughly 100 new functions, taking the public API from 103 arities to 261. No
+breaking changes: everything in 0.2.0 keeps working.
+
+### Added
+
+**Statistics** (6 functions to 28) — `percentile/2`, `quartiles/1`, `iqr/1`,
+`z_score/3`, `z_scores/1`, `correlation/2`, `covariance/2`, `linear_regression/2`,
+`weighted_mean/2`, `geometric_mean/1`, `harmonic_mean/1`, `summary/1`,
+`moving_average/2`, `cumulative_sum/1`, `normalize/1`, `outliers/2`,
+`remove_outliers/2`, `frequency_distribution/1`, `trimmed_mean/2` and
+`coefficient_of_variation/1`.
+
+**Financial** (4 to 20) — `present_value/3`, `future_value/3`, `npv/2`, `irr/2`,
+`amortization_schedule/3`, `roi/2`, `cagr/3`, `effective_annual_rate/2`,
+`loan_payment/3`, the three annuity functions, straight-line and declining-balance
+depreciation, `break_even_point/3` and `payback_period/2`.
+
+`amortization_schedule/3` returns a full period-by-period breakdown and closes at
+exactly zero — the final period absorbs the rounding, as a lender's schedule does.
+`irr/2` solves by bisection and returns `{:error, :no_sign_change}` rather than a
+meaningless number when the cash flows never cross zero.
+
+**Validation** (3 to 14) — `valid_iban?/1` (mod-97), `valid_isbn?/1` (10 and 13),
+`valid_ean?/1`, `valid_upc?/1`, `card_brand/1`, `luhn_check_digit/1`,
+`valid_luhn?/1`, `valid_routing_number?/1`, `valid_imei?/1`,
+`valid_currency_code?/1` and `valid_percentage?/1`.
+
+**Math** — `permutations/2`, `fibonacci/1`, `fibonacci_sequence/1`,
+`prime_factors/1`, `divisors/1`, `digits/1`, `digit_sum/1`, `digital_root/1`,
+`reverse_number/1`, `palindrome?/1`, `perfect_square?/1`, `nth_root/2`,
+`log_base/2`, and base conversion in any base from 2 to 36 (`to_base/2`,
+`from_base/2` and hex/binary/octal shorthands).
+
+**Precision** — `clamp/3`, `safe_divide/3`, `sign/1`,
+`round_half_away_from_zero/2` and `round_half_even/2`.
+
+**Formatting** — `accounting_format/2` (negatives in parentheses),
+`format_bytes/2` (SI and binary, up to exabytes), `format_duration/2` (short, long
+and clock forms), `significant_figures/2`, `format_significant/2`, `with_sign/2`,
+`pad_number/3` and `pluralize/3`.
+
+**Dates** — `quarter/1`, `quarter_start/1`, `quarter_end/1`, `fiscal_year/2`,
+`days_in_month/2`, `leap_year?/1`, `week_number/1`, `month_start/1`, `month_end/1`
+and `age_in_months/2`.
+
+### Changed
+
+- The generated documentation now groups functions into Formatting, Currency,
+  Text, Financial, Tax, Statistics, Precision, Validation, Math, Units, Dates,
+  Humanize, Internationalization and Introspection. The grouping is generated from
+  `@doc group:` metadata on each function, so the sidebar cannot drift from the code.
+- Still exactly one runtime dependency. Every function above is implemented with
+  `:math` and the standard library.
+
+### Fixed
+
+- `I18n.spell_number/3` raised `FunctionClauseError` for any value of 1,000,000 or
+  more in French, Spanish and German — only the English speller had a millions
+  clause. Found by the first tests ever written against those three languages.
+
 ## [0.2.0] - 2026-08-22
 
 Documentation, discoverability, engineering hygiene — and 16 correctness fixes.
@@ -47,9 +109,6 @@ each has a named regression test in `test/number_f/regressions_test.exs`.
 - `DateCalculations.business_days_between/2` built a descending range for a reversed
   date pair, which emitted a `Range` deprecation warning at runtime and returned a
   positive count. It now returns a signed result.
-- `I18n.spell_number/3` raised `FunctionClauseError` for any value of 1,000,000 or
-  more in French, Spanish and German — only the English speller had a millions
-  clause. Found by the first tests ever written against those three languages.
 - `calculate_age/1` raised `KeyError` on Elixir 1.18 and `BadMapError` on 1.20 for
   non-`Date` input; it now raises `ArgumentError` on every version. Caught by the
   new CI version matrix on its first run.
@@ -262,6 +321,7 @@ These change results that were previously wrong. No source change is required.
 - Random string generation
 - Basic type conversion utilities
 
+[0.3.0]: https://github.com/jamesnjovu/elixir_number_functions/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/jamesnjovu/elixir_number_functions/compare/v0.1.8...v0.2.0
 [0.1.8]: https://github.com/jamesnjovu/elixir_number_functions/compare/v0.1.7...v0.1.8
 [0.1.7]: https://github.com/jamesnjovu/elixir_number_functions/compare/v0.1.6...v0.1.7

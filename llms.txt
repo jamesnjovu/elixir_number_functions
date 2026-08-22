@@ -5,7 +5,7 @@
 > validation, and unit conversion. Everything is exposed through a single flat `NumberF`
 > module. One runtime dependency (`decimal`), no configuration, Elixir 1.14+.
 
-Install: add `{:number_f, "~> 0.2.0"}` to `deps` in `mix.exs`, then `mix deps.get`.
+Install: add `{:number_f, "~> 0.3.0"}` to `deps` in `mix.exs`, then `mix deps.get`.
 
 Key facts:
 - Default currency unit is ZMW (Zambian Kwacha); pass a unit explicitly to override.
@@ -16,7 +16,9 @@ Key facts:
 - `ceiling/2` and `floor/2` take decimal places; `round_to/3` takes an increment.
 - `variance/1` and `standard_deviation/1` are the POPULATION forms (divide by N).
   Use `sample_variance/1` / `sample_standard_deviation/1` for the sample forms (N-1).
-- `combinations/2` returns an exact integer, not a float.
+- `combinations/2` returns an exact integer, not a float. So does `fibonacci/1`.
+- Documentation is grouped: Formatting, Currency, Text, Financial, Tax, Statistics,
+  Precision, Validation, Math, Units, Dates, Humanize, Internationalization, Introspection.
 - Invalid input raises ArgumentError naming the bad argument. Formatters accept nil.
 - The library makes no network calls; exchange rates and tax rates are supplied by the caller.
 
@@ -30,6 +32,33 @@ Key facts:
 - [Currency Formatting](https://hexdocs.pm/number_f/currency-formatting.html): Currency symbols, placement, and precision.
 - [Financial Calculations](https://hexdocs.pm/number_f/financial-calculations.html): Interest, EMI, and amortization.
 - [Internationalization](https://hexdocs.pm/number_f/internationalization.html): Locale-aware formatting and spelling.
+
+## New in 0.3.0
+
+- Statistics: `percentile/2`, `quartiles/1`, `iqr/1`, `correlation/2`, `covariance/2`,
+  `linear_regression/2`, `z_score/3`, `z_scores/1`, `weighted_mean/2`, `geometric_mean/1`,
+  `harmonic_mean/1`, `summary/1`, `moving_average/2`, `cumulative_sum/1`, `normalize/1`,
+  `outliers/2`, `remove_outliers/2`, `frequency_distribution/1`, `trimmed_mean/2`,
+  `coefficient_of_variation/1`
+- Financial: `present_value/3`, `future_value/3`, `npv/2`, `irr/2`, `amortization_schedule/3`,
+  `roi/2`, `cagr/3`, `effective_annual_rate/2`, `loan_payment/3`, `annuity_payment/3`,
+  `annuity_present_value/3`, `annuity_future_value/3`, `depreciation_straight_line/3`,
+  `depreciation_declining_balance/4`, `break_even_point/3`, `payback_period/2`
+- Validation: `valid_iban?/1`, `valid_isbn?/1`, `valid_ean?/1`, `valid_upc?/1`, `card_brand/1`,
+  `luhn_check_digit/1`, `valid_luhn?/1`, `valid_routing_number?/1`, `valid_imei?/1`,
+  `valid_currency_code?/1`, `valid_percentage?/1`
+- Precision: `clamp/3`, `safe_divide/3`, `sign/1`, `round_half_away_from_zero/2`,
+  `round_half_even/2`
+- Math: `permutations/2`, `fibonacci/1`, `fibonacci_sequence/1`, `prime_factors/1`,
+  `divisors/1`, `digits/1`, `digit_sum/1`, `digital_root/1`, `reverse_number/1`,
+  `palindrome?/1`, `perfect_square?/1`, `nth_root/2`, `log_base/2`, `to_base/2`,
+  `from_base/2`, `to_hex/1`, `from_hex/1`, `to_binary/1`, `from_binary/1`, `to_octal/1`,
+  `from_octal/1`
+- Formatting: `accounting_format/2`, `format_bytes/2`, `format_duration/2`,
+  `significant_figures/2`, `format_significant/2`, `with_sign/2`, `pad_number/3`,
+  `pluralize/3`
+- Dates: `quarter/1`, `quarter_start/1`, `quarter_end/1`, `fiscal_year/2`, `days_in_month/2`,
+  `leap_year?/1`, `week_number/1`, `month_start/1`, `month_end/1`, `age_in_months/2`
 
 ## Common tasks
 
@@ -59,6 +88,18 @@ Key facts:
 - Phone: `NumberF.format_phone("14155552671", "US")` -> `"+1 (415) 555-2671"`
 - Temperature: `NumberF.celsius_to_fahrenheit(25)` -> `77.0`
 - Decimal sum: `NumberF.sum_decimal([Decimal.new("1.10"), Decimal.new("2.20")])` -> `Decimal.new("3.30")`
+- Clamp: `NumberF.clamp(15, 0, 10)` -> `10`
+- Safe divide: `NumberF.safe_divide(10, 0)` -> `0.0`
+- Percentile: `NumberF.percentile([1,2,3,4,5,6,7,8,9,10], 25)` -> `3.25`
+- Loan schedule: `NumberF.amortization_schedule(100_000, 0.10, 12)` -> list of `%{period:, payment:, principal:, interest:, balance:}`
+- NPV / IRR: `NumberF.npv(0.1, [-1000, 300, 400, 500, 600])` -> `388.77`; `NumberF.irr(flows)` -> `{:ok, 0.2489}`
+- IBAN: `NumberF.valid_iban?("GB82 WEST 1234 5698 7654 32")` -> `true`
+- Card network: `NumberF.card_brand("4111111111111111")` -> `:visa`
+- Byte size: `NumberF.format_bytes(1_500_000)` -> `"1.5 MB"`; `base: :binary` for MiB
+- Duration: `NumberF.format_duration(3725)` -> `"1h 2m 5s"`; `format: :clock` -> `"01:02:05"`
+- Accounting: `NumberF.accounting_format(-1234.56, unit: "$")` -> `"($1,234.56)"`
+- Base conversion: `NumberF.to_base(255, 16)` -> `"FF"`; `NumberF.from_base("FF", 16)` -> `255`
+- Quarter / fiscal year: `NumberF.quarter(~D[2024-08-22])` -> `3`; `NumberF.fiscal_year(~D[2024-08-22], 4)` -> `2025`
 
 ## Modules
 

@@ -1,7 +1,7 @@
 defmodule NumberF.MixProject do
   use Mix.Project
 
-  @version "0.2.0"
+  @version "0.3.0"
   @github_url "https://github.com/jamesnjovu/elixir_number_functions"
   @docs_url "https://hexdocs.pm/number_f"
 
@@ -153,6 +153,26 @@ defmodule NumberF.MixProject do
           "guides/faq.md"
         ],
         Other: ["CHANGELOG.md", "CONTRIBUTING.md"]
+      ],
+      # Generated from the `@doc group:` metadata on each delegation, so the sidebar
+      # cannot drift from the code. With 261 function arities on one module, an
+      # ungrouped page is a wall of names for a reader and one undifferentiated
+      # chunk for anything indexing it.
+      groups_for_docs: [
+        Formatting: &(&1[:group] == "Formatting"),
+        Currency: &(&1[:group] == "Currency"),
+        Text: &(&1[:group] == "Text"),
+        Financial: &(&1[:group] == "Financial"),
+        Tax: &(&1[:group] == "Tax"),
+        Statistics: &(&1[:group] == "Statistics"),
+        Precision: &(&1[:group] == "Precision"),
+        Validation: &(&1[:group] == "Validation"),
+        Math: &(&1[:group] == "Math"),
+        Units: &(&1[:group] == "Units"),
+        Dates: &(&1[:group] == "Dates"),
+        Humanize: &(&1[:group] == "Humanize"),
+        Internationalization: &(&1[:group] == "Internationalization"),
+        Introspection: &(&1[:group] == "Introspection")
       ],
       groups_for_modules: [
         "Core Functions": [

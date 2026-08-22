@@ -43,7 +43,7 @@ Add `number_f` to your dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:number_f, "~> 0.2.0"}
+    {:number_f, "~> 0.3.0"}
   ]
 end
 ```
@@ -61,18 +61,22 @@ Requires Elixir 1.14 or later. No application configuration is needed.
 | Area | Functions | Example |
 |---|---|---|
 | **Currency formatting** | `currency/3`, `comma_separated/2`, `number_to_delimited/2` | `NumberF.currency(1234.5)` → `"ZMW 1,234.50"` |
-| **Numbers to words** | `to_words/3`, `spell_number/2`, `ordinal/1`, `to_roman/1`, `from_roman/1` | `NumberF.to_roman(1999)` → `"MCMXCIX"` |
-| **Financial math** | `simple_interest/3`, `compound_interest/4`, `calculate_emi/3` | `NumberF.compound_interest(1000, 0.05, 2)` → `102.5` |
+| **Numbers to words** | `to_words/3`, `spell_number/2` (en/fr/es/de), `ordinal/1`, Roman numerals | `NumberF.to_roman(1999)` → `"MCMXCIX"` |
+| **Financial math** | interest, `amortization_schedule/3`, `npv/2`, `irr/2`, `present_value/3`, `cagr/3`, annuities, depreciation, `payback_period/2` | `NumberF.npv(0.1, flows)` → `388.77` |
 | **Tax** | `calculate_vat/3`, `calculate_sales_tax/3`, `NumberF.Tax.calculate_income_tax/2` | `NumberF.calculate_vat(100, 0.2)` |
-| **Statistics** | `mean/1`, `median/1`, `mode/1`, `variance/1` + `sample_variance/1`, `standard_deviation/1` + `sample_standard_deviation/1` | `NumberF.median([1, 3, 5, 7, 9])` → `5` |
+| **Statistics** | mean/median/mode, population **and** sample variance, `percentile/2`, `quartiles/1`, `correlation/2`, `linear_regression/2`, `summary/1`, `outliers/2` | `NumberF.percentile(data, 25)` → `3.25` |
 | **Internationalization** | `format_number/2`, `format_currency/3` across 22 locales | `NumberF.format_number(1234567.89, "de-DE")` |
-| **Unit conversion** | metric ↔ imperial, temperature | `NumberF.celsius_to_fahrenheit(25)` |
-| **Validation** | credit cards (Luhn), number formats | `NumberF.is_valid_credit_card?("4111...")` |
-| **Precision** | bankers rounding, custom thresholds, float comparison | `NumberF.bankers_round(2.5, 0)` → `2.0` |
-| **Dates** | age, business days, payment terms | `NumberF.calculate_age(~D[1990-01-15])` |
-| **Humanizing** | byte sizes (to PB), phone numbers, random strings | `NumberF.memory_size_cal(1_048_576)` → `"1.0 MB"` |
+| **Unit conversion** | metric ↔ imperial, temperature, arbitrary unit tables | `NumberF.celsius_to_fahrenheit(25)` → `77.0` |
+| **Validation** | IBAN, ISBN, EAN/UPC, IMEI, ABA routing, Luhn + `card_brand/1` | `NumberF.valid_iban?("GB82 WEST…")` → `true` |
+| **Precision** | `clamp/3`, `safe_divide/3`, bankers rounding, half-away-from-zero, float comparison | `NumberF.clamp(15, 0, 10)` → `10` |
+| **Dates** | age, business days (forward and back), quarters, fiscal years, ISO weeks | `NumberF.quarter(~D[2024-08-22])` → `3` |
+| **Humanizing** | `format_bytes/2` (SI and binary), `format_duration/2`, `pluralize/3`, `accounting_format/2`, phone numbers | `NumberF.format_duration(3725)` → `"1h 2m 5s"` |
 
-Full API reference: **[hexdocs.pm/number_f](https://hexdocs.pm/number_f)**
+Plus number theory and base conversion: `fibonacci/1`, `prime_factors/1`, `divisors/1`,
+`digital_root/1`, `to_base/2` and `from_base/2` for any base from 2 to 36.
+
+**260+ functions, all reachable from the single `NumberF` module**, grouped in the docs
+by area. Full API reference: **[hexdocs.pm/number_f](https://hexdocs.pm/number_f)**
 
 ## Common tasks
 

@@ -499,4 +499,257 @@ defmodule NumberF.Formatter do
       end
     end
   end
+
+  @doc """
+  Accounting format: negatives in parentheses rather than with a minus sign.
+
+  ## Examples
+
+      iex> NumberF.Formatter.accounting_format(-1234.56, unit: "$")
+      "($1,234.56)"
+
+      iex> NumberF.Formatter.accounting_format(1234.56, unit: "$")
+      "$1,234.56"
+  """
+  def accounting_format(number, options \\ []) when is_number(number) do
+    unit = Keyword.get(options, :unit, "")
+    precision = Keyword.get(options, :precision, 2)
+
+    formatted =
+      number
+      |> abs()
+      |> NumberF.CustomFormatter.number_to_delimited(precision: precision)
+
+    body = unit <> formatted
+
+    if number < 0, do: "(" <> body <> ")", else: body
+  end
+
+  @doc """
+  Human-readable byte size.
+
+  Pass `base: :binary` for KiB/MiB units (powers of 1024); the default is SI
+  (powers of 1000), which is what storage vendors and most operating systems print.
+
+  ## Examples
+
+      iex> NumberF.Formatter.format_bytes(1_500_000)
+      "1.5 MB"
+
+      iex> NumberF.Formatter.format_bytes(1_048_576, base: :binary)
+      "1.0 MiB"
+
+      iex> NumberF.Formatter.format_bytes(5_000_000_000_000)
+      "5.0 TB"
+  """
+  @si_units ["B", "kB", "MB", "GB", "TB", "PB", "EB"]
+  @binary_units ["B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB"]
+
+  def format_bytes(bytes, options \\ []) when is_number(bytes) do
+    {step, units} =
+      case Keyword.get(options, :base, :si) do
+        :si -> {1000, @si_units}
+        :binary -> {1024, @binary_units}
+        other -> raise ArgumentError, "base must be :si or :binary, got: #{inspect(other)}"
+      end
+
+    precision = Keyword.get(options, :precision, 1)
+
+    if bytes < 0 do
+      "-" <> format_bytes(-bytes, options)
+    else
+      {value, unit} = scale_bytes(bytes * 1.0, units, step)
+
+      if unit == "B" do
+        "#{trunc(value)} B"
+      else
+        "#{Float.round(value, precision)} #{unit}"
+      end
+    end
+  end
+
+  # A zero hour or minute is noise in a duration, but a duration of exactly zero
+  # still has to render something.
+  defp drop_zero_parts(parts), do: Enum.reject(parts, fn {value, _label} -> value == 0 end)
+
+  defp scale_bytes(value, [unit], _step), do: {value, unit}
+  defp scale_bytes(value, [unit | _rest], step) when value < step, do: {value, unit}
+  defp scale_bytes(value, [_unit | rest], step), do: scale_bytes(value / step, rest, step)
+
+  @doc """
+  Human-readable duration from a number of seconds.
+
+  Formats: `:short` (default) gives `"1h 2m 5s"`, `:long` gives
+  `"1 hour, 2 minutes, 5 seconds"`, `:clock` gives `"01:02:05"`.
+
+  ## Examples
+
+      iex> NumberF.Formatter.format_duration(3725)
+      "1h 2m 5s"
+
+      iex> NumberF.Formatter.format_duration(3725, format: :clock)
+      "01:02:05"
+
+      iex> NumberF.Formatter.format_duration(90, format: :long)
+      "1 minute, 30 seconds"
+  """
+  def format_duration(seconds, options \\ []) when is_number(seconds) do
+    if seconds < 0 do
+      "-" <> format_duration(-seconds, options)
+    else
+      total = trunc(seconds)
+      hours = div(total, 3600)
+      minutes = total |> rem(3600) |> div(60)
+      secs = rem(total, 60)
+
+      case Keyword.get(options, :format, :short) do
+        :clock ->
+          [hours, minutes, secs]
+          |> Enum.map_join(":", &(&1 |> Integer.to_string() |> String.pad_leading(2, "0")))
+
+        :short ->
+          parts = drop_zero_parts([{hours, "h"}, {minutes, "m"}, {secs, "s"}])
+
+          if parts == [],
+            do: "0s",
+            else: Enum.map_join(parts, " ", fn {value, suffix} -> "#{value}#{suffix}" end)
+
+        :long ->
+          parts = drop_zero_parts([{hours, "hour"}, {minutes, "minute"}, {secs, "second"}])
+
+          if parts == [],
+            do: "0 seconds",
+            else: Enum.map_join(parts, ", ", fn {value, word} -> pluralize(value, word) end)
+
+        other ->
+          raise ArgumentError, "format must be :short, :long or :clock, got: #{inspect(other)}"
+      end
+    end
+  end
+
+  @doc """
+  Rounds to a number of significant figures.
+
+  ## Precision
+
+  Significant figures count from the first non-zero digit, so this is scale
+  independent in a way that decimal-place rounding is not: three significant
+  figures keeps three meaningful digits whether the value is 1234 or 0.0001234.
+
+  ## Examples
+
+      iex> NumberF.Formatter.significant_figures(1234.5678, 3)
+      1230.0
+
+      iex> NumberF.Formatter.significant_figures(0.00012345, 3)
+      0.000123
+  """
+  def significant_figures(number, digits)
+      when is_number(number) and is_integer(digits) and digits > 0 do
+    if number == 0 do
+      0.0
+    else
+      magnitude = number |> abs() |> :math.log10() |> Float.floor() |> trunc()
+      factor = :math.pow(10, digits - 1 - magnitude)
+
+      Float.round(Float.round(number * factor) / factor, max(0, digits - 1 - magnitude))
+    end
+  end
+
+  @doc """
+  Formats to a number of significant figures, preserving trailing zeros.
+
+  ## Examples
+
+      iex> NumberF.Formatter.format_significant(1.5, 4)
+      "1.500"
+  """
+  def format_significant(number, digits)
+      when is_number(number) and is_integer(digits) and digits > 0 do
+    if number == 0 do
+      :erlang.float_to_binary(0.0, decimals: digits - 1)
+    else
+      magnitude = number |> abs() |> :math.log10() |> Float.floor() |> trunc()
+      decimals = max(0, digits - 1 - magnitude)
+
+      number
+      |> significant_figures(digits)
+      |> :erlang.float_to_binary(decimals: decimals)
+    end
+  end
+
+  @doc """
+  Prefixes a number with an explicit sign.
+
+  ## Examples
+
+      iex> NumberF.Formatter.with_sign(42)
+      "+42"
+
+      iex> NumberF.Formatter.with_sign(-42)
+      "-42"
+
+      iex> NumberF.Formatter.with_sign(0, zero: " ")
+      " 0"
+  """
+  def with_sign(number, options \\ []) when is_number(number) do
+    zero_sign = Keyword.get(options, :zero, "+")
+
+    sign =
+      cond do
+        number > 0 -> "+"
+        number < 0 -> "-"
+        true -> zero_sign
+      end
+
+    sign <> to_string(abs(number))
+  end
+
+  @doc """
+  Pads a number to a fixed width.
+
+  ## Examples
+
+      iex> NumberF.Formatter.pad_number(42, 6)
+      "    42"
+
+      iex> NumberF.Formatter.pad_number(42, 6, char: "0")
+      "000042"
+
+      iex> NumberF.Formatter.pad_number(42, 6, align: :left)
+      "42    "
+  """
+  def pad_number(number, width, options \\ []) when is_number(number) and is_integer(width) do
+    char = Keyword.get(options, :char, " ")
+    text = to_string(number)
+
+    case Keyword.get(options, :align, :right) do
+      :right -> String.pad_leading(text, width, char)
+      :left -> String.pad_trailing(text, width, char)
+      other -> raise ArgumentError, "align must be :left or :right, got: #{inspect(other)}"
+    end
+  end
+
+  @doc """
+  Pairs a count with a correctly pluralised noun.
+
+  Appends "s" unless an explicit plural is given, which covers the regular cases
+  without pretending to know English morphology.
+
+  ## Examples
+
+      iex> NumberF.Formatter.pluralize(1, "item")
+      "1 item"
+
+      iex> NumberF.Formatter.pluralize(3, "item")
+      "3 items"
+
+      iex> NumberF.Formatter.pluralize(3, "person", "people")
+      "3 people"
+  """
+  def pluralize(count, singular, plural \\ nil) when is_number(count) and is_binary(singular) do
+    word = if abs(count) == 1, do: singular, else: plural || singular <> "s"
+
+    "#{count} #{word}"
+  end
 end

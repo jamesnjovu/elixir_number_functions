@@ -29,22 +29,44 @@ mix test                 # default suite (performance tests excluded)
 mix test.numberf_fast    # excludes performance, benchmark, property
 mix test.numberf_all     # everything
 mix format               # required before committing
-mix docs                 # builds HTML + llms.txt into doc/
+mix lint                 # format + compile --warnings-as-errors + credo --strict
+mix dialyzer             # must be clean
+mix coveralls            # must clear the ratchet in coveralls.json
+mix docs                 # builds HTML + llms.txt into doc/; must emit zero warnings
 mix deps.audit           # security audit
 ```
 
 ## Conventions
 
-- **Add functions in the implementation module, then `defdelegate` (or a thin wrapper)
-  from `NumberF`.** The flat facade is the documented API surface; a function that only
-  exists on a submodule is effectively undiscoverable.
+- **Implement in the submodule; `defdelegate` from `NumberF`.** The facade is
+  documentation plus delegation — 261 arities, one real function. Never reimplement a
+  submodule function in the facade: doing exactly that is how three modules ended up
+  with zero callers and behaviour that had silently drifted from their facade twins.
+- **Every public submodule function must be reachable from `NumberF`.**
+  `test/number_f/facade_surface_test.exs` derives the expected surface from the
+  submodules, so a missing delegation fails CI. If a name is too generic for a flat
+  namespace, expose it under a clearer one and add it to that test's `@renamed` map.
+- **Every facade function needs `@doc group:`.** It generates the docs sidebar via
+  `groups_for_docs` in `mix.exs`. `test/docs_match_code_test.exs` enforces this.
 - **Every public function needs a `@doc` with a `## Examples` section.** Doctests are
   collected by `test/doctests/doctest_runner_test.exs`, so examples are executed, not
   decorative.
-- **Verify example output by running it.** Several parameters are not what they look
-  like: `ceiling/2` and `floor/2` take decimal places, while `round_to/3` takes an
-  increment. `bankers_round/1` defaults to 2 decimal places, so `bankers_round(2.5)`
-  is `2.5`, not `2.0`.
+- **Verify example output by running it, never by reasoning about it.** A v0.2.0 audit
+  found five documented outputs the library did not produce, plus two functions that
+  hardcoded their own doctest input so the test passed while exercising nothing.
+  Several parameters are also not what they look like: `ceiling/2` and `floor/2` take
+  decimal places, while `round_to/3` takes an increment; `bankers_round(2.5)` is `2.5`,
+  not `2.0`, because precision defaults to 2.
+- **The cheatsheet is executed by the test suite.** Every `# =>` in
+  `guides/cheatsheet.cheatmd` must be a real Elixir term, or elided with `...`, or
+  carry a two-space-separated aside marking it unassertable (`random`, `today`).
+  Prose in the value position fails the build.
+- **Error contract:** invalid input raises `ArgumentError` naming the offending
+  argument. Never let a `FunctionClauseError` or `ArithmeticError` escape a public
+  function. Genuinely fallible parsers may return `{:ok, _}` / `{:error, _}`.
+  Formatters accept `nil` and return `nil`.
+- **`variance/1` and `standard_deviation/1` are the population forms.** The `sample_*`
+  variants divide by N-1. Say which one a new statistical function uses.
 - **Do not add runtime dependencies.** `decimal` is the only one, and that is a
   deliberate selling point. `ex_doc` and `mix_audit` are dev/test only.
 - **No network calls at runtime.** Exchange rates and tax rates are always supplied by

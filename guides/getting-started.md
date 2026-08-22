@@ -9,7 +9,7 @@ Add `number_f` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:number_f, "~> 0.2.0"}
+    {:number_f, "~> 0.3.0"}
   ]
 end
 ```

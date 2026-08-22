@@ -9,7 +9,7 @@ Every NumberF function on one page. All examples are real output.
 
 ```elixir
 def deps do
-  [{:number_f, "~> 0.2.0"}]
+  [{:number_f, "~> 0.3.0"}]
 end
 ```
 
@@ -161,7 +161,7 @@ NumberF.get_currency("USD")
 # => %{name: "US Dollar", symbol: "$", ...}
 
 NumberF.currency_data()
-# => full currency database
+# => %{"USD" => %{symbol: "$", ...}, ...}
 ```
 
 ### Explicit currency codes
@@ -327,6 +327,15 @@ NumberF.round_to(2.5, 1, :up)     # => 3.0
 NumberF.round_to_nearest(127, 5)  # => 125.0
 ```
 
+### Guards
+
+```elixir
+NumberF.clamp(15, 0, 10)         # => 10
+NumberF.safe_divide(10, 0)       # => 0.0
+NumberF.safe_divide(10, 0, :none) # => :none
+NumberF.sign(-4.2)               # => -1
+```
+
 ### Float comparison
 
 ```elixir
@@ -442,6 +451,281 @@ NumberF.payment_due_date(~D[2025-01-01])
 NumberF.payment_due_date(~D[2025-01-01], 60)
 ```
 
+## Advanced statistics
+{: .col-2}
+
+### Percentiles and spread
+
+```elixir
+NumberF.percentile([1,2,3,4,5,6,7,8,9,10], 25)
+# => 3.25
+
+NumberF.quartiles([1,2,3,4,5,6,7,8])
+# => %{q1: 2.75, q2: 4.5, q3: 6.25}
+
+NumberF.iqr([1,2,3,4,5,6,7,8])
+# => 3.5
+```
+
+### Relationships between two series
+
+```elixir
+NumberF.correlation([1,2,3,4,5], [2,4,5,4,5])
+# => 0.7745966692414833
+
+NumberF.covariance([1,2,3,4,5], [2,4,5,4,5])
+# => 1.2
+
+NumberF.linear_regression([1,2,3,4,5], [2,4,5,4,5])
+# => %{slope: 0.6, intercept: 2.2,
+#      r_squared: 0.5999999999999999}
+```
+
+### Other means
+
+```elixir
+NumberF.weighted_mean([90,80,70], [0.5,0.3,0.2])
+# => 83.0
+
+# Growth rates: pass factors, not percentages
+NumberF.geometric_mean([1, 4, 16])
+# => 4.0
+
+# Rates over a fixed distance
+NumberF.harmonic_mean([40, 60])
+# => 47.99999999999999  (48, modulo IEEE 754)
+```
+
+### Describing and reshaping
+
+```elixir
+NumberF.summary([1,2,3,4,5])
+# => %{count: 5, min: 1, q1: 2.0, median: 3,
+#      q3: 4.0, max: 5, mean: 3.0, stddev: 1.414...}
+
+NumberF.z_scores([2, 4, 6])
+# => [-1.2247448713915889, 0.0, 1.2247448713915889]
+
+NumberF.normalize([10, 20, 30])   # => [0.0, 0.5, 1.0]
+NumberF.moving_average([1,2,3,4,5], 3) # => [2.0, 3.0, 4.0]
+NumberF.cumulative_sum([1,2,3,4])      # => [1, 3, 6, 10]
+NumberF.outliers([1,2,3,4,1000])       # => [1000]
+NumberF.trimmed_mean([1,2,3,4,100], 0.2) # => 3.0
+```
+
+## Investment and loans
+{: .col-2}
+
+### Time value of money
+
+```elixir
+NumberF.present_value(1000, 0.05, 10)  # => 613.91
+NumberF.future_value(1000, 0.05, 10)   # => 1628.89
+
+NumberF.npv(0.1, [-1000, 300, 400, 500, 600])
+# => 388.77
+
+NumberF.irr([-1000, 300, 400, 500, 600])
+# => {:ok, 0.24888...}
+```
+
+`irr/2` returns `{:error, :no_sign_change}` when the
+cash flows never cross zero — there is no rate that
+zeroes an all-positive series.
+
+### Amortization
+
+```elixir
+NumberF.amortization_schedule(100_000, 0.10, 12)
+# => [%{period: 1, payment: 8791.59,
+#       principal: 7958.26, interest: 833.33,
+#       balance: 92041.74}, ...]
+```
+
+The last period absorbs accumulated rounding, so the
+balance closes at exactly `0.0`.
+
+### Returns and break-even
+
+```elixir
+NumberF.roi(1500, 1000)              # => 50.0
+NumberF.cagr(1000, 2000, 5)          # => 14.87
+NumberF.effective_annual_rate(0.12, 12) # => 0.1268
+NumberF.break_even_point(10_000, 25, 15) # => 1000.0
+NumberF.payback_period(1000, [300,400,500])
+# => {:ok, 2.6}
+```
+
+### Annuities and depreciation
+
+```elixir
+NumberF.annuity_payment(10_000, 0.05, 10)    # => 1295.05
+NumberF.annuity_present_value(100, 0.05, 10) # => 772.17
+NumberF.annuity_future_value(100, 0.05, 10)  # => 1257.79
+
+NumberF.depreciation_straight_line(10_000, 1_000, 5)
+# => 1800.0
+
+NumberF.depreciation_declining_balance(10_000, 1_000, 5)
+# => [%{year: 1, depreciation: 4000.0,
+#       book_value: 6000.0}, ...]
+```
+
+## Identifiers and checksums
+{: .col-2}
+
+### Financial identifiers
+
+```elixir
+NumberF.valid_iban?("GB82 WEST 1234 5698 7654 32")
+# => true
+
+NumberF.valid_routing_number?("021000021")  # => true
+NumberF.valid_currency_code?("USD")         # => true
+```
+
+### Cards
+
+```elixir
+NumberF.card_brand("4111111111111111")  # => :visa
+NumberF.card_brand("5500000000000004")  # => :mastercard
+NumberF.card_brand("378282246310005")   # => :amex
+
+NumberF.valid_luhn?("4111111111111111")     # => true
+NumberF.luhn_check_digit("411111111111111") # => 1
+```
+
+`card_brand/1` identifies the network from the prefix
+and length. It does **not** validate — pair it with
+`is_valid_credit_card?/1`.
+
+### Products and publications
+
+```elixir
+NumberF.valid_isbn?("978-3-16-148410-0")  # => true
+NumberF.valid_isbn?("0-306-40615-2")      # => true  (ISBN-10)
+NumberF.valid_ean?("4006381333931")       # => true
+NumberF.valid_upc?("036000291452")        # => true
+NumberF.valid_imei?("490154203237518")    # => true
+```
+
+## Number theory and bases
+{: .col-2}
+
+### Sequences and factors
+
+```elixir
+NumberF.fibonacci(10)            # => 55
+NumberF.fibonacci_sequence(8)    # => [0,1,1,2,3,5,8,13]
+NumberF.permutations(5, 2)       # => 20
+NumberF.prime_factors(360)       # => [2,2,2,3,3,5]
+NumberF.divisors(28)             # => [1,2,4,7,14,28]
+```
+
+`fibonacci/1` and `combinations/2` return exact
+integers at any size — `fibonacci(100)` is the true
+value, not a float approximation.
+
+### Digits
+
+```elixir
+NumberF.digits(12345)         # => [1,2,3,4,5]
+NumberF.digit_sum(12345)      # => 15
+NumberF.digital_root(12345)   # => 6
+NumberF.reverse_number(12345) # => 54321
+NumberF.palindrome?(12321)    # => true
+NumberF.perfect_square?(144)  # => true
+```
+
+### Roots and logs
+
+```elixir
+NumberF.nth_root(27, 3)     # => 3.0
+NumberF.log_base(1024, 2)   # => 10.0
+```
+
+### Base conversion
+
+```elixir
+NumberF.to_base(255, 16)     # => "FF"
+NumberF.from_base("FF", 16)  # => 255
+
+NumberF.to_hex(255)      # => "FF"
+NumberF.to_binary(5)     # => "101"
+NumberF.to_octal(8)      # => "10"
+NumberF.from_binary("101")  # => 5
+```
+
+Any base from 2 to 36.
+
+## Presentation
+{: .col-2}
+
+### Accounting and signs
+
+```elixir
+NumberF.accounting_format(-1234.56, unit: "$")
+# => "($1,234.56)"
+
+NumberF.with_sign(42)             # => "+42"
+NumberF.with_sign(-42)            # => "-42"
+NumberF.pad_number(42, 6, char: "0")  # => "000042"
+NumberF.pluralize(3, "person", "people")
+# => "3 people"
+```
+
+### Sizes and durations
+
+```elixir
+NumberF.format_bytes(1_500_000)          # => "1.5 MB"
+NumberF.format_bytes(1_048_576, base: :binary)
+# => "1.0 MiB"
+
+NumberF.format_duration(3725)            # => "1h 2m 5s"
+NumberF.format_duration(3725, format: :clock)
+# => "01:02:05"
+NumberF.format_duration(90, format: :long)
+# => "1 minute, 30 seconds"
+```
+
+### Significant figures
+
+```elixir
+NumberF.significant_figures(1234.5678, 3)  # => 1230.0
+NumberF.significant_figures(0.00012345, 3) # => 0.000123
+NumberF.format_significant(1.5, 4)         # => "1.500"
+```
+
+Significant figures count from the first non-zero
+digit, so they are scale independent in a way that
+decimal places are not.
+
+## Calendar
+{: .col-2}
+
+### Quarters and fiscal years
+
+```elixir
+NumberF.quarter(~D[2024-08-22])       # => 3
+NumberF.quarter_start(~D[2024-08-22]) # => ~D[2024-07-01]
+NumberF.quarter_end(~D[2024-08-22])   # => ~D[2024-09-30]
+
+# Named for the year the fiscal year ends in
+NumberF.fiscal_year(~D[2024-08-22], 4) # => 2025
+```
+
+### Months and weeks
+
+```elixir
+NumberF.month_start(~D[2024-08-22]) # => ~D[2024-08-01]
+NumberF.month_end(~D[2024-02-10])   # => ~D[2024-02-29]
+NumberF.days_in_month(2024, 2)      # => 29
+NumberF.leap_year?(1900)            # => false
+NumberF.week_number(~D[2024-08-22]) # => 34
+NumberF.age_in_months(~D[2020-01-15], ~D[2024-08-22])
+# => 55
+```
+
 ## Conversion & utilities
 {: .col-2}
 
@@ -475,7 +759,7 @@ NumberF.format_phone("14155552671", "US")
 
 ```elixir
 NumberF.randomizer(8)
-# => "RCKkn94U"
+# => "RCKkn94U"  (random; yours will differ)
 
 NumberF.default_password()
 ```

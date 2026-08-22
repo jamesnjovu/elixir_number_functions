@@ -4,9 +4,9 @@
     "lib/mix/tasks/",
     "test/"
   ],
-  "_ratchet": "Set just below the current real figure so coverage can never regress. Raise it whenever a phase lifts the number; the target is 90. History: 77.1 -> 84.2 after the facade collapse and the i18n/facade test sweeps.",
+  "_ratchet": "Set just below the current real figure so coverage can never regress. Raise it whenever a phase lifts the number; the target is 90. History: 77.1 -> 84.2 (facade collapse, i18n and facade sweeps) -> 86.9 (v0.3.0 additions).",
   "coverage_options": {
     "treat_no_relevant_lines_as_covered": true,
-    "minimum_coverage": 84
+    "minimum_coverage": 86
   }
 }
