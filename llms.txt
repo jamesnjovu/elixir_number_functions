@@ -24,8 +24,8 @@ Key facts:
 
 ## Docs
 
-- [Full documentation (llms-full.txt)](https://hexdocs.pm/number_f/llms-full.txt): Complete API reference as a single plain-text file.
-- [HexDocs index](https://hexdocs.pm/number_f/llms.txt): Machine-readable index of every documentation page.
+- [Complete API reference](https://hexdocs.pm/number_f/NumberF.md): Every function on the NumberF facade, as Markdown.
+- [HexDocs index](https://hexdocs.pm/number_f/llms.txt): Machine-readable index of every page; each entry has a `.md` twin.
 - [Cheatsheet](https://hexdocs.pm/number_f/cheatsheet.html): Every function with a verified example, on one page.
 - [Getting Started](https://hexdocs.pm/number_f/getting-started.html): Installation and first steps.
 - [FAQ](https://hexdocs.pm/number_f/faq.html): Common questions, including how NumberF compares to ex_cldr and ex_money.

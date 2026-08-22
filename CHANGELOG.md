@@ -201,10 +201,11 @@ These change results that were previously wrong. No source change is required.
 ### Added
 
 - **LLM-readable documentation.** ExDoc 0.40 publishes
-  [`llms.txt`](https://hexdocs.pm/number_f/llms.txt) and
-  [`llms-full.txt`](https://hexdocs.pm/number_f/llms-full.txt) alongside the HTML,
-  and adds a "Copy Markdown" button to every page. A condensed `llms.txt` ships at
-  the repository root and in the Hex package.
+  [`llms.txt`](https://hexdocs.pm/number_f/llms.txt) alongside the HTML — an index
+  whose every entry has a Markdown twin, so
+  [`NumberF.md`](https://hexdocs.pm/number_f/NumberF.md) is the full API as plain
+  text — and adds a "Copy Markdown" button to every page. A condensed `llms.txt`
+  also ships at the repository root and in the Hex package.
 - [Cheatsheet](https://hexdocs.pm/number_f/cheatsheet.html) — every function on one
   page, with output verified against the library rather than transcribed.
 - [FAQ guide](https://hexdocs.pm/number_f/faq.html).

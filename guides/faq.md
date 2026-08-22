@@ -144,8 +144,10 @@ Yes:
 The documentation is published in LLM-readable plain text following the
 [llms.txt convention](https://llmstxt.org):
 
-- <https://hexdocs.pm/number_f/llms.txt> — index of every page and module
-- <https://hexdocs.pm/number_f/llms-full.txt> — the entire documentation as one file
+- <https://hexdocs.pm/number_f/llms.txt> — an index of every page and module
+- Every page also has a Markdown twin at its `.md` URL, so
+  <https://hexdocs.pm/number_f/NumberF.md> is the complete API reference as plain
+  text, and <https://hexdocs.pm/number_f/cheatsheet.md> is the cheatsheet
 
 Point Claude, ChatGPT, Cursor, or any retrieval pipeline at those URLs.
 
