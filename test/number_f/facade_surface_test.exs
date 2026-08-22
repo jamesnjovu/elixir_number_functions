@@ -42,10 +42,8 @@ defmodule NumberF.FacadeSurfaceTest do
 
   describe "the facade covers every public submodule function" do
     test "no public submodule function is unreachable from NumberF" do
-      facade =
-        NumberF.__info__(:functions)
-        |> Enum.map(&elem(&1, 0))
-        |> MapSet.new()
+      exported = NumberF.__info__(:functions)
+      facade = exported |> Enum.map(&elem(&1, 0)) |> MapSet.new()
 
       unreachable =
         for module <- @submodules,
