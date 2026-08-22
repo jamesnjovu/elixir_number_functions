@@ -1684,6 +1684,17 @@ defmodule NumberF do
   @doc """
   Standardises a list to zero mean and unit variance.
 
+  > #### Not a fitted scaler {: .warning}
+  >
+  > This computes its statistics from the list you pass in, so it has no
+  > fit/transform split. Scaling a test set with it does **not** apply the
+  > training set's scaler — it fits a new one from the test data, silently
+  > corrupting the features and leaking test-set statistics.
+  >
+  > For a machine-learning pipeline use `Scholar.Preprocessing.StandardScaler`,
+  > whose `fit/2` and `transform/2` are separate for exactly this reason. This
+  > function is for exploratory work on a single dataset.
+
   ## Examples
 
       iex> NumberF.z_scores([2, 4, 6])
@@ -1792,7 +1803,18 @@ defmodule NumberF do
   defdelegate cumulative_sum(numbers), to: NumberF.Statistics
 
   @doc """
-  Rescales a list to the 0..1 range.
+  Rescales a list to the 0..1 range (min-max normalisation).
+
+  > #### Not a fitted scaler {: .warning}
+  >
+  > This computes its statistics from the list you pass in, so it has no
+  > fit/transform split. Scaling a test set with it does **not** apply the
+  > training set's scaler — it fits a new one from the test data, silently
+  > corrupting the features and leaking test-set statistics.
+  >
+  > For a machine-learning pipeline use `Scholar.Preprocessing.StandardScaler`,
+  > whose `fit/2` and `transform/2` are separate for exactly this reason. This
+  > function is for exploratory work on a single dataset.
 
   ## Examples
 

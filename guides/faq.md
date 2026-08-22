@@ -139,6 +139,67 @@ Yes:
 <span class="price"><%= NumberF.format_currency(@product.price, @locale) %></span>
 ```
 
+## Can I use NumberF for machine learning?
+
+Not for the modelling itself, but it is useful either side of it.
+
+Elixir's machine-learning stack is [Nx](https://hex.pm/packages/nx) (tensors,
+automatic differentiation, GPU execution via EXLA),
+[Axon](https://hex.pm/packages/axon) (neural networks),
+[Scholar](https://hex.pm/packages/scholar) (classical algorithms, roughly
+scikit-learn's scope), [Explorer](https://hex.pm/packages/explorer) (dataframes)
+and [Bumblebee](https://hex.pm/packages/bumblebee) (pretrained models). NumberF has
+none of what that stack is built on: no tensors, no autodiff, no matrix operations.
+It works on plain Elixir lists, and `linear_regression/2` is univariate ordinary
+least squares over two lists — not a multivariate fit, and with no regularisation.
+
+Concretely, `z_scores/1` over a million-element list takes roughly 60ms on a laptop
+— and building that list costs several times more than scaling it does. That is the
+shape of the problem: a list of boxed floats is not a tensor, and no amount of
+tuning inside this library changes that. It is fine in a script, and well off what
+a tensor library does for the same work.
+
+### The mistake to avoid
+
+`normalize/1` and `z_scores/1` compute their statistics **from the list you pass
+in**. There is no fit/transform split:
+
+```elixir
+NumberF.normalize([1.0, 2.0, 3.0, 4.0, 5.0])   # => [0.0, 0.25, 0.5, 0.75, 1.0]
+NumberF.normalize([6.0, 7.0])                  # => [0.0, 1.0]
+```
+
+That second call did not apply the first scaler. It fitted a new one from two data
+points. Used on a test set in a pipeline this silently corrupts the features and
+leaks test-set statistics into evaluation, and nothing raises.
+
+`Scholar.Preprocessing.StandardScaler` separates `fit/2` from `transform/2` for
+exactly this reason:
+
+```elixir
+scaler = Scholar.Preprocessing.StandardScaler.fit(train)
+Scholar.Preprocessing.StandardScaler.transform(scaler, test)
+```
+
+Treat NumberF's versions as exploratory tools for a single dataset.
+
+### Where NumberF does fit
+
+Around a model rather than inside one:
+
+- **Presenting predictions.** This is the strongest case. A model returns
+  `0.8734921`; `format_percentage/3`, `significant_figures/2`,
+  `accounting_format/2` and `format_currency/3` turn that into something a person
+  reads. The ML stack deliberately does not do currency or locale formatting.
+- **Business rules downstream of a prediction** — a forecast feeding `npv/2`,
+  `amortization_schedule/3` or `calculate_vat/3`.
+- **Exploratory statistics** on a modest sample: `summary/1` gives count, min,
+  quartiles, max, mean and standard deviation in one call, alongside
+  `correlation/2`, `covariance/2` and `frequency_distribution/1`.
+- **Cleaning before the data reaches Nx** — `outliers/2` and `remove_outliers/2`.
+- **Guarding feature engineering** — `clamp/3`, `safe_divide/3`, `in_range?/3` and
+  `valid_percentage?/1`.
+
 ## Where can AI assistants get the full API?
 
 The documentation is published in LLM-readable plain text following the

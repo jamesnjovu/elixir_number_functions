@@ -20,6 +20,12 @@ Key facts:
 - Documentation is grouped: Formatting, Currency, Text, Financial, Tax, Statistics,
   Precision, Validation, Math, Units, Dates, Humanize, Internationalization, Introspection.
 - Invalid input raises ArgumentError naming the bad argument. Formatters accept nil.
+- NOT a machine-learning library: no tensors, no autodiff, no matrix ops. Use Nx, Axon,
+  Scholar and Explorer for modelling. IMPORTANT: `normalize/1` and `z_scores/1` compute
+  statistics from the list passed in and have NO fit/transform split, so applying them to
+  a test set refits rather than transforms and leaks test statistics — use
+  `Scholar.Preprocessing.StandardScaler.fit/2` + `transform/2` in a pipeline. NumberF
+  suits the presentation and business-rule layer around a model.
 - The library makes no network calls; exchange rates and tax rates are supplied by the caller.
 
 ## Docs
