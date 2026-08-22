@@ -3,13 +3,46 @@ name: Publish
 on:
   push:
     tags: ["v*"]
+  # Docs are republishable for an already-released version, so a documentation
+  # fix should not need a version bump. The package itself is immutable and this
+  # path deliberately cannot touch it.
+  workflow_dispatch:
+    inputs:
+      docs_only:
+        description: "Republish docs for the current mix.exs version, without releasing"
+        type: boolean
+        default: true
 
 permissions:
   contents: read
 
 jobs:
+  docs:
+    name: Republish docs only
+    if: github.event_name == 'workflow_dispatch' && inputs.docs_only
+    runs-on: ubuntu-latest
+    environment: hex
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: erlef/setup-beam@v1
+        with:
+          elixir-version: "1.18"
+          otp-version: "26"
+
+      - run: mix deps.get
+
+      - name: Build docs
+        run: mix docs
+
+      - name: Publish docs
+        env:
+          HEX_API_KEY: ${{ secrets.HEX_API_KEY }}
+        run: mix hex.publish docs --yes
+
   publish:
     name: Publish to Hex
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     environment: hex
     steps:
