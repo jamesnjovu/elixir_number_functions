@@ -4,9 +4,9 @@
     "lib/mix/tasks/",
     "test/"
   ],
-  "_ratchet": "Set just below the current real figure so CI goes green now and can never regress. Raise it as each phase adds tests; the target is 90. History: 77.1 at v0.2.0.",
+  "_ratchet": "Set just below the current real figure so coverage can never regress. Raise it whenever a phase lifts the number; the target is 90. History: 77.1 -> 84.2 after the facade collapse and the i18n/facade test sweeps.",
   "coverage_options": {
     "treat_no_relevant_lines_as_covered": true,
-    "minimum_coverage": 77
+    "minimum_coverage": 84
   }
 }

@@ -171,8 +171,7 @@ defmodule NumberF do
 
   See also: `NumberF.Currencies` for currency-specific information.
   """
-  def currency(number, unit \\ "ZMW", precision \\ 2),
-    do: NumberF.Currency.currency(number, unit, precision)
+  defdelegate currency(number, unit \\ "ZMW", precision \\ 2), to: NumberF.Currency
 
   @doc """
   Formats a number into comma-separated format with the specified precision.
@@ -192,8 +191,7 @@ defmodule NumberF do
       iex> NumberF.comma_separated(nil, 2)
       nil
   """
-  def comma_separated(number, precision \\ 2),
-    do: NumberF.Currency.comma_separated(number, precision)
+  defdelegate comma_separated(number, precision \\ 2), to: NumberF.Currency
 
   @doc """
   Generates a random string of the specified length.
@@ -221,8 +219,7 @@ defmodule NumberF do
       iex> String.length(result) == 6 and Regex.match?(~r/^[A-Z]+$/, result)
       true
   """
-  def randomizer(length, type \\ :all),
-    do: NumberF.Randomizer.randomizer(length, type)
+  defdelegate randomizer(length, type \\ :all), to: NumberF.Randomizer
 
   @doc """
   Generates a default password with pre-defined complexity.
@@ -235,7 +232,7 @@ defmodule NumberF do
       true
 
   """
-  def default_password, do: NumberF.Randomizer.gen_password()
+  defdelegate default_password(), to: NumberF.Randomizer, as: :gen_password
 
   @doc """
   Converts a number into words with customizable currency terms.
@@ -278,8 +275,9 @@ defmodule NumberF do
 
   See also: `NumberF.NumbersToWords` for more advanced word conversion options.
   """
-  def to_words(amount, main_currence \\ "Kwacha", sec_current \\ "Ngwee"),
-    do: NumberF.NumbersToWords.parse(amount, main_currence, sec_current)
+  defdelegate to_words(amount, main_currency \\ "Kwacha", sec_currency \\ "Ngwee"),
+    to: NumberF.NumbersToWords,
+    as: :parse
 
   @doc """
   Converts a memory size in bytes to a human-readable format.
@@ -302,8 +300,7 @@ defmodule NumberF do
       iex> NumberF.memory_size_cal(1073741824)
       "1.0 GB"
   """
-  def memory_size_cal(size),
-    do: NumberF.Memory.humanize(size)
+  defdelegate memory_size_cal(size), to: NumberF.Memory, as: :humanize
 
   @doc """
   Converts a string to an integer.
@@ -320,22 +317,7 @@ defmodule NumberF do
       123
 
   """
-  def to_int(value) when is_integer(value), do: value
-  def to_int(value) when is_float(value), do: trunc(value)
-
-  def to_int(value) when is_binary(value) do
-    case Integer.parse(value) do
-      {int, _rest} ->
-        int
-
-      :error ->
-        raise ArgumentError, "could not convert #{inspect(value)} to an integer"
-    end
-  end
-
-  def to_int(value) do
-    raise ArgumentError, "could not convert #{inspect(value)} to an integer"
-  end
+  defdelegate to_int(value), to: NumberF.CustomFormatter
 
   @doc """
   Converts a value to a float.
@@ -351,7 +333,7 @@ defmodule NumberF do
       iex> NumberF.to_float(123)
       123.0
   """
-  def to_float(value), do: NumberF.CustomFormatter.to_float(value)
+  defdelegate to_float(value), to: NumberF.CustomFormatter
 
   @doc """
   Converts a value to a decimal.
@@ -367,7 +349,7 @@ defmodule NumberF do
       iex> NumberF.to_decimal(123)
       Decimal.new("123")
   """
-  def to_decimal(value), do: NumberF.CustomFormatter.to_decimal(value)
+  defdelegate to_decimal(value), to: NumberF.CustomFormatter
 
   @doc """
   Converts a string to a boolean value.
@@ -392,15 +374,7 @@ defmodule NumberF do
       iex> NumberF.to_boolean("no")
       false
   """
-  def to_boolean(value) do
-    target = String.downcase(value)
-
-    cond do
-      target == "true" || target == "yes" || target == "on" -> true
-      target == "false" || target == "no" || target == "off" -> false
-      true -> raise ArgumentError, "could not convert #{inspect(value)} to boolean"
-    end
-  end
+  defdelegate to_boolean(value), to: NumberF.CustomFormatter
 
   @doc """
   Formats a number into a delimited format with options for customization.
@@ -423,8 +397,7 @@ defmodule NumberF do
       iex> NumberF.number_to_delimited(1234567.89, precision: 0)
       "1,234,568"
   """
-  def number_to_delimited(number, options \\ []),
-    do: NumberF.CustomFormatter.number_to_delimited(number, options)
+  defdelegate number_to_delimited(number, options \\ []), to: NumberF.CustomFormatter
 
   @doc """
   Sums a list of decimal numbers.
@@ -442,11 +415,7 @@ defmodule NumberF do
 
   This function flattens any nested lists, then uses `Enum.reduce/3` to sum all the decimal values.
   """
-  def sum_decimal(list) do
-    list
-    |> List.flatten()
-    |> Enum.reduce(Decimal.new(0), &Decimal.add(&1, &2))
-  end
+  defdelegate sum_decimal(list), to: NumberF.CustomFormatter
 
   ### NUMERIC CALCULATIONS ###
 
@@ -466,14 +435,7 @@ defmodule NumberF do
       iex> NumberF.percentage(1, 3, 2)
       33.33
   """
-  def percentage(value, total, precision \\ 2)
-  def percentage(_value, 0, _precision), do: raise(ArgumentError, "total cannot be zero")
-  def percentage(_value, +0.0, _precision), do: raise(ArgumentError, "total cannot be zero")
-
-  def percentage(value, total, precision)
-      when is_number(value) and is_number(total) and is_integer(precision) do
-    Float.round(value / total * 100, precision)
-  end
+  defdelegate percentage(value, total, precision \\ 2), to: NumberF.Calculations
 
   @doc """
   Rounds a number to the nearest specified value.
@@ -493,11 +455,7 @@ defmodule NumberF do
       iex> NumberF.round_to_nearest(12.3, 0.5)
       12.5
   """
-  def round_to_nearest(value, nearest \\ 1.0) do
-    result = round(value / nearest) * nearest
-    # Always convert to float for consistency
-    result * 1.0
-  end
+  defdelegate round_to_nearest(value, nearest \\ 1.0), to: NumberF.Calculations
 
   @doc """
   Checks if a number is within a specified range (inclusive).
@@ -515,9 +473,7 @@ defmodule NumberF do
       iex> NumberF.in_range?(15, 1, 10)
       false
   """
-  def in_range?(value, min, max) when is_number(value) and is_number(min) and is_number(max) do
-    value >= min and value <= max
-  end
+  defdelegate in_range?(value, min, max), to: NumberF.Calculations
 
   ### FINANCIAL FUNCTIONS ###
 
@@ -664,20 +620,7 @@ defmodule NumberF do
 
   See also: `NumberF.Statistics` for more statistical functions.
   """
-  def mean([]), do: nil
-
-  def mean(numbers) when is_list(numbers) do
-    # Check for invalid values in the list
-    if Enum.any?(numbers, fn x -> not is_number(x) end) do
-      raise ArgumentError, "mean/1 expects a list of numbers, found non-numeric value"
-    end
-
-    total = Enum.sum(numbers)
-    count = length(numbers)
-    total / count
-  end
-
-  def mean(_), do: raise(ArgumentError, "mean/1 expects a list of numbers")
+  defdelegate mean(numbers), to: NumberF.Statistics
 
   @doc """
   Finds the median value from a list of numbers.
@@ -693,21 +636,7 @@ defmodule NumberF do
       iex> NumberF.median([1, 3, 5, 7])
       4.0
   """
-  def median([]), do: nil
-
-  def median(numbers) when is_list(numbers) do
-    sorted = Enum.sort(numbers)
-    count = length(sorted)
-
-    if rem(count, 2) == 0 do
-      # Even number of elements
-      middle_idx = div(count, 2)
-      (Enum.at(sorted, middle_idx - 1) + Enum.at(sorted, middle_idx)) / 2
-    else
-      # Odd number of elements
-      Enum.at(sorted, div(count, 2))
-    end
-  end
+  defdelegate median(numbers), to: NumberF.Statistics
 
   @doc """
   Finds the most frequently occurring value(s) in a list.
@@ -723,21 +652,7 @@ defmodule NumberF do
       iex> NumberF.mode([1, 1, 2, 2, 3])
       [1, 2]
   """
-  def mode([]), do: []
-
-  def mode(numbers) when is_list(numbers) do
-    frequencies =
-      Enum.reduce(numbers, %{}, fn num, acc ->
-        Map.update(acc, num, 1, &(&1 + 1))
-      end)
-
-    {_value, max_freq} = Enum.max_by(frequencies, fn {_value, count} -> count end)
-
-    frequencies
-    |> Enum.filter(fn {_value, count} -> count == max_freq end)
-    |> Enum.map(fn {value, _count} -> value end)
-    |> Enum.sort()
-  end
+  defdelegate mode(numbers), to: NumberF.Statistics
 
   @doc """
   Calculates standard deviation of a dataset.
@@ -750,19 +665,7 @@ defmodule NumberF do
       iex> NumberF.standard_deviation([2, 4, 4, 4, 5, 5, 7, 9])
       2.0
   """
-  def standard_deviation([]), do: nil
-  def standard_deviation([_single]), do: 0.0
-
-  def standard_deviation(numbers) when is_list(numbers) do
-    avg = mean(numbers)
-
-    variance =
-      Enum.reduce(numbers, 0, fn num, sum ->
-        sum + :math.pow(num - avg, 2)
-      end) / length(numbers)
-
-    :math.sqrt(variance)
-  end
+  defdelegate standard_deviation(numbers), to: NumberF.Statistics
 
   ### NUMBER VALIDATION ###
 
@@ -783,14 +686,7 @@ defmodule NumberF do
       iex> NumberF.is_valid_number?("abc")
       false
   """
-  def is_valid_number?(str) when is_binary(str) do
-    case Float.parse(str) do
-      {_num, ""} -> true
-      _ -> false
-    end
-  end
-
-  def is_valid_number?(_), do: false
+  defdelegate is_valid_number?(str), to: NumberF.Validation
 
   @doc """
   Checks if a string is a valid integer.
@@ -806,14 +702,7 @@ defmodule NumberF do
       iex> NumberF.is_valid_integer?("123.45")
       false
   """
-  def is_valid_integer?(str) when is_binary(str) do
-    case Integer.parse(str) do
-      {_num, ""} -> true
-      _ -> false
-    end
-  end
-
-  def is_valid_integer?(_), do: false
+  defdelegate is_valid_integer?(str), to: NumberF.Validation
 
   @doc """
   Validates credit card numbers using the Luhn algorithm.
@@ -831,59 +720,7 @@ defmodule NumberF do
       iex> NumberF.is_valid_credit_card?("4111111111111112")
       false
   """
-  def is_valid_credit_card?(number, type \\ :any)
-
-  def is_valid_credit_card?(number, type) when is_binary(number) do
-    # Remove any spaces or dashes
-    cleaned = String.replace(number, ~r/[\s-]/, "")
-
-    # Check if all characters are digits
-    if Regex.match?(~r/^\d+$/, cleaned) do
-      # Validate card type by pattern
-      card_valid? =
-        case type do
-          :visa -> Regex.match?(~r/^4[0-9]{12}(?:[0-9]{3})?$/, cleaned)
-          :mastercard -> Regex.match?(~r/^5[1-5][0-9]{14}$/, cleaned)
-          :amex -> Regex.match?(~r/^3[47][0-9]{13}$/, cleaned)
-          :discover -> Regex.match?(~r/^6(?:011|5[0-9]{2})[0-9]{12}$/, cleaned)
-          :any -> true
-        end
-
-      if card_valid? do
-        luhn_valid?(cleaned)
-      else
-        false
-      end
-    else
-      false
-    end
-  end
-
-  def is_valid_credit_card?(_, _), do: false
-
-  # Luhn algorithm implementation
-  defp luhn_valid?(number) do
-    digits = number |> String.graphemes() |> Enum.map(&String.to_integer/1)
-
-    # Double every second digit from right to left
-    doubled =
-      digits
-      |> Enum.reverse()
-      |> Enum.with_index()
-      |> Enum.map(fn {digit, i} ->
-        if rem(i, 2) == 1 do
-          case digit * 2 do
-            n when n > 9 -> n - 9
-            n -> n
-          end
-        else
-          digit
-        end
-      end)
-      |> Enum.sum()
-
-    rem(doubled, 10) == 0
-  end
+  defdelegate is_valid_credit_card?(number, type \\ :any), to: NumberF.Validation
 
   ### FORMATTING ENHANCEMENTS ###
 
@@ -902,53 +739,7 @@ defmodule NumberF do
       iex> NumberF.format_phone("14155552671", "US")
       "+1 (415) 555-2671"
   """
-  def format_phone(number, country_code \\ "ZM") when is_binary(number) do
-    # Remove any non-digit characters
-    digits = String.replace(number, ~r/\D/, "")
-
-    case country_code do
-      "ZM" ->
-        if String.starts_with?(digits, "260") do
-          "+260 " <>
-            String.slice(digits, 3, 2) <>
-            " " <>
-            String.slice(digits, 5, 3) <> " " <> String.slice(digits, 8, 4)
-        else
-          String.slice(digits, 0, 3) <>
-            " " <>
-            String.slice(digits, 3, 3) <> " " <> String.slice(digits, 6, 4)
-        end
-
-      "US" ->
-        if String.starts_with?(digits, "1") and String.length(digits) == 11 do
-          "+1 (" <>
-            String.slice(digits, 1, 3) <>
-            ") " <>
-            String.slice(digits, 4, 3) <> "-" <> String.slice(digits, 7, 4)
-        else
-          "(" <>
-            String.slice(digits, 0, 3) <>
-            ") " <>
-            String.slice(digits, 3, 3) <> "-" <> String.slice(digits, 6, 4)
-        end
-
-      "UK" ->
-        if String.starts_with?(digits, "44") do
-          "+44 " <>
-            String.slice(digits, 2, 2) <>
-            " " <>
-            String.slice(digits, 4, 4) <> " " <> String.slice(digits, 8, 4)
-        else
-          String.slice(digits, 0, 3) <>
-            " " <>
-            String.slice(digits, 3, 4) <> " " <> String.slice(digits, 7, 4)
-        end
-
-      _ ->
-        # Generic international format
-        "+" <> digits
-    end
-  end
+  defdelegate format_phone(number, country_code \\ "ZM"), to: NumberF.Formatter
 
   @doc """
   Formats large numbers as K, M, B (e.g., 1.2K, 3.4M).
@@ -990,18 +781,7 @@ defmodule NumberF do
       iex> NumberF.ordinal(4)
       "4th"
   """
-  def ordinal(number) when is_integer(number) and number > 0 do
-    suffix =
-      cond do
-        rem(number, 100) in [11, 12, 13] -> "th"
-        rem(number, 10) == 1 -> "st"
-        rem(number, 10) == 2 -> "nd"
-        rem(number, 10) == 3 -> "rd"
-        true -> "th"
-      end
-
-    "#{number}#{suffix}"
-  end
+  defdelegate ordinal(number), to: NumberF.Formatter
 
   @doc """
   Converts Arabic numbers to Roman numerals.
@@ -1020,40 +800,7 @@ defmodule NumberF do
       iex> NumberF.to_roman(1999)
       "MCMXCIX"
   """
-  def to_roman(number) when is_integer(number) and number > 0 and number < 4000 do
-    roman_map = [
-      {1000, "M"},
-      {900, "CM"},
-      {500, "D"},
-      {400, "CD"},
-      {100, "C"},
-      {90, "XC"},
-      {50, "L"},
-      {40, "XL"},
-      {10, "X"},
-      {9, "IX"},
-      {5, "V"},
-      {4, "IV"},
-      {1, "I"}
-    ]
-
-    {_num, result} =
-      Enum.reduce(roman_map, {number, ""}, fn {val, rom}, {num, acc} ->
-        count = div(num, val)
-        remainder = rem(num, val)
-        {remainder, acc <> String.duplicate(rom, count)}
-      end)
-
-    result
-  end
-
-  def to_roman(number) when is_integer(number) and number >= 4000 do
-    raise ArgumentError, "Roman numerals only support numbers from 1 to 3999"
-  end
-
-  def to_roman(number) when is_integer(number) and number <= 0 do
-    raise ArgumentError, "Roman numerals only support numbers from 1 to 3999"
-  end
+  defdelegate to_roman(number), to: NumberF.Formatter
 
   @doc """
   Converts Roman numerals to Arabic numbers.
@@ -1072,34 +819,7 @@ defmodule NumberF do
       iex> NumberF.from_roman("MCMXCIX")
       1999
   """
-  def from_roman(roman) when is_binary(roman) do
-    chars = String.graphemes(roman)
-
-    values = %{
-      "I" => 1,
-      "V" => 5,
-      "X" => 10,
-      "L" => 50,
-      "C" => 100,
-      "D" => 500,
-      "M" => 1000
-    }
-
-    {result, _} =
-      Enum.reduce(chars, {0, 0}, fn char, {sum, prev} ->
-        current = Map.get(values, char, 0)
-
-        # If current value is greater than previous, subtract twice the previous
-        # (we already added it once in the previous iteration)
-        if current > prev and prev > 0 do
-          {sum - prev * 2 + current, current}
-        else
-          {sum + current, current}
-        end
-      end)
-
-    result
-  end
+  defdelegate from_roman(roman), to: NumberF.Formatter
 
   ### DATE-BASED CALCULATIONS ###
 
@@ -1116,20 +836,7 @@ defmodule NumberF do
       iex> is_integer(age) and age >= 0
       true
   """
-  def calculate_age(birth_date) do
-    today = Date.utc_today()
-    years = today.year - birth_date.year
-
-    # Adjust if birthday hasn't occurred yet this year
-    if Date.compare(
-         %{today | year: today.year - years},
-         birth_date
-       ) == :lt do
-      years - 1
-    else
-      years
-    end
-  end
+  defdelegate calculate_age(birth_date), to: NumberF.DateCalculations
 
   @doc """
   Calculates payment due date based on invoice date and terms.
@@ -1148,11 +855,7 @@ defmodule NumberF do
       iex> NumberF.payment_due_date(invoice_date, 45)
       ~D[2023-03-01]
   """
-  def payment_due_date(invoice_date, terms_days \\ 30)
-
-  def payment_due_date(invoice_date, terms_days) do
-    Date.add(invoice_date, terms_days)
-  end
+  defdelegate payment_due_date(invoice_date, terms_days \\ 30), to: NumberF.DateCalculations
 
   ### UNIT CONVERSION FUNCTIONS ###
 
@@ -1170,7 +873,7 @@ defmodule NumberF do
       iex> NumberF.inches_to_cm(3.5)
       8.89
   """
-  def inches_to_cm(inches), do: NumberF.Metrics.inches_to_cm(inches)
+  defdelegate inches_to_cm(inches), to: NumberF.Metrics
 
   @doc """
   Converts centimeters to inches.
@@ -1183,7 +886,7 @@ defmodule NumberF do
       iex> NumberF.cm_to_inches(25.4)
       10.0
   """
-  def cm_to_inches(cm), do: NumberF.Metrics.cm_to_inches(cm)
+  defdelegate cm_to_inches(cm), to: NumberF.Metrics
 
   @doc """
   Converts miles to kilometers.
@@ -1196,7 +899,7 @@ defmodule NumberF do
       iex> NumberF.miles_to_km(10)
       16.09
   """
-  def miles_to_km(miles), do: NumberF.Metrics.miles_to_km(miles)
+  defdelegate miles_to_km(miles), to: NumberF.Metrics
 
   @doc """
   Converts kilometers to miles.
@@ -1209,7 +912,7 @@ defmodule NumberF do
       iex> NumberF.km_to_miles(16.09)
       10.0
   """
-  def km_to_miles(km), do: NumberF.Metrics.km_to_miles(km)
+  defdelegate km_to_miles(km), to: NumberF.Metrics
 
   @doc """
   Converts Fahrenheit to Celsius.
@@ -1225,7 +928,7 @@ defmodule NumberF do
       iex> NumberF.fahrenheit_to_celsius(212)
       100.0
   """
-  def fahrenheit_to_celsius(fahrenheit), do: NumberF.Metrics.fahrenheit_to_celsius(fahrenheit)
+  defdelegate fahrenheit_to_celsius(fahrenheit), to: NumberF.Metrics
 
   @doc """
   Converts Celsius to Fahrenheit.
@@ -1241,7 +944,7 @@ defmodule NumberF do
       iex> NumberF.celsius_to_fahrenheit(100)
       212.0
   """
-  def celsius_to_fahrenheit(celsius), do: NumberF.Metrics.celsius_to_fahrenheit(celsius)
+  defdelegate celsius_to_fahrenheit(celsius), to: NumberF.Metrics
 
   @doc """
   Converts kilograms to pounds.
@@ -1254,8 +957,7 @@ defmodule NumberF do
       iex> NumberF.kg_to_pounds(4.54)
       10.01
   """
-  def kg_to_pounds(kg), do: NumberF.Metrics.kg_to_pounds(kg)
-
+  defdelegate kg_to_pounds(kg), to: NumberF.Metrics
   ### PRECISION HANDLING FUNCTIONS ###
 
   @doc """
@@ -1273,8 +975,7 @@ defmodule NumberF do
       iex> NumberF.round_with_precision(3.14159, 4)
       3.1416
   """
-  def round_with_precision(number, precision \\ 2),
-    do: NumberF.Precision.round_with_precision(number, precision)
+  defdelegate round_with_precision(number, precision \\ 2), to: NumberF.Precision
 
   @doc """
   Rounds a number using banker's rounding (round to even).
@@ -1292,8 +993,7 @@ defmodule NumberF do
       iex> NumberF.bankers_round(3.5, 0)
       4.0
   """
-  def bankers_round(number, precision \\ 2),
-    do: NumberF.Precision.bankers_round(number, precision)
+  defdelegate bankers_round(number, precision \\ 2), to: NumberF.Precision
 
   @doc """
   Rounds a number up to a specified precision (ceiling).
@@ -1310,8 +1010,7 @@ defmodule NumberF do
       iex> NumberF.ceiling(3.14159, 1)
       3.2
   """
-  def ceiling(number, precision \\ 2),
-    do: NumberF.Precision.ceiling(number, precision)
+  defdelegate ceiling(number, precision \\ 2), to: NumberF.Precision
 
   @doc """
   Rounds a number down to a specified precision (floor).
@@ -1328,8 +1027,7 @@ defmodule NumberF do
       iex> NumberF.floor(3.14159, 1)
       3.1
   """
-  def floor(number, precision \\ 2),
-    do: NumberF.Precision.floor(number, precision)
+  defdelegate floor(number, precision \\ 2), to: NumberF.Precision
 
   @doc """
   Rounds a number to a specific increment.
@@ -1350,8 +1048,7 @@ defmodule NumberF do
       iex> NumberF.round_to(3.14159, 0.1, :down)
       3.1
   """
-  def round_to(number, increment \\ 1.0, strategy \\ :nearest),
-    do: NumberF.Precision.round_to(number, increment, strategy)
+  defdelegate round_to(number, increment \\ 1.0, strategy \\ :nearest), to: NumberF.Precision
 
   @doc """
   Checks if two floating point numbers are approximately equal.
@@ -1369,9 +1066,7 @@ defmodule NumberF do
       iex> NumberF.approximately_equal(0.1, 0.2)
       false
   """
-  def approximately_equal(a, b, epsilon \\ 1.0e-10),
-    do: NumberF.Precision.approximately_equal(a, b, epsilon)
-
+  defdelegate approximately_equal(a, b, epsilon \\ 1.0e-10), to: NumberF.Precision
   ### TAX CALCULATION FUNCTIONS ###
 
   @doc """
@@ -1390,8 +1085,7 @@ defmodule NumberF do
       iex> NumberF.calculate_vat(120, 0.2, true)
       %{net: 100.0, vat: 20.0, gross: 120.0}
   """
-  def calculate_vat(amount, rate, included \\ false),
-    do: NumberF.Tax.calculate_vat(amount, rate, included)
+  defdelegate calculate_vat(amount, rate, included \\ false), to: NumberF.Tax
 
   @doc """
   Calculates sales tax for a given amount and rate.
@@ -1407,8 +1101,7 @@ defmodule NumberF do
       iex> NumberF.calculate_sales_tax(100, 0.06)
       %{subtotal: 100.0, tax: 6.0, total: 106.0}
   """
-  def calculate_sales_tax(amount, rate, options \\ []),
-    do: NumberF.Tax.calculate_sales_tax(amount, rate, options)
+  defdelegate calculate_sales_tax(amount, rate, options \\ []), to: NumberF.Tax
 
   @doc """
   Returns common VAT rates for different countries.
@@ -1421,7 +1114,7 @@ defmodule NumberF do
       iex> NumberF.vat_rates()["Germany"]
       0.19
   """
-  def vat_rates, do: NumberF.Tax.vat_rates()
+  defdelegate vat_rates(), to: NumberF.Tax
 
   ### INTERNATIONALIZATION FUNCTIONS ###
 
@@ -1442,8 +1135,7 @@ defmodule NumberF do
       iex> NumberF.format_number(1234567.89, "fr-FR")
       "1 234 567,89"
   """
-  def format_number(number, locale, options \\ []),
-    do: NumberF.I18n.format_number(number, locale, options)
+  defdelegate format_number(number, locale, options \\ []), to: NumberF.I18n
 
   @doc """
   Formats a number as currency according to locale-specific settings.
@@ -1493,8 +1185,7 @@ defmodule NumberF do
 
   See also: `NumberF.I18n` for more internationalization functions.
   """
-  def format_currency(number, locale, options \\ []),
-    do: NumberF.I18n.format_currency(number, locale, options)
+  defdelegate format_currency(number, locale, options \\ []), to: NumberF.I18n
 
   @doc """
   Spells out a number in the specified language.
@@ -1515,9 +1206,7 @@ defmodule NumberF do
       iex> NumberF.spell_number(42, "fr")
       "Quarante-deux"
   """
-  def spell_number(number, language, options \\ []),
-    do: NumberF.I18n.spell_number(number, language, options)
-
+  defdelegate spell_number(number, language, options \\ []), to: NumberF.I18n
   ### CURRENCY UTILITY FUNCTIONS ###
 
   @doc """
@@ -1536,7 +1225,7 @@ defmodule NumberF do
         decimal_separator: "."
       }
   """
-  def currency_data, do: NumberF.Currencies.currency_data()
+  defdelegate currency_data(), to: NumberF.Currencies
 
   @doc """
   Gets currency details for a specific currency code.
@@ -1557,7 +1246,7 @@ defmodule NumberF do
         decimal_separator: "."
       }
   """
-  def get_currency(currency_code), do: NumberF.Currencies.get_currency(currency_code)
+  defdelegate get_currency(currency_code), to: NumberF.Currencies
 
   @doc """
   Formats a currency with the specified currency code's rules.
@@ -1575,8 +1264,9 @@ defmodule NumberF do
       iex> NumberF.format_with_currency(1234.56, "EUR")
       "1.234,56 €"
   """
-  def format_with_currency(number, currency_code, options \\ []),
-    do: NumberF.Currencies.format(number, currency_code, options)
+  defdelegate format_with_currency(number, currency_code, options \\ []),
+    to: NumberF.Currencies,
+    as: :format
 
   ### REGISTRY AND INFORMATION ###
 
@@ -1588,7 +1278,7 @@ defmodule NumberF do
       iex> NumberF.modules() |> Enum.map(& &1.name) |> Enum.take(3)
       ["NumberF", "NumberF.Currency", "NumberF.CustomFormatter"]
   """
-  def modules, do: NumberF.Registry.modules()
+  defdelegate modules(), to: NumberF.Registry
 
   @doc """
   Returns information about NumberF modules of a specific type.
@@ -1601,7 +1291,7 @@ defmodule NumberF do
       iex> NumberF.modules_by_type(:formatting) |> Enum.map(& &1.name)
       ["NumberF.Currency", "NumberF.CustomFormatter", "NumberF.Formatter", "NumberF.Currencies"]
   """
-  def modules_by_type(type), do: NumberF.Registry.modules_by_type(type)
+  defdelegate modules_by_type(type), to: NumberF.Registry
 
   @doc """
   Returns all function categories available in NumberF.
@@ -1611,7 +1301,7 @@ defmodule NumberF do
       iex> NumberF.function_categories() |> Enum.map(& &1.name) |> Enum.take(3)
       ["Formatting", "Conversion", "Generation"]
   """
-  def function_categories, do: NumberF.Registry.function_categories()
+  defdelegate function_categories(), to: NumberF.Registry
 
   @doc """
   Returns a markdown documentation of all NumberF modules and functions.
@@ -1622,7 +1312,7 @@ defmodule NumberF do
       iex> String.starts_with?(markdown, "# NumberF Library")
       true
   """
-  def documentation, do: NumberF.Registry.to_markdown()
+  defdelegate documentation(), to: NumberF.Registry, as: :to_markdown
 
   ### EXTENDED MATH OPERATIONS ###
 
@@ -1640,7 +1330,7 @@ defmodule NumberF do
       iex> NumberF.factorial(0)
       1
   """
-  def factorial(n) when n >= 0, do: NumberF.Calculations.factorial(n)
+  defdelegate factorial(n), to: NumberF.Calculations
 
   @doc """
   Calculates combinations (n choose k).
@@ -1657,7 +1347,7 @@ defmodule NumberF do
       iex> NumberF.combinations(10, 3)
       120
   """
-  def combinations(n, k) when k <= n, do: NumberF.Calculations.combinations(n, k)
+  defdelegate combinations(n, k), to: NumberF.Calculations
 
   @doc """
   Calculates the Greatest Common Divisor (GCD) of two integers.
@@ -1674,7 +1364,7 @@ defmodule NumberF do
       iex> NumberF.gcd(7, 13)
       1
   """
-  def gcd(a, b), do: NumberF.Calculations.gcd(a, b)
+  defdelegate gcd(a, b), to: NumberF.Calculations
 
   @doc """
   Calculates the Least Common Multiple (LCM) of two integers.
@@ -1691,7 +1381,7 @@ defmodule NumberF do
       iex> NumberF.lcm(21, 6)
       42
   """
-  def lcm(a, b), do: NumberF.Calculations.lcm(a, b)
+  defdelegate lcm(a, b), to: NumberF.Calculations
 
   @doc """
   Checks if a number is prime.
@@ -1707,7 +1397,7 @@ defmodule NumberF do
       iex> NumberF.is_prime?(6)
       false
   """
-  def is_prime?(n), do: NumberF.Calculations.is_prime?(n)
+  defdelegate is_prime?(n), to: NumberF.Calculations
 
   @doc """
   Performs a linear interpolation between two points.
@@ -1724,7 +1414,7 @@ defmodule NumberF do
       iex> NumberF.interpolate(2.5, 2, 10, 3, 20)
       15.0
   """
-  def interpolate(x, x0, y0, x1, y1), do: NumberF.Calculations.interpolate(x, x0, y0, x1, y1)
+  defdelegate interpolate(x, x0, y0, x1, y1), to: NumberF.Calculations
 
   @doc """
   Converts degrees to radians.
@@ -1737,7 +1427,7 @@ defmodule NumberF do
       iex> NumberF.to_radians(180)
       3.141592653589793
   """
-  def to_radians(degrees), do: NumberF.Calculations.to_radians(degrees)
+  defdelegate to_radians(degrees), to: NumberF.Calculations
 
   @doc """
   Converts radians to degrees.
@@ -1750,8 +1440,7 @@ defmodule NumberF do
       iex> NumberF.to_degrees(3.14159)
       179.99984796050427
   """
-  def to_degrees(radians), do: NumberF.Calculations.to_degrees(radians)
-
+  defdelegate to_degrees(radians), to: NumberF.Calculations
   ### EXTENDED STATISTICS FUNCTIONS ###
 
   @doc """
@@ -1765,7 +1454,7 @@ defmodule NumberF do
       iex> NumberF.variance([2, 4, 4, 4, 5, 5, 7, 9])
       4.0
   """
-  def variance(numbers), do: NumberF.Statistics.variance(numbers)
+  defdelegate variance(numbers), to: NumberF.Statistics
 
   @doc """
   Calculates the **sample** variance of a dataset (divides by N-1).
@@ -1824,8 +1513,7 @@ defmodule NumberF do
       iex> NumberF.range([2, 4, 4, 4, 5, 5, 7, 9])
       7.0
   """
-  def range(numbers), do: NumberF.Statistics.range(numbers)
-
+  defdelegate range(numbers), to: NumberF.Statistics
   ### EXTENDED DATE FUNCTIONS ###
 
   @doc """
@@ -1840,7 +1528,7 @@ defmodule NumberF do
       iex> NumberF.days_between(~D[2023-01-01], ~D[2023-01-10])
       9
   """
-  def days_between(date1, date2), do: NumberF.DateCalculations.days_between(date1, date2)
+  defdelegate days_between(date1, date2), to: NumberF.DateCalculations
 
   @doc """
   Calculates the number of business days between two dates.
@@ -1854,8 +1542,7 @@ defmodule NumberF do
       iex> NumberF.business_days_between(~D[2023-01-02], ~D[2023-01-08])
       5
   """
-  def business_days_between(date1, date2),
-    do: NumberF.DateCalculations.business_days_between(date1, date2)
+  defdelegate business_days_between(date1, date2), to: NumberF.DateCalculations
 
   @doc """
   Determines if a date is a business day.
@@ -1871,7 +1558,233 @@ defmodule NumberF do
       iex> NumberF.is_business_day?(~D[2023-01-01])
       false
   """
-  def is_business_day?(date), do: NumberF.DateCalculations.is_business_day?(date)
+  defdelegate is_business_day?(date), to: NumberF.DateCalculations
+
+  ### PREVIOUSLY SUBMODULE-ONLY ###
+  #
+  # These were public on their submodules but unreachable from `NumberF`, so the
+  # moduledoc's promise that "most common functionality is available directly from
+  # the main NumberF module" was false for 36 functions — including every
+  # interesting one in NumberF.Tax. Delegating them makes the facade the complete
+  # entry point it claims to be.
+
+  @doc """
+  Rounds to a precision using an explicit mode.
+
+  Modes: `:half_up` (default), `:half_down`, `:half_even`, `:ceiling`, `:floor`,
+  `:truncate`.
+
+  ## Examples
+
+      iex> NumberF.custom_round(2.565, 2, :half_down)
+      2.56
+  """
+  defdelegate custom_round(number, precision, mode \\ :half_up), to: NumberF.Precision
+
+  @doc """
+  Formats a number to a fixed number of decimal places, padding with zeros.
+
+  Unlike `round_to/3`, trailing zeros are preserved, so the width is stable.
+
+  ## Examples
+
+      iex> NumberF.precise_format(3.14159, 3)
+      "3.142"
+  """
+  defdelegate precise_format(number, precision \\ 2), to: NumberF.Precision
+
+  @doc """
+  Replaces non-finite float values with a safe default.
+
+  ## Examples
+
+      iex> NumberF.sanitize_float(:nan)
+      0.0
+  """
+  defdelegate sanitize_float(value, default \\ 0.0), to: NumberF.Precision
+
+  @doc """
+  Truncates a number to a precision, cutting digits rather than rounding.
+
+  ## Examples
+
+      iex> NumberF.truncate(3.999, 2)
+      3.99
+  """
+  defdelegate truncate(number, precision \\ 2), to: NumberF.Precision
+
+  @doc """
+  Calculates progressive income tax against a bracket table.
+
+  ## Examples
+
+      iex> brackets = NumberF.income_tax_brackets()["US"]
+      iex> result = NumberF.calculate_income_tax(75_000, brackets)
+      iex> is_number(result.tax) and is_number(result.effective_rate)
+      true
+  """
+  defdelegate calculate_income_tax(income, brackets), to: NumberF.Tax
+
+  @doc """
+  Reference income tax brackets by country.
+
+  These are reference data, not legal advice: rates change and jurisdictions differ.
+  Supply your own brackets for anything with financial consequence.
+
+  ## Examples
+
+      iex> NumberF.income_tax_brackets() |> Map.keys() |> Enum.sort()
+      ["Germany", "UK", "US", "Zambia"]
+  """
+  defdelegate income_tax_brackets(), to: NumberF.Tax
+
+  @doc "Calculates capital gains tax on a gain."
+  defdelegate calculate_capital_gains_tax(gain, rate, exemption \\ 0), to: NumberF.Tax
+
+  @doc "Calculates corporate tax on a profit."
+  defdelegate calculate_corporate_tax(profit, rate), to: NumberF.Tax
+
+  @doc "Calculates withholding tax on a gross amount."
+  defdelegate calculate_withholding_tax(amount, rate), to: NumberF.Tax
+
+  @doc "Calculates employee and employer payroll contributions."
+  defdelegate calculate_payroll_tax(salary, employee_rate, employer_rate, cap \\ nil),
+    to: NumberF.Tax
+
+  @doc """
+  Formats a number in scientific notation.
+
+  ## Examples
+
+      iex> NumberF.scientific_notation(0.000123)
+      "1.23e-4"
+  """
+  defdelegate scientific_notation(number, precision \\ 2), to: NumberF.Formatter
+
+  @doc """
+  Formats a number in engineering notation (exponents are multiples of three).
+
+  ## Examples
+
+      iex> NumberF.engineering_notation(0.000123)
+      "123.0e-6"
+  """
+  defdelegate engineering_notation(number, precision \\ 2), to: NumberF.Formatter
+
+  @doc "Formats a value as a percentage string."
+  defdelegate format_percentage(value, total, precision \\ 2), to: NumberF.Formatter
+
+  @doc "Formats a numerator and denominator as a fraction."
+  defdelegate format_fraction(numerator, denominator, options \\ []), to: NumberF.Formatter
+
+  @doc "Approximates a decimal as a fraction."
+  defdelegate decimal_to_fraction(decimal, options \\ []), to: NumberF.Formatter
+
+  @doc "Formats a number with a custom prefix and suffix."
+  defdelegate format_with_units(number, options \\ []), to: NumberF.Formatter
+
+  @doc "Formats a number as currency using the low-level formatter."
+  defdelegate number_to_currency(number, options \\ []), to: NumberF.CustomFormatter
+
+  @doc "Converts between two currencies using a rate table."
+  defdelegate convert_between_currencies(amount, from, to, rates, base_currency \\ "USD"),
+    to: NumberF.Currencies,
+    as: :convert
+
+  @doc "Parses a currency string into a number."
+  defdelegate parse_currency(currency_string, currency_code \\ nil),
+    to: NumberF.Currencies,
+    as: :parse
+
+  @doc "Converts pounds to kilograms."
+  defdelegate pounds_to_kg(pounds), to: NumberF.Metrics
+
+  @doc "Converts millilitres to fluid ounces."
+  defdelegate ml_to_oz(ml), to: NumberF.Metrics
+
+  @doc "Converts fluid ounces to millilitres."
+  defdelegate oz_to_ml(oz), to: NumberF.Metrics
+
+  @doc "Converts acres to hectares."
+  defdelegate acres_to_hectares(acres), to: NumberF.Metrics
+
+  @doc "Converts hectares to acres."
+  defdelegate hectares_to_acres(hectares), to: NumberF.Metrics
+
+  @doc """
+  Converts between arbitrary units from one of the unit tables.
+
+  Unit keys are strings, not atoms.
+
+  ## Examples
+
+      iex> NumberF.convert_units(100, "km", "mi", NumberF.length_units()) |> Float.round(2)
+      62.14
+  """
+  defdelegate convert_units(value, from, to, units), to: NumberF.Metrics
+
+  @doc "Length conversion factors, relative to metres."
+  defdelegate length_units(), to: NumberF.Metrics
+
+  @doc "Weight conversion factors, relative to kilograms."
+  defdelegate weight_units(), to: NumberF.Metrics
+
+  @doc "Volume conversion factors, relative to litres."
+  defdelegate volume_units(), to: NumberF.Metrics
+
+  @doc "Area conversion factors, relative to square metres."
+  defdelegate area_units(), to: NumberF.Metrics
+
+  @doc """
+  Adds business days to a date. A negative count subtracts them.
+
+  ## Examples
+
+      iex> NumberF.add_business_days(~D[2024-01-15], -3)
+      ~D[2024-01-10]
+  """
+  defdelegate add_business_days(date, num_days), to: NumberF.DateCalculations
+
+  @doc """
+  Returns the next business day after the given date.
+
+  ## Examples
+
+      iex> NumberF.next_business_day(~D[2024-01-12])
+      ~D[2024-01-15]
+  """
+  defdelegate next_business_day(date), to: NumberF.DateCalculations
+
+  @doc """
+  Returns the formatting settings for a locale.
+
+  ## Examples
+
+      iex> NumberF.get_locale_settings("en-US").currency_symbol
+      "$"
+  """
+  defdelegate get_locale_settings(locale), to: NumberF.I18n
+
+  @doc """
+  Parses a locale-formatted number string back into a number.
+
+  ## Examples
+
+      iex> NumberF.parse_number("1.234,56", "de-DE")
+      1234.56
+  """
+  defdelegate parse_number(text, locale), to: NumberF.I18n
+
+  @doc "Returns the main and sub unit names for a currency in a given language."
+  defdelegate get_currency_names(currency_code, language), to: NumberF.I18n
+
+  @doc "Returns metadata for a single NumberF module."
+  defdelegate module_details(name), to: NumberF.Registry
+
+  @doc "Returns metadata for a single function category."
+  defdelegate category_details(name), to: NumberF.Registry
+
+  ### END PREVIOUSLY SUBMODULE-ONLY ###
 
   @doc """
   Returns all modules and their functions as a reference.
@@ -1889,7 +1802,7 @@ defmodule NumberF do
     %{
       description:
         "A comprehensive utility library for number formatting, conversion, and manipulation in Elixir",
-      version: "0.2.0",
+      version: unquote(Mix.Project.config()[:version]),
       modules: NumberF.Registry.modules(),
       function_categories: NumberF.Registry.function_categories()
     }

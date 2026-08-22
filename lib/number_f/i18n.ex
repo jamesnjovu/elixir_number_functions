@@ -379,6 +379,10 @@ defmodule NumberF.I18n do
     end
   end
 
+  defp spell_number_en(n) do
+    raise ArgumentError, "spell_number/3 supports values below one billion, got: #{inspect(n)}"
+  end
+
   # Helper for English conjunction rules
   defp conjunction_en(n) when n < 100, do: "and"
   defp conjunction_en(_), do: ""
@@ -455,6 +459,19 @@ defmodule NumberF.I18n do
     end
   end
 
+  defp spell_number_fr(n) when n < 1_000_000_000 do
+    millions = div(n, 1_000_000)
+    remainder = rem(n, 1_000_000)
+    # "un million", not "un millions" — the noun is only pluralised above one.
+    word = if millions == 1, do: "un million", else: "#{spell_number_fr(millions)} millions"
+
+    if remainder == 0, do: word, else: join_words([word, spell_number_fr(remainder)])
+  end
+
+  defp spell_number_fr(n) do
+    raise ArgumentError, "spell_number/3 supports values below one billion, got: #{inspect(n)}"
+  end
+
   # Spanish number spelling implementation
   @doc false
   def spell_number_es_public(n), do: spell_number_es(n)
@@ -523,6 +540,18 @@ defmodule NumberF.I18n do
     end
   end
 
+  defp spell_number_es(n) when n < 1_000_000_000 do
+    millions = div(n, 1_000_000)
+    remainder = rem(n, 1_000_000)
+    word = if millions == 1, do: "un millón", else: "#{spell_number_es(millions)} millones"
+
+    if remainder == 0, do: word, else: join_words([word, spell_number_es(remainder)])
+  end
+
+  defp spell_number_es(n) do
+    raise ArgumentError, "spell_number/3 supports values below one billion, got: #{inspect(n)}"
+  end
+
   # German number spelling implementation
   @doc false
   def spell_number_de_public(n), do: spell_number_de(n)
@@ -589,6 +618,19 @@ defmodule NumberF.I18n do
     else
       "#{spell_number_de(thousands)}tausend#{spell_number_de(remainder)}"
     end
+  end
+
+  defp spell_number_de(n) when n < 1_000_000_000 do
+    millions = div(n, 1_000_000)
+    remainder = rem(n, 1_000_000)
+    # German writes numbers as one word, but "Million" stands apart from it.
+    word = if millions == 1, do: "eine Million", else: "#{spell_number_de(millions)} Millionen"
+
+    if remainder == 0, do: word, else: join_words([word, spell_number_de(remainder)])
+  end
+
+  defp spell_number_de(n) do
+    raise ArgumentError, "spell_number/3 supports values below one billion, got: #{inspect(n)}"
   end
 
   @doc """

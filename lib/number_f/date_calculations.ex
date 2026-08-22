@@ -6,7 +6,7 @@ defmodule NumberF.DateCalculations do
   @doc """
   Calculates age based on birth date.
   """
-  def calculate_age(birth_date) do
+  def calculate_age(%Date{} = birth_date) do
     today = Date.utc_today()
     years = today.year - birth_date.year
 
@@ -19,6 +19,10 @@ defmodule NumberF.DateCalculations do
     else
       years
     end
+  end
+
+  def calculate_age(birth_date) do
+    raise ArgumentError, "calculate_age expects a Date, got: #{inspect(birth_date)}"
   end
 
   @doc """

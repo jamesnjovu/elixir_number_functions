@@ -47,6 +47,12 @@ each has a named regression test in `test/number_f/regressions_test.exs`.
 - `DateCalculations.business_days_between/2` built a descending range for a reversed
   date pair, which emitted a `Range` deprecation warning at runtime and returned a
   positive count. It now returns a signed result.
+- `I18n.spell_number/3` raised `FunctionClauseError` for any value of 1,000,000 or
+  more in French, Spanish and German — only the English speller had a millions
+  clause. Found by the first tests ever written against those three languages.
+- `calculate_age/1` raised `KeyError` on Elixir 1.18 and `BadMapError` on 1.20 for
+  non-`Date` input; it now raises `ArgumentError` on every version. Caught by the
+  new CI version matrix on its first run.
 
 **Crashes on valid input**
 
@@ -89,6 +95,34 @@ each has a named regression test in `test/number_f/regressions_test.exs`.
   This fixes the broken Changelog link on hex.pm.
 - Corrected the documented locale count from "25+" to the actual 22, and five
   documented examples whose stated output did not match the library.
+
+### Changed — the facade
+
+`lib/number_f.ex` was 1,879 lines, 72% of it documentation duplicated from the
+submodules, with 88 `def` and zero `defdelegate`. Thirty-nine of those functions
+reimplemented logic the submodules already contained, which is why
+`NumberF.Validation`, `NumberF.Financial` and `NumberF.Formatter` had no callers at
+all and had quietly drifted from their facade twins.
+
+- Every public function is now a `defdelegate`; the facade holds the canonical
+  documentation and the submodules hold the single implementation. The two can no
+  longer disagree.
+- Reconciled the drift, with the facade's behaviour taking precedence because it is
+  what the documentation promised: `Calculations.round_to_nearest/2` now returns a
+  float (was an integer), and `Formatter.to_roman/1` raises `ArgumentError` outside
+  1..3999 (was `FunctionClauseError`).
+- **All 36 previously unreachable submodule functions are now callable from
+  `NumberF`** — every `NumberF.Tax` calculation, `Metrics.convert_units/4` and the
+  four unit tables, `Precision.truncate/2`, `precise_format/2`, `custom_round/3` and
+  `sanitize_float/2`, `I18n.parse_number/2` and `get_locale_settings/1`,
+  `Currencies.convert/5` and `parse/2`, `DateCalculations.add_business_days/2` and
+  `next_business_day/1`, and the `Registry` detail lookups. A test now derives the
+  expected surface from the submodules, so a new one that is not delegated fails CI.
+- `to_int/1`, `to_boolean/1` and `sum_decimal/1` moved to `NumberF.CustomFormatter`,
+  alongside the conversions that were already there.
+- `NumberF.Statistics` gained the input validation that only the facade copy had.
+- The library version is no longer hardcoded in `reference/0`; it is read from
+  `mix.exs`.
 
 ### Behaviour changes
 

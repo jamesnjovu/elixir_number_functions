@@ -8,18 +8,25 @@ defmodule NumberF.Statistics do
   """
   def mean([]), do: nil
 
-  def mean(numbers) do
-    total = Enum.sum(numbers)
-    count = length(numbers)
-    total / count
+  def mean(numbers) when is_list(numbers) do
+    # Validated rather than left to Enum.sum/1: a stray nil in the list otherwise
+    # surfaces as an ArithmeticError from deep inside Enum, naming neither the
+    # function the caller invoked nor the value that was wrong.
+    if Enum.any?(numbers, &(not is_number(&1))) do
+      raise ArgumentError, "mean/1 expects a list of numbers, found a non-numeric value"
+    end
+
+    Enum.sum(numbers) / length(numbers)
   end
+
+  def mean(other), do: raise(ArgumentError, "mean/1 expects a list, got: #{inspect(other)}")
 
   @doc """
   Finds the median value from a list of numbers.
   """
   def median([]), do: nil
 
-  def median(numbers) do
+  def median(numbers) when is_list(numbers) do
     sorted = Enum.sort(numbers)
     count = length(sorted)
 
@@ -33,12 +40,14 @@ defmodule NumberF.Statistics do
     end
   end
 
+  def median(other), do: raise(ArgumentError, "median/1 expects a list, got: #{inspect(other)}")
+
   @doc """
   Finds the most frequently occurring value(s) in a list.
   """
   def mode([]), do: []
 
-  def mode(numbers) do
+  def mode(numbers) when is_list(numbers) do
     frequencies =
       Enum.reduce(numbers, %{}, fn num, acc ->
         Map.update(acc, num, 1, &(&1 + 1))
@@ -51,6 +60,8 @@ defmodule NumberF.Statistics do
     |> Enum.map(fn {value, _count} -> value end)
     |> Enum.sort()
   end
+
+  def mode(other), do: raise(ArgumentError, "mode/1 expects a list, got: #{inspect(other)}")
 
   @doc """
   Calculates the **population** standard deviation of a dataset (divides by N).
@@ -126,7 +137,9 @@ defmodule NumberF.Statistics do
   def range([]), do: nil
   def range([_single]), do: 0.0
 
-  def range(numbers) do
+  def range(numbers) when is_list(numbers) do
     (Enum.max(numbers) - Enum.min(numbers)) * 1.0
   end
+
+  def range(other), do: raise(ArgumentError, "range/1 expects a list, got: #{inspect(other)}")
 end

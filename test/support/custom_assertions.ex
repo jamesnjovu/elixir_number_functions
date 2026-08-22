@@ -45,4 +45,25 @@ defmodule CustomAssertions do
              "Expected execution time #{time}μs to be less than #{threshold}μs"
     end
   end
+
+  @doc """
+  Assert that memory usage is within limits.
+  """
+  defmacro assert_memory_usage(limit_bytes, do: code) do
+    quote do
+      :erlang.garbage_collect()
+      memory_before = :erlang.memory(:total)
+
+      _result = unquote(code)
+
+      :erlang.garbage_collect()
+      memory_after = :erlang.memory(:total)
+
+      memory_used = memory_after - memory_before
+      limit = unquote(limit_bytes)
+
+      assert memory_used < limit,
+             "Expected memory usage #{memory_used} bytes to be less than #{limit} bytes"
+    end
+  end
 end

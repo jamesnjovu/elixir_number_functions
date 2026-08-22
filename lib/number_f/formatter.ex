@@ -156,6 +156,14 @@ defmodule NumberF.Formatter do
       iex> NumberF.Formatter.to_roman(1999)
       "MCMXCIX"
   """
+  # Out-of-range input raises ArgumentError naming the supported range, rather than
+  # the FunctionClauseError this module used to leak while the facade's copy of the
+  # same function raised ArgumentError.
+  def to_roman(number) when is_integer(number) and (number <= 0 or number >= 4000) do
+    raise ArgumentError,
+          "Roman numerals only support numbers from 1 to 3999, got: #{inspect(number)}"
+  end
+
   def to_roman(number) when is_integer(number) and number > 0 and number < 4000 do
     roman_map = [
       {1000, "M"},

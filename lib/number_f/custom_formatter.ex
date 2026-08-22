@@ -134,6 +134,80 @@ defmodule NumberF.CustomFormatter do
   end
 
   @doc """
+  Converts a value to an integer.
+
+  ## Edge cases
+
+  Accepts integers unchanged. Guarding this was not academic: the previous
+  implementation called `Integer.parse/1` unguarded, so it raised on the very type
+  it returns. Floats are truncated toward zero, matching `trunc/1`.
+
+  ## Examples
+
+      iex> NumberF.CustomFormatter.to_int("123.45")
+      123
+
+      iex> NumberF.CustomFormatter.to_int(12)
+      12
+
+      iex> NumberF.CustomFormatter.to_int(3.9)
+      3
+  """
+  def to_int(value) when is_integer(value), do: value
+  def to_int(value) when is_float(value), do: trunc(value)
+
+  def to_int(value) when is_binary(value) do
+    case Integer.parse(value) do
+      {int, _rest} -> int
+      :error -> raise ArgumentError, "could not convert #{inspect(value)} to an integer"
+    end
+  end
+
+  def to_int(value) do
+    raise ArgumentError, "could not convert #{inspect(value)} to an integer"
+  end
+
+  @doc """
+  Converts a string to a boolean.
+
+  Recognises `"true"/"yes"/"on"` and `"false"/"no"/"off"`, case-insensitively.
+  Anything else raises rather than guessing.
+
+  ## Examples
+
+      iex> NumberF.CustomFormatter.to_boolean("YES")
+      true
+
+      iex> NumberF.CustomFormatter.to_boolean("off")
+      false
+  """
+  def to_boolean(value) when is_binary(value) do
+    case String.downcase(value) do
+      t when t in ["true", "yes", "on"] -> true
+      f when f in ["false", "no", "off"] -> false
+      _ -> raise ArgumentError, "could not convert #{inspect(value)} to boolean"
+    end
+  end
+
+  def to_boolean(value) do
+    raise ArgumentError, "could not convert #{inspect(value)} to boolean"
+  end
+
+  @doc """
+  Sums a list of `Decimal` values, flattening any nesting.
+
+  ## Examples
+
+      iex> NumberF.CustomFormatter.sum_decimal([Decimal.new("1.10"), Decimal.new("2.20")])
+      Decimal.new("3.30")
+  """
+  def sum_decimal(list) when is_list(list) do
+    list
+    |> List.flatten()
+    |> Enum.reduce(Decimal.new(0), &Decimal.add(&1, &2))
+  end
+
+  @doc """
   Converts a value to a Decimal.
 
   ## Examples

@@ -31,8 +31,10 @@ defmodule NumberF.ErrorHandlingTest do
         NumberF.mean([1, 2, nil, 4])
       end
 
-      # Invalid date inputs
-      assert_raise KeyError, fn ->
+      # Invalid date inputs. Asserting ArgumentError rather than the raw error from
+      # the struct access: unguarded, that was KeyError up to Elixir 1.18 and
+      # BadMapError from 1.20, so the test was implicitly version-locked.
+      assert_raise ArgumentError, fn ->
         NumberF.calculate_age("invalid_date")
       end
     end

@@ -5,17 +5,46 @@ defmodule NumberF.Calculations do
 
   @doc """
   Calculates a percentage with specified precision.
+
+  ## Edge cases
+
+  A zero total raises `ArgumentError`. Letting the division run would surface an
+  `ArithmeticError` from inside this function, which tells the caller nothing about
+  which argument was wrong.
+
+  ## Examples
+
+      iex> NumberF.Calculations.percentage(25, 200, 2)
+      12.5
   """
-  def percentage(value, total, precision) do
-    result = value / total * 100
-    Float.round(result, precision)
+  def percentage(_value, 0, _precision), do: raise(ArgumentError, "total cannot be zero")
+  def percentage(_value, +0.0, _precision), do: raise(ArgumentError, "total cannot be zero")
+
+  def percentage(value, total, precision)
+      when is_number(value) and is_number(total) and is_integer(precision) do
+    Float.round(value / total * 100, precision)
   end
 
   @doc """
   Rounds a number to the nearest specified value.
+
+  Always returns a float, matching `NumberF.round_to_nearest/2`. The two copies of
+  this function had drifted — this one returned an integer for integer input while
+  the facade multiplied by 1.0 — so callers got a different type depending on which
+  module they reached for.
+
+  ## Examples
+
+      iex> NumberF.Calculations.round_to_nearest(12, 5)
+      10.0
+
+      iex> NumberF.Calculations.round_to_nearest(127, 5)
+      125.0
   """
-  def round_to_nearest(value, nearest) do
-    round(value / nearest) * nearest
+  def round_to_nearest(value, nearest \\ 1.0)
+
+  def round_to_nearest(value, nearest) when is_number(value) and is_number(nearest) do
+    round(value / nearest) * nearest * 1.0
   end
 
   @doc """
