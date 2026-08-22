@@ -75,7 +75,7 @@ defmodule NumberFTest do
     test "handles kilobytes" do
       assert NumberF.memory_size_cal(1024) == "1.0 KB"
       assert NumberF.memory_size_cal(1536) == "1.5 KB"
-      assert NumberF.memory_size_cal(10240) == "10.0 KB"
+      assert NumberF.memory_size_cal(10_240) == "10.0 KB"
     end
 
     test "handles megabytes" do

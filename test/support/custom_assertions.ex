@@ -1,4 +1,10 @@
 defmodule CustomAssertions do
+  @moduledoc """
+  Assertion helpers shared across the test suite.
+
+  Compiled via `elixirc_paths(:test)` rather than required from `test_helper.exs`,
+  so the macros are available without each test file loading the file itself.
+  """
   @doc """
   Assert that two floats are approximately equal
   """

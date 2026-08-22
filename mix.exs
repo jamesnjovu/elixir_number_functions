@@ -11,29 +11,75 @@ defmodule NumberF.MixProject do
       version: @version,
       elixir: "~> 1.14",
       start_permanent: Mix.env() == :prod,
+      elixirc_paths: elixirc_paths(Mix.env()),
       deps: deps(),
+      aliases: aliases(),
       name: "NumberF",
       description: description(),
       package: package(),
       docs: docs(),
       source_url: @github_url,
       homepage_url: @docs_url,
-      xref: [exclude: [:httpc, :public_key]]
+      xref: [exclude: [:httpc, :public_key]],
+      test_coverage: [tool: ExCoveralls],
+      # Ratcheted deliberately: the real figure today is ~76%. Raise this as each
+      # phase adds tests, so coverage can never silently regress.
+      preferred_cli_env: [
+        coveralls: :test,
+        "coveralls.detail": :test,
+        "coveralls.html": :test,
+        "coveralls.github": :test
+      ],
+      dialyzer: [
+        plt_add_apps: [:mix, :ex_unit],
+        # Per-env PLT: the dev and test dependency sets differ, and one shared file
+        # goes stale the moment the environment changes.
+        plt_file: {:no_warn, "priv/plts/dialyzer-#{Mix.env()}.plt"}
+      ]
     ]
   end
 
+  # A pure computation library needs no supervision tree. There is deliberately no
+  # `mod:` key: NumberF.Application was an empty supervisor whose only effect was to
+  # make `Supervisor.start_link/2` return {:error, {:already_started, _}} in tests.
   def application do
-    [
-      extra_applications: [:logger],
-      mod: {NumberF.Application, []}
-    ]
+    [extra_applications: [:logger]]
   end
+
+  # test/support holds shared test helpers; consumers always build in :prod.
+  defp elixirc_paths(:test), do: ["lib", "test/support"]
+  defp elixirc_paths(_), do: ["lib"]
 
   defp deps do
     [
-      {:decimal, "~> 2.0"},
+      # The only runtime dependency, and deliberately so — "one zero-config
+      # dependency" is a stated selling point. `~> 3.0` is allowed so consumers can
+      # take the fix for GHSA-rhv4-8758-jx7v (unbounded exponent DoS, decimal < 3.0.0).
+      # Only new/to_float/from_float/to_string/round/add are used, all stable across
+      # both majors; the full suite is verified green against 2.3.0 and 3.1.1.
+      # Note this needs jason >= 1.4.5 in the dev/test closure — 1.4.4 declared
+      # `decimal ~> 1.0 or ~> 2.0` and held the whole resolution below 3.
+      {:decimal, "~> 2.0 or ~> 3.0"},
+
+      # Tooling. :test as well as :dev for credo/dialyxir — the CI lint job runs with
+      # MIX_ENV=test, where a dev-only dep makes `mix credo` an unknown task.
+      {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
+      {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false},
+      {:excoveralls, "~> 0.18", only: :test, runtime: false},
       {:ex_doc, "~> 0.40", only: :dev, runtime: false},
       {:mix_audit, "~> 2.0", only: [:dev, :test], runtime: false}
+    ]
+  end
+
+  defp aliases do
+    [
+      # One command for everything CI's lint job gates on, so a local run and a CI
+      # run cannot disagree about whether the tree is clean.
+      lint: [
+        "format --check-formatted",
+        "compile --warnings-as-errors",
+        "credo --strict"
+      ]
     ]
   end
 

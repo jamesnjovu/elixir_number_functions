@@ -1,0 +1,12 @@
+{
+  "_comment": "skip_files lists paths that are not shipped library code. The mix tasks under lib/mix are excluded from the Hex package (see :exclude_patterns in mix.exs), and test/support only exists so tests can compile — counting either one measures how well the test harness tests itself.",
+  "skip_files": [
+    "lib/mix/tasks/",
+    "test/"
+  ],
+  "_ratchet": "Set just below the current real figure so CI goes green now and can never regress. Raise it as each phase adds tests; the target is 90. History: 77.1 at v0.2.0.",
+  "coverage_options": {
+    "treat_no_relevant_lines_as_covered": true,
+    "minimum_coverage": 77
+  }
+}

@@ -18,7 +18,7 @@ defmodule NumberFPerformanceTest do
     end
 
     test "statistical calculations performance" do
-      large_dataset = Enum.to_list(1..10000)
+      large_dataset = Enum.to_list(1..10_000)
 
       {time, _result} =
         :timer.tc(fn ->
@@ -32,7 +32,7 @@ defmodule NumberFPerformanceTest do
     end
 
     test "number to words performance" do
-      numbers = [1, 123, 1234, 12345, 123_456, 1_234_567]
+      numbers = [1, 123, 1234, 12_345, 123_456, 1_234_567]
 
       {time, _result} =
         :timer.tc(fn ->

@@ -94,8 +94,8 @@ defmodule NumberF.Tax do
 
   ## Examples
 
-      iex> brackets = [{0, 0.0}, {12570, 0.2}, {50270, 0.4}, {150000, 0.45}]
-      iex> NumberF.Tax.calculate_income_tax(30000, brackets)
+      iex> brackets = [{0, 0.0}, {12_570, 0.2}, {50_270, 0.4}, {150_000, 0.45}]
+      iex> NumberF.Tax.calculate_income_tax(30_000, brackets)
       %{tax: 3486.0, effective_rate: 0.1162}
   """
   def calculate_income_tax(income, brackets) when is_number(income) and income >= 0 do
@@ -187,7 +187,7 @@ defmodule NumberF.Tax do
   ## Examples
 
       iex> NumberF.Tax.income_tax_brackets()["US"]
-      [{0, 0.1}, {9950, 0.12}, {40525, 0.22}, {86375, 0.24}, {164925, 0.32}, {209425, 0.35}, {523600, 0.37}]
+      [{0, 0.1}, {9950, 0.12}, {40_525, 0.22}, {86_375, 0.24}, {164_925, 0.32}, {209_425, 0.35}, {523_600, 0.37}]
   """
   def income_tax_brackets do
     %{
@@ -195,9 +195,9 @@ defmodule NumberF.Tax do
         # Personal allowance
         {0, 0.0},
         # Basic rate
-        {12570, 0.2},
+        {12_570, 0.2},
         # Higher rate
-        {50270, 0.4},
+        {50_270, 0.4},
         # Additional rate
         {150_000, 0.45}
       ],
@@ -207,9 +207,9 @@ defmodule NumberF.Tax do
         # 12% bracket
         {9950, 0.12},
         # 22% bracket
-        {40525, 0.22},
+        {40_525, 0.22},
         # 24% bracket
-        {86375, 0.24},
+        {86_375, 0.24},
         # 32% bracket
         {164_925, 0.32},
         # 35% bracket
@@ -221,11 +221,11 @@ defmodule NumberF.Tax do
         # Tax-free threshold
         {0, 0.0},
         # First band
-        {54000, 0.25},
+        {54_000, 0.25},
         # Second band
-        {84000, 0.3},
+        {84_000, 0.3},
         # Third band
-        {96000, 0.375}
+        {96_000, 0.375}
       ],
       "Germany" => [
         # Tax-free threshold
@@ -233,7 +233,7 @@ defmodule NumberF.Tax do
         # First bracket
         {9744, 0.14},
         # Second bracket
-        {57918, 0.42},
+        {57_918, 0.42},
         # Third bracket
         {274_613, 0.45}
       ]
@@ -272,7 +272,7 @@ defmodule NumberF.Tax do
 
   ## Examples
 
-      iex> NumberF.Tax.calculate_corporate_tax(100000, 0.19)
+      iex> NumberF.Tax.calculate_corporate_tax(100_000, 0.19)
       %{profit: 100000.0, tax: 19000.0, after_tax: 81000.0}
   """
   def calculate_corporate_tax(profit, rate) when is_number(profit) and is_number(rate) do
@@ -296,7 +296,7 @@ defmodule NumberF.Tax do
 
   ## Examples
 
-      iex> NumberF.Tax.calculate_capital_gains_tax(20000, 0.2, 12300)
+      iex> NumberF.Tax.calculate_capital_gains_tax(20_000, 0.2, 12_300)
       %{gain: 20000.0, taxable_gain: 7700.0, tax: 1540.0, net: 18460.0}
   """
   def calculate_capital_gains_tax(gain, rate, exemption \\ 0)
@@ -329,7 +329,7 @@ defmodule NumberF.Tax do
 
   ## Examples
 
-      iex> NumberF.Tax.calculate_payroll_tax(50000, 0.12, 0.138)
+      iex> NumberF.Tax.calculate_payroll_tax(50_000, 0.12, 0.138)
       %{salary: 50000.0, employee_contribution: 6000.0, employer_contribution: 6900.0, total_cost: 56900.0, take_home: 44000.0}
   """
   def calculate_payroll_tax(salary, employee_rate, employer_rate, cap \\ nil)

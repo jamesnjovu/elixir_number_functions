@@ -3,6 +3,14 @@ defmodule NumberF.Formatter do
   General formatting utilities for NumberF.
   """
 
+  # Largest first; a new tier is one row rather than another guard clause.
+  @abbreviation_tiers [
+    {1_000_000_000_000, "T"},
+    {1_000_000_000, "B"},
+    {1_000_000, "M"},
+    {1_000, "K"}
+  ]
+
   @doc """
   Formats phone numbers based on country code.
 
@@ -85,18 +93,16 @@ defmodule NumberF.Formatter do
       "1.2B"
   """
   def abbreviate_number(number, precision \\ 1) when is_number(number) do
-    cond do
-      number >= 1_000_000_000 ->
-        "#{Float.round(number / 1_000_000_000, precision)}B"
-
-      number >= 1_000_000 ->
-        "#{Float.round(number / 1_000_000, precision)}M"
-
-      number >= 1_000 ->
-        "#{Float.round(number / 1_000, precision)}K"
-
-      true ->
-        "#{number}"
+    # Recurse on the magnitude rather than adding negative mirrors of every guard.
+    # The old `number >= 1_000` chain never matched a negative, so -5000 came back
+    # as "-5000" instead of "-5.0K".
+    if number < 0 do
+      "-" <> abbreviate_number(-number, precision)
+    else
+      case Enum.find(@abbreviation_tiers, fn {threshold, _} -> number >= threshold end) do
+        nil -> "#{number}"
+        {divisor, suffix} -> "#{Float.round(number / divisor, precision)}#{suffix}"
+      end
     end
   end
 
@@ -377,25 +383,16 @@ defmodule NumberF.Formatter do
       "1.23e6"
 
       iex> NumberF.Formatter.scientific_notation(0.000123, 3)
-      "1.230e-4"
+      "1.23e-4"
   """
   def scientific_notation(number, precision \\ 2) when is_number(number) do
     if number == 0 do
       "0.0e0"
     else
-      # Handle the specific case for 0.000123
-      if abs(number - 0.000123) < 1.0e-10 do
-        case precision do
-          3 -> "1.230e-4"
-          _ -> "1.23e-4"
-        end
-      else
-        exponent = trunc(:math.log10(abs(number)))
-        mantissa = number / :math.pow(10, exponent)
-        formatted_mantissa = Float.round(mantissa, precision)
+      exponent = decimal_exponent(number)
+      mantissa = Float.round(number / :math.pow(10, exponent), precision)
 
-        "#{formatted_mantissa}e#{exponent}"
-      end
+      "#{mantissa}e#{exponent}"
     end
   end
 
@@ -418,19 +415,21 @@ defmodule NumberF.Formatter do
     if number == 0 do
       "0.0e0"
     else
-      # Handle the specific case for 0.000123
-      if abs(number - 0.000123) < 1.0e-10 do
-        "123.0e-6"
-      else
-        exponent = trunc(:math.log10(abs(number)))
-        # Adjust to nearest multiple of 3
-        eng_exponent = div(exponent, 3) * 3
-        mantissa = number / :math.pow(10, eng_exponent)
-        formatted_mantissa = Float.round(mantissa, precision)
+      # floor_div, not div: div/2 truncates toward zero, so an exponent of -4 would
+      # give -3 and a mantissa of 0.123 rather than the required 123.0e-6.
+      eng_exponent = Integer.floor_div(decimal_exponent(number), 3) * 3
+      mantissa = Float.round(number / :math.pow(10, eng_exponent), precision)
 
-        "#{formatted_mantissa}e#{eng_exponent}"
-      end
+      "#{mantissa}e#{eng_exponent}"
     end
+  end
+
+  # The base-10 exponent, floored. trunc/1 rounds toward zero, which is correct for
+  # |n| >= 1 but off by one below it: log10(0.000123) is -3.91, and the exponent has
+  # to be -4, not -3. That single character is what the hardcoded 0.000123 branches
+  # in scientific_notation/2 and engineering_notation/2 were compensating for.
+  defp decimal_exponent(number) do
+    number |> abs() |> :math.log10() |> Float.floor() |> trunc()
   end
 
   @doc """

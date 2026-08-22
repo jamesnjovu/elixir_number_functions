@@ -64,13 +64,13 @@ Requires Elixir 1.14 or later. No application configuration is needed.
 | **Numbers to words** | `to_words/3`, `spell_number/2`, `ordinal/1`, `to_roman/1`, `from_roman/1` | `NumberF.to_roman(1999)` → `"MCMXCIX"` |
 | **Financial math** | `simple_interest/3`, `compound_interest/4`, `calculate_emi/3` | `NumberF.compound_interest(1000, 0.05, 2)` → `102.5` |
 | **Tax** | `calculate_vat/3`, `calculate_sales_tax/3`, `NumberF.Tax.calculate_income_tax/2` | `NumberF.calculate_vat(100, 0.2)` |
-| **Statistics** | `mean/1`, `median/1`, `mode/1`, `standard_deviation/1`, `variance/1` | `NumberF.median([1, 3, 5, 7, 9])` → `5` |
+| **Statistics** | `mean/1`, `median/1`, `mode/1`, `variance/1` + `sample_variance/1`, `standard_deviation/1` + `sample_standard_deviation/1` | `NumberF.median([1, 3, 5, 7, 9])` → `5` |
 | **Internationalization** | `format_number/2`, `format_currency/3` across 22 locales | `NumberF.format_number(1234567.89, "de-DE")` |
 | **Unit conversion** | metric ↔ imperial, temperature | `NumberF.celsius_to_fahrenheit(25)` |
 | **Validation** | credit cards (Luhn), number formats | `NumberF.is_valid_credit_card?("4111...")` |
 | **Precision** | bankers rounding, custom thresholds, float comparison | `NumberF.bankers_round(2.5, 0)` → `2.0` |
 | **Dates** | age, business days, payment terms | `NumberF.calculate_age(~D[1990-01-15])` |
-| **Humanizing** | byte sizes, phone numbers, random strings | `NumberF.memory_size_cal(1_048_576)` → `"1.0 MB"` |
+| **Humanizing** | byte sizes (to PB), phone numbers, random strings | `NumberF.memory_size_cal(1_048_576)` → `"1.0 MB"` |
 
 Full API reference: **[hexdocs.pm/number_f](https://hexdocs.pm/number_f)**
 

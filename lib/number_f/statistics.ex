@@ -44,42 +44,80 @@ defmodule NumberF.Statistics do
         Map.update(acc, num, 1, &(&1 + 1))
       end)
 
-    {_count, max_freq} = Enum.max_by(frequencies, fn {_num, count} -> count end)
+    {_value, max_freq} = Enum.max_by(frequencies, fn {_value, count} -> count end)
 
-    Enum.filter(frequencies, fn {_num, count} -> count == max_freq end)
-    |> Enum.map(fn {num, _count} -> num end)
+    frequencies
+    |> Enum.filter(fn {_value, count} -> count == max_freq end)
+    |> Enum.map(fn {value, _count} -> value end)
     |> Enum.sort()
   end
 
   @doc """
-  Calculates standard deviation of a dataset.
+  Calculates the **population** standard deviation of a dataset (divides by N).
+
+  ## Precision
+
+  This is the population form. If your list is a *sample* drawn from a larger
+  population — which is the more common case — use `sample_standard_deviation/1`,
+  which applies Bessel's correction (divides by N-1). The two differ by a factor of
+  `sqrt(N/(N-1))`, so they converge as the dataset grows but diverge sharply for
+  small lists.
+
+  ## Examples
+
+      iex> NumberF.Statistics.standard_deviation([2, 4, 4, 4, 5, 5, 7, 9])
+      2.0
   """
   def standard_deviation([]), do: nil
   def standard_deviation([_single]), do: 0.0
-
-  def standard_deviation(numbers) do
-    avg = mean(numbers)
-
-    variance =
-      Enum.reduce(numbers, 0, fn num, sum ->
-        sum + :math.pow(num - avg, 2)
-      end) / length(numbers)
-
-    :math.sqrt(variance)
-  end
+  def standard_deviation(numbers), do: numbers |> variance() |> :math.sqrt()
 
   @doc """
-  Calculates the variance of a dataset.
+  Calculates the **sample** standard deviation of a dataset (divides by N-1).
+
+  Use this when the list is a sample rather than the whole population. See
+  `standard_deviation/1` for the population form.
+
+  ## Examples
+
+      iex> NumberF.Statistics.sample_standard_deviation([2, 4, 4, 4, 5, 5, 7, 9])
+      2.138089935299395
+  """
+  def sample_standard_deviation([]), do: nil
+  def sample_standard_deviation([_single]), do: 0.0
+  def sample_standard_deviation(numbers), do: numbers |> sample_variance() |> :math.sqrt()
+
+  @doc """
+  Calculates the **population** variance of a dataset (divides by N).
+
+  ## Precision
+
+  See `standard_deviation/1` — use `sample_variance/1` if the list is a sample.
+
+  ## Examples
+
+      iex> NumberF.Statistics.variance([2, 4, 4, 4, 5, 5, 7, 9])
+      4.0
   """
   def variance([]), do: nil
   def variance([_single]), do: 0.0
+  def variance(numbers), do: sum_of_squared_deviations(numbers) / length(numbers)
 
-  def variance(numbers) do
+  @doc """
+  Calculates the **sample** variance of a dataset (divides by N-1, Bessel's correction).
+
+  ## Examples
+
+      iex> NumberF.Statistics.sample_variance([2, 4, 4, 4, 5, 5, 7, 9])
+      4.571428571428571
+  """
+  def sample_variance([]), do: nil
+  def sample_variance([_single]), do: 0.0
+  def sample_variance(numbers), do: sum_of_squared_deviations(numbers) / (length(numbers) - 1)
+
+  defp sum_of_squared_deviations(numbers) do
     avg = mean(numbers)
-
-    Enum.reduce(numbers, 0, fn num, sum ->
-      sum + :math.pow(num - avg, 2)
-    end) / length(numbers)
+    Enum.reduce(numbers, 0, fn num, sum -> sum + :math.pow(num - avg, 2) end)
   end
 
   @doc """

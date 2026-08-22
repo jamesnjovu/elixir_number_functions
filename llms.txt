@@ -11,8 +11,13 @@ Key facts:
 - Default currency unit is ZMW (Zambian Kwacha); pass a unit explicitly to override.
 - 22 supported locales: en-US, en-GB, en-ZM, fr-FR, de-DE, es-ES, it-IT, nl-NL, pl-PL,
   sv-SE, pt-BR, ru-RU, tr-TR, ar-SA, hi-IN, ja-JP, ko-KR, zh-CN, th-TH, vi-VN, id-ID, ms-MY.
-- Number-to-words spelling languages: en, fr, es, de.
+- Number-to-words spelling languages: en, fr, es, de. `NumberF.spelling_languages/0`
+  lists them; an unsupported language raises rather than silently returning English.
 - `ceiling/2` and `floor/2` take decimal places; `round_to/3` takes an increment.
+- `variance/1` and `standard_deviation/1` are the POPULATION forms (divide by N).
+  Use `sample_variance/1` / `sample_standard_deviation/1` for the sample forms (N-1).
+- `combinations/2` returns an exact integer, not a float.
+- Invalid input raises ArgumentError naming the bad argument. Formatters accept nil.
 - The library makes no network calls; exchange rates and tax rates are supplied by the caller.
 
 ## Docs
@@ -34,6 +39,7 @@ Key facts:
 - Thousands separator: `NumberF.comma_separated(1234567.89)` -> `"1,234,567.89"`
 - Abbreviate: `NumberF.abbreviate_number(1_234_567)` -> `"1.2M"`
 - Number to words: `NumberF.to_words(42.75, "Dollars", "Cents")` -> `"Forty Two Dollars And Seventy Five Cents"`
+- Spell decimals: `NumberF.spell_number(1.05, "en")` -> `"One point zero five"` (digit by digit)
 - Spell in another language: `NumberF.spell_number(42, "fr")` -> `"Quarante-deux"`
 - Ordinal: `NumberF.ordinal(21)` -> `"21st"`
 - Roman numerals: `NumberF.to_roman(1999)` -> `"MCMXCIX"`; `NumberF.from_roman("MCMXCIX")` -> `1999`
@@ -44,10 +50,12 @@ Key facts:
 - VAT-inclusive: `NumberF.calculate_vat(120, 0.2, true)` -> `%{net: 100.0, vat: 20.0, gross: 120.0}`
 - Income tax: `NumberF.Tax.calculate_income_tax(75_000, brackets)` -> `%{tax: 12248.5, effective_rate: 0.1633}`
 - Statistics: `NumberF.mean/1`, `median/1`, `mode/1`, `variance/1`, `standard_deviation/1`, `range/1`
+- Sample statistics: `NumberF.sample_variance/1` -> `4.571428571428571`, `sample_standard_deviation/1`
 - Bankers rounding: `NumberF.bankers_round(2.5, 0)` -> `2.0`
 - Float comparison: `NumberF.approximately_equal(0.1 + 0.2, 0.3)` -> `true`
 - Credit card check (Luhn): `NumberF.is_valid_credit_card?("4111111111111111")` -> `true`
-- Byte sizes: `NumberF.memory_size_cal(1_048_576)` -> `"1.0 MB"`
+- Byte sizes: `NumberF.memory_size_cal(1_048_576)` -> `"1.0 MB"` (handles up to PB)
+- Abbreviate: `NumberF.abbreviate_number(1_500_000_000_000)` -> `"1.5T"`; negatives supported
 - Phone: `NumberF.format_phone("14155552671", "US")` -> `"+1 (415) 555-2671"`
 - Temperature: `NumberF.celsius_to_fahrenheit(25)` -> `77.0`
 - Decimal sum: `NumberF.sum_decimal([Decimal.new("1.10"), Decimal.new("2.20")])` -> `Decimal.new("3.30")`

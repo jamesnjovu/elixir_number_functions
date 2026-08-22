@@ -267,7 +267,7 @@ defmodule NumberF.Registry do
         """
         ### #{format_type(type)}
 
-        #{Enum.map(modules, fn module -> "- **#{module.name}**: #{module.description}" end) |> Enum.join("\n")}
+        #{Enum.map_join(modules, "\n", fn module -> "- **#{module.name}**: #{module.description}" end)}
         """
       end)
 
@@ -275,13 +275,13 @@ defmodule NumberF.Registry do
     function_section = """
     ## Function Categories
 
-    #{Enum.map(function_categories(), fn category -> """
+    #{Enum.map_join(function_categories(), "\n", fn category -> """
       ### #{category.name}
 
       #{category.description}
 
       Examples: #{Enum.join(category.examples, ", ")}
-      """ end) |> Enum.join("\n")}
+      """ end)}
     """
 
     markdown <> Enum.join(sections, "\n") <> "\n\n" <> function_section

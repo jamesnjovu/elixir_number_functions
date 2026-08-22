@@ -40,16 +40,16 @@ defmodule NumberF.TaxTest do
 
   describe "calculate_income_tax/2" do
     test "calculates progressive income tax" do
-      brackets = [{0, 0.0}, {12570, 0.2}, {50270, 0.4}, {150_000, 0.45}]
+      brackets = [{0, 0.0}, {12_570, 0.2}, {50_270, 0.4}, {150_000, 0.45}]
 
-      result = NumberF.Tax.calculate_income_tax(30000, brackets)
+      result = NumberF.Tax.calculate_income_tax(30_000, brackets)
 
       assert result.tax == 3486.0
       assert result.effective_rate == 0.1162
     end
 
     test "handles income below first bracket" do
-      brackets = [{0, 0.0}, {10000, 0.1}]
+      brackets = [{0, 0.0}, {10_000, 0.1}]
 
       result = NumberF.Tax.calculate_income_tax(5000, brackets)
 
@@ -83,40 +83,40 @@ defmodule NumberF.TaxTest do
       result = NumberF.Tax.calculate_corporate_tax(100_000, 0.19)
 
       assert result.profit == 100_000.0
-      assert result.tax == 19000.0
-      assert result.after_tax == 81000.0
+      assert result.tax == 19_000.0
+      assert result.after_tax == 81_000.0
     end
   end
 
   describe "calculate_capital_gains_tax/3" do
     test "calculates capital gains tax with exemption" do
-      result = NumberF.Tax.calculate_capital_gains_tax(20000, 0.2, 12300)
+      result = NumberF.Tax.calculate_capital_gains_tax(20_000, 0.2, 12_300)
 
-      assert result.gain == 20000.0
+      assert result.gain == 20_000.0
       assert result.taxable_gain == 7700.0
       assert result.tax == 1540.0
-      assert result.net == 18460.0
+      assert result.net == 18_460.0
     end
 
     test "handles gain below exemption" do
-      result = NumberF.Tax.calculate_capital_gains_tax(10000, 0.2, 12300)
+      result = NumberF.Tax.calculate_capital_gains_tax(10_000, 0.2, 12_300)
 
-      assert result.gain == 10000.0
+      assert result.gain == 10_000.0
       assert result.taxable_gain == 0.0
       assert result.tax == 0.0
-      assert result.net == 10000.0
+      assert result.net == 10_000.0
     end
   end
 
   describe "calculate_payroll_tax/4" do
     test "calculates payroll tax without cap" do
-      result = NumberF.Tax.calculate_payroll_tax(50000, 0.12, 0.138)
+      result = NumberF.Tax.calculate_payroll_tax(50_000, 0.12, 0.138)
 
-      assert result.salary == 50000.0
+      assert result.salary == 50_000.0
       assert result.employee_contribution == 6000.0
       assert result.employer_contribution == 6900.0
-      assert result.total_cost == 56900.0
-      assert result.take_home == 44000.0
+      assert result.total_cost == 56_900.0
+      assert result.take_home == 44_000.0
     end
 
     test "calculates payroll tax with cap" do
@@ -124,9 +124,9 @@ defmodule NumberF.TaxTest do
 
       assert result.salary == 200_000.0
       # Based on cap
-      assert result.employee_contribution == 12000.0
+      assert result.employee_contribution == 12_000.0
       # Based on cap
-      assert result.employer_contribution == 13800.0
+      assert result.employer_contribution == 13_800.0
     end
   end
 end

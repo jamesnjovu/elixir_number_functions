@@ -28,9 +28,10 @@ defmodule NumberF.PropertyTest do
     test "percentage calculations are consistent" do
       values = TestHelper.random_numbers(50)
       # Avoid zero
-      totals = TestHelper.random_numbers(50) |> Enum.map(&(&1 + 1))
+      totals = 50 |> TestHelper.random_numbers() |> Enum.map(&(&1 + 1))
 
-      Enum.zip(values, totals)
+      values
+      |> Enum.zip(totals)
       |> Enum.each(fn {value, total} ->
         percentage = NumberF.percentage(value, total)
 

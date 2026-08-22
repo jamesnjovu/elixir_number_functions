@@ -28,3 +28,4 @@ mix.lock
 number_f.iml
 .idea/
 .elixir_ls/
+priv/plts/

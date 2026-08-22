@@ -146,7 +146,13 @@ defmodule NumberF.CustomFormatter do
   def to_decimal(value) when is_binary(value) do
     Decimal.new(value)
   rescue
-    _ -> raise ArgumentError, "could not convert #{inspect(value)} to decimal"
+    error ->
+      # reraise, not raise: a bare raise here would discard the stacktrace that
+      # points at whatever inside Decimal actually rejected the input.
+      _ = error
+
+      reraise ArgumentError.exception("could not convert #{inspect(value)} to decimal"),
+              __STACKTRACE__
   end
 
   def to_decimal(value) when is_integer(value), do: Decimal.new(value)
@@ -183,11 +189,11 @@ defmodule NumberF.CustomFormatter do
     "#{sign}#{result}"
   end
 
-  # Private helper function to format a number with delimiters
-  defp format_with_delimiters(number, delimiter, separator, precision) do
-    # Ensure number is a float
-    float_number = ensure_float(number)
-
+  # Every caller reaches this with a float: number_to_delimited/2 routes integers to
+  # format_integer_with_delimiters/4, and number_to_currency/2 pipes through
+  # Float.round/2 first. The guard states that instead of leaving it implicit.
+  defp format_with_delimiters(float_number, delimiter, separator, precision)
+       when is_float(float_number) do
     # Handle negative numbers
     {sign, abs_number} =
       if float_number < 0, do: {"-", abs(float_number)}, else: {"", float_number}
@@ -223,7 +229,8 @@ defmodule NumberF.CustomFormatter do
           end
 
         dec_formatted =
-          String.pad_trailing(dec_part, precision, "0")
+          dec_part
+          |> String.pad_trailing(precision, "0")
           |> String.slice(0, precision)
 
         "#{separator}#{dec_formatted}"
@@ -234,9 +241,4 @@ defmodule NumberF.CustomFormatter do
     # Add sign back
     "#{sign}#{formatted_int}#{formatted_dec}"
   end
-
-  # Helper to ensure a number is a float
-  defp ensure_float(num) when is_float(num), do: num
-  defp ensure_float(num) when is_integer(num), do: num * 1.0
-  defp ensure_float(%Decimal{} = num), do: Decimal.to_float(num)
 end

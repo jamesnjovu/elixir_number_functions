@@ -181,43 +181,43 @@ defmodule NumberF.I18n do
     currency = Keyword.get(options, :currency, false)
     currency_code = Keyword.get(options, :currency_code, nil)
 
-    # Get spelling function for language
-    spelling_function =
-      case language do
-        "en" -> &spell_number_en/1
-        "fr" -> &spell_number_fr/1
-        "es" -> &spell_number_es/1
-        "de" -> &spell_number_de/1
-        # Fallback to English
-        _ -> &spell_number_en/1
-      end
+    spelling_function = speller_for!(language)
 
     # Split into whole and decimal parts
     {whole, decimal} = split_number(number)
 
-    # Generate base spelling
+    whole_part = spelling_function.(whole)
+
     spelled =
-      if currency && currency_code do
-        currency_info = get_currency_names(currency_code, language)
+      cond do
+        currency && currency_code ->
+          currency_info = get_currency_names(currency_code, language)
+          minor = minor_units(decimal)
 
-        # Format with currency names
-        whole_part = spelling_function.(whole)
+          if minor > 0 do
+            join_words([
+              whole_part,
+              currency_info.main,
+              "and",
+              spelling_function.(minor),
+              currency_info.sub
+            ])
+          else
+            join_words([whole_part, currency_info.main])
+          end
 
-        if decimal > 0 do
-          decimal_str = spelling_function.(decimal)
-          "#{whole_part} #{currency_info.main} and #{decimal_str} #{currency_info.sub}"
-        else
-          "#{whole_part} #{currency_info.main}"
-        end
-      else
-        # Simple number spelling
-        if decimal > 0 do
-          whole_part = spelling_function.(whole)
-          decimal_part = spelling_function.(decimal)
-          "#{whole_part} point #{decimal_part}"
-        else
-          spelling_function.(whole)
-        end
+        decimal != "" ->
+          # Read the fraction digit by digit: 1.05 is "one point zero five", not
+          # "one point five". Spelling it as a single integer discards leading zeros.
+          digits =
+            decimal
+            |> String.graphemes()
+            |> Enum.map_join(" ", fn d -> spelling_function.(String.to_integer(d)) end)
+
+          join_words([whole_part, "point", digits])
+
+        true ->
+          whole_part
       end
 
     # Apply capitalization if requested
@@ -228,24 +228,60 @@ defmodule NumberF.I18n do
     end
   end
 
-  # Helper function to split a number into whole and decimal parts
-  defp split_number(number) when is_integer(number), do: {number, 0}
+  @spellers %{
+    "en" => &__MODULE__.spell_number_en_public/1,
+    "fr" => &__MODULE__.spell_number_fr_public/1,
+    "es" => &__MODULE__.spell_number_es_public/1,
+    "de" => &__MODULE__.spell_number_de_public/1
+  }
+
+  @doc """
+  Lists the languages `spell_number/3` can actually spell numbers in.
+
+  This is deliberately separate from `supported_locales/0`: the library formats
+  numbers for 22 locales but only spells them out in four languages. Passing an
+  unsupported language to `spell_number/3` used to return English silently, which
+  is far worse than an error — the caller had no way to notice.
+
+  ## Examples
+
+      iex> NumberF.I18n.supported_languages()
+      ["de", "en", "es", "fr"]
+  """
+  def supported_languages, do: @spellers |> Map.keys() |> Enum.sort()
+
+  defp speller_for!(language) do
+    case Map.fetch(@spellers, language) do
+      {:ok, speller} ->
+        speller
+
+      :error ->
+        raise ArgumentError,
+              "unsupported language for spelling: #{inspect(language)}. " <>
+                "Supported: #{Enum.map_join(supported_languages(), ", ", &inspect/1)}. " <>
+                "Note that number *formatting* supports more locales than spelling does."
+    end
+  end
+
+  # Currency cents are the first two fractional digits: "5" means 50 cents, not 5.
+  defp minor_units(""), do: 0
+
+  defp minor_units(digits) do
+    digits |> String.pad_trailing(2, "0") |> String.slice(0, 2) |> String.to_integer()
+  end
+
+  # Splits a float into its whole part and its fractional digits **as a string**.
+  #
+  # The digits have to stay a string. The previous version did
+  # `String.to_integer("05")`, which is 5 — so 1.05 and 1.5 both spelled as
+  # "one point five". Leading zeros in a fraction are significant.
+  defp split_number(number) when is_integer(number), do: {number, ""}
 
   defp split_number(number) when is_float(number) do
-    # Convert to string with high precision to avoid floating point errors
-    str = :erlang.float_to_binary(number, decimals: 10)
+    [whole_str, decimal_str] =
+      number |> :erlang.float_to_binary(decimals: 10) |> String.split(".")
 
-    # Split into whole and decimal parts
-    [whole_str, decimal_str] = String.split(str, ".")
-
-    # Convert back to numbers
-    whole = String.to_integer(whole_str)
-
-    # Handle trailing zeros in decimal part
-    decimal_str = String.replace_trailing(decimal_str, "0", "")
-    decimal = if decimal_str == "", do: 0, else: String.to_integer(decimal_str)
-
-    {whole, decimal}
+    {String.to_integer(whole_str), String.replace_trailing(decimal_str, "0", "")}
   end
 
   # Helper function to capitalize the first letter of a string
@@ -257,6 +293,9 @@ defmodule NumberF.I18n do
   end
 
   # English number spelling implementation
+  @doc false
+  def spell_number_en_public(n), do: spell_number_en(n)
+
   defp spell_number_en(0), do: "zero"
   defp spell_number_en(1), do: "one"
   defp spell_number_en(2), do: "two"
@@ -317,7 +356,11 @@ defmodule NumberF.I18n do
     if remainder == 0 do
       "#{spell_number_en(thousands)} thousand"
     else
-      "#{spell_number_en(thousands)} thousand #{conjunction_en(remainder)} #{spell_number_en(remainder)}"
+      join_words([
+        "#{spell_number_en(thousands)} thousand",
+        conjunction_en(remainder),
+        spell_number_en(remainder)
+      ])
     end
   end
 
@@ -328,7 +371,11 @@ defmodule NumberF.I18n do
     if remainder == 0 do
       "#{spell_number_en(millions)} million"
     else
-      "#{spell_number_en(millions)} million #{conjunction_en(remainder)} #{spell_number_en(remainder)}"
+      join_words([
+        "#{spell_number_en(millions)} million",
+        conjunction_en(remainder),
+        spell_number_en(remainder)
+      ])
     end
   end
 
@@ -336,7 +383,14 @@ defmodule NumberF.I18n do
   defp conjunction_en(n) when n < 100, do: "and"
   defp conjunction_en(_), do: ""
 
+  # Joins fragments with a single space, dropping empties. Interpolating a possibly
+  # empty conjunction directly into a string left a double space behind.
+  defp join_words(parts), do: parts |> Enum.reject(&(&1 == "")) |> Enum.join(" ")
+
   # French number spelling implementation
+  @doc false
+  def spell_number_fr_public(n), do: spell_number_fr(n)
+
   defp spell_number_fr(0), do: "zéro"
   defp spell_number_fr(1), do: "un"
   defp spell_number_fr(2), do: "deux"
@@ -402,6 +456,9 @@ defmodule NumberF.I18n do
   end
 
   # Spanish number spelling implementation
+  @doc false
+  def spell_number_es_public(n), do: spell_number_es(n)
+
   defp spell_number_es(0), do: "cero"
   defp spell_number_es(1), do: "uno"
   defp spell_number_es(2), do: "dos"
@@ -467,6 +524,9 @@ defmodule NumberF.I18n do
   end
 
   # German number spelling implementation
+  @doc false
+  def spell_number_de_public(n), do: spell_number_de(n)
+
   defp spell_number_de(0), do: "null"
   defp spell_number_de(1), do: "eins"
   defp spell_number_de(2), do: "zwei"

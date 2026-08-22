@@ -29,7 +29,7 @@ defmodule NumberF.ErrorCoverageTest do
     end
 
     test "division by zero scenarios" do
-      assert_raise ArithmeticError, fn -> NumberF.percentage(10, 0) end
+      assert_raise ArgumentError, fn -> NumberF.percentage(10, 0) end
     end
   end
 end

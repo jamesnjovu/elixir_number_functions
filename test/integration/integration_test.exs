@@ -188,7 +188,7 @@ defmodule NumberFIntegrationTest do
 
     test "error handling" do
       # Division by zero protection in percentage
-      assert_raise ArithmeticError, fn ->
+      assert_raise ArgumentError, fn ->
         NumberF.percentage(10, 0)
       end
 

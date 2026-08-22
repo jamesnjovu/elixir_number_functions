@@ -58,6 +58,12 @@ NumberF.abbreviate_number(1_234_567)
 
 NumberF.abbreviate_number(1_234_567, 2)
 # => "1.23M"
+
+NumberF.abbreviate_number(1_500_000_000_000)
+# => "1.5T"
+
+NumberF.abbreviate_number(-5000)
+# => "-5.0K"
 ```
 
 ### Percentages
@@ -91,9 +97,17 @@ NumberF.spell_number(42, "en")
 
 NumberF.spell_number(42, "fr")
 # => "Quarante-deux"
+
+# Fractions are read digit by digit, so a
+# leading zero survives:
+NumberF.spell_number(1.05, "en")
+# => "One point zero five"
 ```
 
-Supports `"en"`, `"fr"`, `"es"`, `"de"`.
+`NumberF.spelling_languages()` => `["de", "en",
+"es", "fr"]`. Any other language raises
+`ArgumentError` rather than quietly returning
+English.
 
 ### Ordinals
 
@@ -263,12 +277,23 @@ NumberF.mode([1, 2, 2, 3, 3, 3])   # => [3]
 
 ### Spread
 
+`variance/1` and `standard_deviation/1` are the
+**population** forms (÷N). Use the `sample_*`
+variants (÷N-1) when the list is a sample —
+which is usually what you want.
+
 ```elixir
 NumberF.variance([1, 2, 3, 4, 5])
 # => 2.0
 
 NumberF.standard_deviation([2,4,4,4,5,5,7,9])
 # => 2.0
+
+NumberF.sample_variance([2,4,4,4,5,5,7,9])
+# => 4.571428571428571
+
+NumberF.sample_standard_deviation([2,4,4,4,5,5,7,9])
+# => 2.138089935299395
 
 NumberF.range([1, 5, 9])   # => 8.0
 ```
@@ -434,6 +459,9 @@ NumberF.to_boolean("true")  # => true
 ```elixir
 NumberF.memory_size_cal(1_048_576)
 # => "1.0 MB"
+
+NumberF.memory_size_cal(5_000_000_000_000)
+# => "4.55 TB"
 ```
 
 ### Phone numbers
@@ -459,7 +487,7 @@ NumberF.is_prime?(17)          # => true
 NumberF.factorial(5)           # => 120
 NumberF.gcd(12, 18)            # => 6
 NumberF.lcm(4, 6)              # => 12
-NumberF.combinations(5, 2)     # => 10.0
+NumberF.combinations(5, 2)     # => 10
 NumberF.to_radians(180)
 NumberF.to_degrees(3.14159)
 NumberF.interpolate(0, 100, 0, 10, 5)

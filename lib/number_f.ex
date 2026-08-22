@@ -235,7 +235,7 @@ defmodule NumberF do
       true
 
   """
-  def default_password(), do: NumberF.Randomizer.gen_password()
+  def default_password, do: NumberF.Randomizer.gen_password()
 
   @doc """
   Converts a number into words with customizable currency terms.
@@ -320,9 +320,21 @@ defmodule NumberF do
       123
 
   """
+  def to_int(value) when is_integer(value), do: value
+  def to_int(value) when is_float(value), do: trunc(value)
+
+  def to_int(value) when is_binary(value) do
+    case Integer.parse(value) do
+      {int, _rest} ->
+        int
+
+      :error ->
+        raise ArgumentError, "could not convert #{inspect(value)} to an integer"
+    end
+  end
+
   def to_int(value) do
-    {nun, _} = Integer.parse(value)
-    nun
+    raise ArgumentError, "could not convert #{inspect(value)} to an integer"
   end
 
   @doc """
@@ -431,7 +443,8 @@ defmodule NumberF do
   This function flattens any nested lists, then uses `Enum.reduce/3` to sum all the decimal values.
   """
   def sum_decimal(list) do
-    List.flatten(list)
+    list
+    |> List.flatten()
     |> Enum.reduce(Decimal.new(0), &Decimal.add(&1, &2))
   end
 
@@ -453,9 +466,13 @@ defmodule NumberF do
       iex> NumberF.percentage(1, 3, 2)
       33.33
   """
-  def percentage(value, total, precision \\ 2) do
-    result = value / total * 100
-    Float.round(result, precision)
+  def percentage(value, total, precision \\ 2)
+  def percentage(_value, 0, _precision), do: raise(ArgumentError, "total cannot be zero")
+  def percentage(_value, +0.0, _precision), do: raise(ArgumentError, "total cannot be zero")
+
+  def percentage(value, total, precision)
+      when is_number(value) and is_number(total) and is_integer(precision) do
+    Float.round(value / total * 100, precision)
   end
 
   @doc """
@@ -517,18 +534,7 @@ defmodule NumberF do
       iex> NumberF.simple_interest(1000, 0.05, 2)
       100.0
   """
-  def simple_interest(principal, rate, time)
-      when is_number(principal) and is_number(rate) and is_number(time) do
-    if time < 0 do
-      raise ArgumentError, "time period cannot be negative"
-    end
-
-    result = principal * rate * time
-    Float.round(result, 2)
-  end
-
-  def simple_interest(_, _, _),
-    do: raise(ArgumentError, "simple_interest/3 expects numeric arguments")
+  defdelegate simple_interest(principal, rate, time), to: NumberF.Financial
 
   @doc """
   Calculates compound interest with optional compounding frequency.
@@ -581,14 +587,7 @@ defmodule NumberF do
 
   See also: `NumberF.Financial` for more financial calculations.
   """
-  def compound_interest(principal, rate, time, frequency \\ 1)
-      when is_number(principal) and is_number(rate) and is_number(time) and is_number(frequency) do
-    # A = P(1 + r/n)^(nt)
-    # Interest = A - P
-    amount = principal * :math.pow(1 + rate / frequency, frequency * time)
-    interest = amount - principal
-    Float.round(interest, 2)
-  end
+  defdelegate compound_interest(principal, rate, time, frequency \\ 1), to: NumberF.Financial
 
   @doc """
   Calculates Equated Monthly Installment (EMI) for loans.
@@ -603,16 +602,7 @@ defmodule NumberF do
       iex> NumberF.calculate_emi(100000, 0.10, 12)
       8791.59
   """
-  def calculate_emi(principal, rate, term_months)
-      when is_number(principal) and is_number(rate) and is_number(term_months) and term_months > 0 do
-    monthly_rate = rate / 12
-
-    emi =
-      principal * monthly_rate * :math.pow(1 + monthly_rate, term_months) /
-        (:math.pow(1 + monthly_rate, term_months) - 1)
-
-    Float.round(emi, 2)
-  end
+  defdelegate calculate_emi(principal, rate, term_months), to: NumberF.Financial
 
   @doc """
   Converts an amount between currencies based on exchange rates.
@@ -627,12 +617,7 @@ defmodule NumberF do
       iex> NumberF.convert_currency(100, 1, 1.1)
       110.0
   """
-  def convert_currency(amount, from_rate, to_rate)
-      when is_number(amount) and is_number(from_rate) and is_number(to_rate) and from_rate > 0 and
-             to_rate > 0 do
-    result = amount * to_rate / from_rate
-    Float.round(result, 2)
-  end
+  defdelegate convert_currency(amount, from_rate, to_rate), to: NumberF.Financial
 
   ### STATISTICAL FUNCTIONS ###
 
@@ -746,10 +731,11 @@ defmodule NumberF do
         Map.update(acc, num, 1, &(&1 + 1))
       end)
 
-    {_count, max_freq} = Enum.max_by(frequencies, fn {_num, count} -> count end)
+    {_value, max_freq} = Enum.max_by(frequencies, fn {_value, count} -> count end)
 
-    Enum.filter(frequencies, fn {_num, count} -> count == max_freq end)
-    |> Enum.map(fn {num, _count} -> num end)
+    frequencies
+    |> Enum.filter(fn {_value, count} -> count == max_freq end)
+    |> Enum.map(fn {value, _count} -> value end)
     |> Enum.sort()
   end
 
@@ -877,7 +863,7 @@ defmodule NumberF do
 
   # Luhn algorithm implementation
   defp luhn_valid?(number) do
-    digits = String.graphemes(number) |> Enum.map(&String.to_integer/1)
+    digits = number |> String.graphemes() |> Enum.map(&String.to_integer/1)
 
     # Double every second digit from right to left
     doubled =
@@ -982,21 +968,7 @@ defmodule NumberF do
       iex> NumberF.abbreviate_number(1234567890)
       "1.2B"
   """
-  def abbreviate_number(number, precision \\ 1) when is_number(number) do
-    cond do
-      number >= 1_000_000_000 ->
-        "#{Float.round(number / 1_000_000_000, precision)}B"
-
-      number >= 1_000_000 ->
-        "#{Float.round(number / 1_000_000, precision)}M"
-
-      number >= 1_000 ->
-        "#{Float.round(number / 1_000, precision)}K"
-
-      true ->
-        "#{number}"
-    end
-  end
+  defdelegate abbreviate_number(number, precision \\ 1), to: NumberF.Formatter
 
   @doc """
   Converts numbers to ordinals (1st, 2nd, 3rd, etc.).
@@ -1680,10 +1652,10 @@ defmodule NumberF do
   ## Examples
 
       iex> NumberF.combinations(5, 2)
-      10.0
+      10
 
       iex> NumberF.combinations(10, 3)
-      120.0
+      120
   """
   def combinations(n, k) when k <= n, do: NumberF.Calculations.combinations(n, k)
 
@@ -1794,6 +1766,52 @@ defmodule NumberF do
       4.0
   """
   def variance(numbers), do: NumberF.Statistics.variance(numbers)
+
+  @doc """
+  Calculates the **sample** variance of a dataset (divides by N-1).
+
+  Use this when the list is a sample rather than the whole population.
+  `NumberF.variance/1` is the population form.
+
+  ## Precision
+
+  The two differ by a factor of `N/(N-1)`, so they converge as the dataset grows
+  but diverge sharply for small lists. Most statistical software defaults to the
+  sample form; this library keeps `variance/1` as the population form for
+  backwards compatibility, so pick one explicitly.
+
+  ## Examples
+
+      iex> NumberF.sample_variance([2, 4, 4, 4, 5, 5, 7, 9])
+      4.571428571428571
+  """
+  defdelegate sample_variance(numbers), to: NumberF.Statistics
+
+  @doc """
+  Calculates the **sample** standard deviation of a dataset (divides by N-1).
+
+  See `sample_variance/1`. `NumberF.standard_deviation/1` is the population form.
+
+  ## Examples
+
+      iex> NumberF.sample_standard_deviation([2, 4, 4, 4, 5, 5, 7, 9])
+      2.138089935299395
+  """
+  defdelegate sample_standard_deviation(numbers), to: NumberF.Statistics
+
+  @doc """
+  Lists the languages `NumberF.spell_number/3` can spell numbers in.
+
+  Deliberately distinct from the 22 locales `NumberF.format_number/2` supports:
+  formatting a locale and spelling its language are different capabilities, and
+  conflating them is how an unsupported language used to return English silently.
+
+  ## Examples
+
+      iex> NumberF.spelling_languages()
+      ["de", "en", "es", "fr"]
+  """
+  defdelegate spelling_languages(), to: NumberF.I18n, as: :supported_languages
 
   @doc """
   Calculates the range (difference between max and min values) of a dataset.

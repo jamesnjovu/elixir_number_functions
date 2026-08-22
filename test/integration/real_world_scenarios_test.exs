@@ -96,7 +96,8 @@ defmodule NumberF.RealWorldScenariosTest do
 
       # Calculate mean return
       returns =
-        Enum.zip(investments, future_values)
+        investments
+        |> Enum.zip(future_values)
         |> Enum.map(fn {{principal, _, _}, future_value} ->
           NumberF.percentage(future_value - principal, principal, 2)
         end)

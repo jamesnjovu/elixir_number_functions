@@ -89,7 +89,7 @@ defmodule NumberF.CoverageAnalysisTest do
       # Test that error conditions are properly tested
 
       # Division by zero in percentage
-      assert_raise ArithmeticError, fn ->
+      assert_raise ArgumentError, fn ->
         NumberF.percentage(10, 0)
       end
 

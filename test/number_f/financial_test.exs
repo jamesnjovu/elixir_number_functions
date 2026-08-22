@@ -6,7 +6,7 @@ defmodule NumberF.FinancialTest do
     test "calculates simple interest" do
       assert NumberF.Financial.simple_interest(1000, 0.05, 2) == 100.0
       assert NumberF.Financial.simple_interest(5000, 0.03, 1) == 150.0
-      assert NumberF.Financial.simple_interest(10000, 0.07, 0.5) == 350.0
+      assert NumberF.Financial.simple_interest(10_000, 0.07, 0.5) == 350.0
     end
   end
 
@@ -30,7 +30,7 @@ defmodule NumberF.FinancialTest do
   describe "calculate_emi/3" do
     test "calculates EMI correctly" do
       assert NumberF.Financial.calculate_emi(100_000, 0.10, 12) == 8791.59
-      assert NumberF.Financial.calculate_emi(50000, 0.05, 24) == 2193.57
+      assert NumberF.Financial.calculate_emi(50_000, 0.05, 24) == 2193.57
     end
   end
 

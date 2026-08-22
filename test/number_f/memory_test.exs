@@ -11,7 +11,7 @@ defmodule NumberF.MemoryTest do
     test "formats kilobytes correctly" do
       assert NumberF.Memory.humanize(1024) == "1.0 KB"
       assert NumberF.Memory.humanize(1536) == "1.5 KB"
-      assert NumberF.Memory.humanize(10240) == "10.0 KB"
+      assert NumberF.Memory.humanize(10_240) == "10.0 KB"
     end
 
     test "formats megabytes correctly" do

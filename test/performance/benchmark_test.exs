@@ -21,7 +21,7 @@ defmodule NumberF.BenchmarkTest do
     end
 
     test "statistical calculations benchmark" do
-      large_dataset = TestHelper.random_numbers(10000)
+      large_dataset = TestHelper.random_numbers(10_000)
 
       {time_microseconds, _} =
         :timer.tc(fn ->
@@ -37,7 +37,7 @@ defmodule NumberF.BenchmarkTest do
     end
 
     test "number to words benchmark" do
-      numbers = [1, 123, 1234, 12345, 123_456, 1_234_567, 12_345_678, 123_456_789]
+      numbers = [1, 123, 1234, 12_345, 123_456, 1_234_567, 12_345_678, 123_456_789]
 
       {time_microseconds, _} =
         :timer.tc(fn ->

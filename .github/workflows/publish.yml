@@ -1,0 +1,50 @@
+name: Publish
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    name: Publish to Hex
+    runs-on: ubuntu-latest
+    environment: hex
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: erlef/setup-beam@v1
+        with:
+          elixir-version: "1.18"
+          otp-version: "27"
+
+      - run: mix deps.get
+
+      # Compile in its own step. Reading @version out of Mix.Project below must not
+      # be the thing that triggers a first compile, or the version output gets mixed
+      # in with compiler output and the comparison reads a garbage string.
+      - run: mix compile
+
+      # A tag that disagrees with @version publishes the wrong version to Hex and
+      # cannot be undone — Hex releases are immutable. Refuse instead.
+      - name: Tag must match mix.exs @version
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          version="$(mix run --no-start -e 'IO.puts(Mix.Project.config()[:version])' | tail -n1)"
+          echo "tag=$tag mix.exs=$version"
+          if [ "$tag" != "$version" ]; then
+            echo "::error::tag v$tag does not match mix.exs version $version"
+            exit 1
+          fi
+
+      - name: Full test suite
+        env:
+          MIX_ENV: test
+        run: mix test
+
+      - name: Publish
+        env:
+          HEX_API_KEY: ${{ secrets.HEX_API_KEY }}
+        run: mix hex.publish --yes

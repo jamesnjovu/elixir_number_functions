@@ -8,8 +8,9 @@ defmodule NumberF.ErrorHandlingTest do
 
   describe "error handling scenarios" do
     test "handles division by zero gracefully" do
-      # Percentage calculation with zero total should raise
-      assert_raise ArithmeticError, fn ->
+      # Percentage with a zero total raises ArgumentError, not a leaked
+      # ArithmeticError from the division itself.
+      assert_raise ArgumentError, fn ->
         NumberF.percentage(10, 0)
       end
 

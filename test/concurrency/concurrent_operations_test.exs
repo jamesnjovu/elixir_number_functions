@@ -54,7 +54,7 @@ defmodule NumberF.ConcurrencyTest do
     end
 
     test "number to words conversion is thread-safe" do
-      numbers = [1, 123, 1234, 12345, 123_456]
+      numbers = [1, 123, 1234, 12_345, 123_456]
 
       tasks =
         Enum.map(numbers, fn number ->
@@ -70,7 +70,7 @@ defmodule NumberF.ConcurrencyTest do
         {1, "One Dollar"},
         {123, "One Hundred Twenty Three Dollar"},
         {1234, "One Thousand Two Hundred Thirty Four Dollar"},
-        {12345, "Twelve Thousand Three Hundred Forty Five Dollar"},
+        {12_345, "Twelve Thousand Three Hundred Forty Five Dollar"},
         {123_456, "One Hundred Twenty Three Thousand Four Hundred Fifty Six Dollar"}
       ]
 
@@ -98,7 +98,7 @@ defmodule NumberF.ConcurrencyTest do
     end
 
     test "tax calculations are thread-safe" do
-      amounts = [100, 500, 1000, 5000, 10000]
+      amounts = [100, 500, 1000, 5000, 10_000]
 
       tasks =
         Enum.map(amounts, fn amount ->

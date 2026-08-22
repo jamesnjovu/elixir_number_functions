@@ -62,7 +62,7 @@ defmodule NumberF.Validation do
 
   # Luhn algorithm implementation
   defp luhn_valid?(number) do
-    digits = String.graphemes(number) |> Enum.map(&String.to_integer/1)
+    digits = number |> String.graphemes() |> Enum.map(&String.to_integer/1)
 
     # Double every second digit from right to left
     doubled =

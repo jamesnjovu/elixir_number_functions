@@ -57,11 +57,11 @@ defmodule TestHelper do
       # Tax-free threshold
       {0, 0.0},
       # 10% bracket
-      {10000, 0.10},
+      {10_000, 0.10},
       # 22% bracket
-      {40000, 0.22},
+      {40_000, 0.22},
       # 24% bracket
-      {85000, 0.24},
+      {85_000, 0.24},
       # 32% bracket
       {160_000, 0.32},
       # 35% bracket
@@ -74,7 +74,7 @@ defmodule TestHelper do
   """
   def random_numbers(count) do
     Enum.map(1..count, fn _ ->
-      :rand.uniform() * 10000
+      :rand.uniform() * 10_000
     end)
   end
 
@@ -148,7 +148,7 @@ defmodule TestHelper do
       # Regular
       1234.56,
       # Large
-      12345.67,
+      12_345.67,
       # Very large
       123_456.78,
       # Huge
@@ -219,7 +219,7 @@ defmodule TestHelper do
       {1000, 0.05, 1, 50.0},
       {1000, 0.05, 2, 100.0},
       {5000, 0.03, 1, 150.0},
-      {10000, 0.07, 0.5, 350.0}
+      {10_000, 0.07, 0.5, 350.0}
     ]
   end
 

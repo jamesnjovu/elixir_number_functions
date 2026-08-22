@@ -7,7 +7,7 @@ defmodule NumberF.RegistryTest do
       modules = NumberF.Registry.modules()
 
       assert is_list(modules)
-      assert length(modules) > 0
+      refute Enum.empty?(modules)
 
       # Check that each module has required fields
       Enum.each(modules, fn module ->
@@ -29,7 +29,7 @@ defmodule NumberF.RegistryTest do
       formatting_modules = NumberF.Registry.modules_by_type(:formatting)
 
       assert is_list(formatting_modules)
-      assert length(formatting_modules) > 0
+      refute Enum.empty?(formatting_modules)
 
       # All modules should be of formatting type
       Enum.each(formatting_modules, fn module ->
@@ -63,7 +63,7 @@ defmodule NumberF.RegistryTest do
       categories = NumberF.Registry.function_categories()
 
       assert is_list(categories)
-      assert length(categories) > 0
+      refute Enum.empty?(categories)
 
       # Check that each category has required fields
       Enum.each(categories, fn category ->

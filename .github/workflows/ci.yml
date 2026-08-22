@@ -1,233 +1,170 @@
 name: CI
 
+# `master`, not `main`. The previous workflows were pinned to `main`, a branch this
+# repository does not have, so CI never ran once between v0.1.0 and v0.2.0.
 on:
   push:
-    branches: [ main, develop ]
+    branches: [master]
   pull_request:
-    branches: [ main, develop ]
+    branches: [master]
 
 env:
   MIX_ENV: test
 
+permissions:
+  contents: read
+
 jobs:
-  test:
-    name: Test (Elixir ${{matrix.elixir}} / OTP ${{matrix.otp}})
+  lint:
+    name: Lint
     runs-on: ubuntu-latest
-    
+    steps:
+      - uses: actions/checkout@v4
+
+      # Pinned to the version in .tool-versions. The formatter's output changes
+      # between Elixir minor versions, so a mismatch makes `mix format` locally
+      # disagree with `--check-formatted` here.
+      - uses: erlef/setup-beam@v1
+        with:
+          elixir-version: "1.18"
+          otp-version: "26"
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            deps
+            _build
+            priv/plts
+          key: lint-${{ runner.os }}-1.18-26-${{ hashFiles('mix.lock') }}
+          restore-keys: lint-${{ runner.os }}-1.18-26-
+
+      - run: mix deps.get
+
+      # Catches a dependency removed from mix.exs but left in mix.lock. This gate
+      # was already in the old workflow and had been failing on a stale :excoveralls
+      # entry — nobody saw it, because the workflow never triggered.
+      - run: mix deps.unlock --check-unused
+
+      - name: Lint (format, warnings-as-errors, credo)
+        run: mix lint
+
+      - name: Security audit
+        run: mix deps.audit
+
+      - name: Dialyzer
+        run: mix dialyzer --format github
+
+      # The docs are a product here: llms.txt and the cheatsheet are what AI
+      # assistants read. A warning means a broken reference or a stale link.
+      - name: Docs build must be warning-free
+        env:
+          MIX_ENV: dev
+        run: |
+          mix deps.get
+          mix docs 2>&1 | tee docs.log
+          if grep -qi "warning" docs.log; then
+            echo "::error::mix docs emitted warnings"
+            exit 1
+          fi
+
+  test:
+    name: Test (Elixir ${{ matrix.elixir }} / OTP ${{ matrix.otp }})
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         include:
-          # Latest stable versions
-          - elixir: '1.16'
-            otp: '26'
+          # Floor of the `elixir: "~> 1.14"` requirement in mix.exs. If this row
+          # goes red, either fix it or raise the requirement — do not just drop it.
+          - elixir: "1.15"
+            otp: "25"
+          - elixir: "1.17"
+            otp: "26"
+          # Primary: matches .tool-versions and the lint job.
+          - elixir: "1.18"
+            otp: "26"
             coverage: true
-          # Previous stable versions for compatibility
-          - elixir: '1.15'
-            otp: '25'
-          - elixir: '1.14'
-            otp: '24'
+          - elixir: "1.20"
+            otp: "27"
+          # Canary. Resolves dependencies without mix.lock, so a breaking release
+          # upstream shows up here first instead of in a user's build. Advisory only.
+          - elixir: "1.20"
+            otp: "27"
+            unlocked: true
+
+    continue-on-error: ${{ matrix.unlocked == true }}
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Set up Elixir
-      uses: erlef/setup-beam@v1
-      with:
-        elixir-version: ${{ matrix.elixir }}
-        otp-version: ${{ matrix.otp }}
+      - uses: erlef/setup-beam@v1
+        with:
+          elixir-version: ${{ matrix.elixir }}
+          otp-version: ${{ matrix.otp }}
 
-    - name: Cache dependencies
-      uses: actions/cache@v3
-      with:
-        path: |
-          deps
-          _build
-        key: ${{ runner.os }}-mix-${{ matrix.elixir }}-${{ matrix.otp }}-${{ hashFiles('**/mix.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-mix-${{ matrix.elixir }}-${{ matrix.otp }}-
-          ${{ runner.os }}-mix-
+      - uses: actions/cache@v4
+        with:
+          path: |
+            deps
+            _build
+          key: test-${{ runner.os }}-${{ matrix.elixir }}-${{ matrix.otp }}-${{ hashFiles('mix.lock') }}-${{ matrix.unlocked }}
+          restore-keys: test-${{ runner.os }}-${{ matrix.elixir }}-${{ matrix.otp }}-
 
-    - name: Install dependencies
-      run: mix deps.get
+      - name: Unlock dependencies (canary row only)
+        if: matrix.unlocked
+        run: rm -f mix.lock
 
-    - name: Compile dependencies
-      run: mix deps.compile
+      - run: mix deps.get
 
-    - name: Compile project
-      run: mix compile --warnings-as-errors
+      - name: Show resolved dependency versions
+        run: mix deps.tree
 
-    - name: Check formatting
-      run: mix format --check-formatted
+      - run: mix compile --warnings-as-errors
 
-  doctests:
-    name: Documentation Tests
+      # The old workflow's "test" job never actually invoked mix test.
+      - name: Run tests
+        if: ${{ !matrix.coverage }}
+        run: mix test
+
+      - name: Run tests with coverage
+        if: matrix.coverage
+        run: mix coveralls
+
+  package:
+    name: Package
     runs-on: ubuntu-latest
-    needs: test
-    
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Set up Elixir
-      uses: erlef/setup-beam@v1
-      with:
-        elixir-version: '1.16'
-        otp-version: '26'
+      - uses: erlef/setup-beam@v1
+        with:
+          elixir-version: "1.18"
+          otp-version: "27"
 
-    - name: Cache dependencies
-      uses: actions/cache@v3
-      with:
-        path: |
-          deps
-          _build
-        key: ${{ runner.os }}-mix-doctests-${{ hashFiles('**/mix.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-mix-doctests-
-          ${{ runner.os }}-mix-
+      - run: mix deps.get
 
-    - name: Install dependencies
-      run: mix deps.get
+      - name: Build the Hex tarball
+        run: mix hex.build
 
-    - name: Compile project
-      run: mix compile
+      # Asserting the contents, because what ships is easy to get wrong silently:
+      # v0.1.x shipped the dev-only mix tasks into every consuming project, and
+      # llms.txt is load-bearing for AI assistants but trivially easy to omit.
+      - name: Assert package contents
+        run: |
+          mix hex.build --unpack -o /tmp/pkg
+          echo "--- packaged files ---"
+          find /tmp/pkg -type f | sed 's|/tmp/pkg/||' | sort
 
-    - name: Run doctests
-      run: mix test test/doctests/
+          for forbidden in lib/mix test priv/plts priv/static/css; do
+            if [ -e "/tmp/pkg/$forbidden" ]; then
+              echo "::error::$forbidden must not be in the package"
+              exit 1
+            fi
+          done
 
-    - name: Generate documentation
-      run: mix docs
-
-  concurrency-tests:
-    name: Concurrency Tests
-    runs-on: ubuntu-latest
-    needs: test
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Set up Elixir
-      uses: erlef/setup-beam@v1
-      with:
-        elixir-version: '1.16'
-        otp-version: '26'
-
-    - name: Cache dependencies
-      uses: actions/cache@v3
-      with:
-        path: |
-          deps
-          _build
-        key: ${{ runner.os }}-mix-concurrency-${{ hashFiles('**/mix.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-mix-concurrency-
-          ${{ runner.os }}-mix-
-
-    - name: Install dependencies
-      run: mix deps.get
-
-    - name: Compile project
-      run: mix compile
-
-    - name: Run concurrency tests
-      run: mix test test/concurrency/ --timeout 180000
-
-  coverage-analysis:
-    name: Coverage Analysis
-    runs-on: ubuntu-latest
-    needs: test
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Set up Elixir
-      uses: erlef/setup-beam@v1
-      with:
-        elixir-version: '1.16'
-        otp-version: '26'
-
-    - name: Cache dependencies
-      uses: actions/cache@v3
-      with:
-        path: |
-          deps
-          _build
-        key: ${{ runner.os }}-mix-coverage-${{ hashFiles('**/mix.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-mix-coverage-
-          ${{ runner.os }}-mix-
-
-    - name: Install dependencies
-      run: mix deps.get
-
-    - name: Compile project
-      run: mix compile
-
-    - name: Run coverage analysis tests
-      run: mix test test/coverage/ --cover
-
-    - name: Generate detailed coverage report
-      run: |
-        mix test --cover --export-coverage default
-        mix test.coverage --min-coverage 80
-
-  quality-checks:
-    name: Code Quality Checks
-    runs-on: ubuntu-latest
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Set up Elixir
-      uses: erlef/setup-beam@v1
-      with:
-        elixir-version: '1.16'
-        otp-version: '26'
-
-    - name: Cache dependencies
-      uses: actions/cache@v3
-      with:
-        path: |
-          deps
-          _build
-        key: ${{ runner.os }}-mix-quality-${{ hashFiles('**/mix.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-mix-quality-
-          ${{ runner.os }}-mix-
-
-    - name: Install dependencies
-      run: mix deps.get
-
-    - name: Compile project
-      run: mix compile
-
-    - name: Check unused dependencies
-      run: mix deps.unlock --check-unused
-
-    - name: Security audit
-      run: mix deps.audit
-
-    - name: Check for compilation warnings
-      run: mix compile --force --warnings-as-errors
-
-    - name: Run Credo (if available)
-      run: |
-        if mix help credo >/dev/null 2>&1; then
-          mix credo --strict
-        else
-          echo "Credo not available, skipping..."
-        fi
-      continue-on-error: true
-
-    - name: Run Dialyzer (if available)
-      run: |
-        if mix help dialyzer >/dev/null 2>&1; then
-          mix dialyzer
-        else
-          echo "Dialyzer not available, skipping..."
-        fi
-      continue-on-error: true
+          for required in llms.txt README.md LICENSE CHANGELOG.md guides/cheatsheet.cheatmd lib/number_f.ex; do
+            if [ ! -e "/tmp/pkg/$required" ]; then
+              echo "::error::$required is missing from the package"
+              exit 1
+            fi
+          done

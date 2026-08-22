@@ -82,7 +82,7 @@ defmodule NumberF.FinancialEdgeCasesTest do
       # 50% annual
       high_rate_emi = NumberF.calculate_emi(principal, 0.5, 12)
       # Should be significantly higher
-      assert high_rate_emi > 10000
+      assert high_rate_emi > 10_000
     end
 
     test "handles currency conversion with extreme rates" do

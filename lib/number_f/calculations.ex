@@ -52,7 +52,7 @@ defmodule NumberF.Calculations do
   def is_prime?(n) when rem(n, 2) == 0, do: false
 
   def is_prime?(n) do
-    limit = :math.sqrt(n) |> Float.ceil() |> trunc()
+    limit = n |> :math.sqrt() |> Float.ceil() |> trunc()
 
     !Enum.any?(3..limit//2, fn i ->
       i < n && rem(n, i) == 0
@@ -62,14 +62,43 @@ defmodule NumberF.Calculations do
   @doc """
   Calculates factorial of a non-negative integer.
   """
-  def factorial(0), do: 1
-  def factorial(n) when n > 0, do: n * factorial(n - 1)
+  def factorial(n) when is_integer(n) and n >= 0, do: do_factorial(n, 1)
+
+  def factorial(n) do
+    raise ArgumentError, "factorial requires a non-negative integer, got: #{inspect(n)}"
+  end
+
+  # Tail-recursive: the body-recursive version built a stack frame per multiplication.
+  defp do_factorial(0, acc), do: acc
+  defp do_factorial(n, acc), do: do_factorial(n - 1, acc * n)
 
   @doc """
-  Calculates combinations (n choose k).
+  Calculates combinations (n choose k) — the binomial coefficient.
+
+  Returns an `t:integer/0`. A count of ways to choose things is never fractional,
+  and the previous `factorial(n) / (factorial(k) * factorial(n - k))` returned a
+  float, so `combinations(30, 15)` came back as `155117520.0` and anything past
+  roughly `n = 60` silently lost precision to the float conversion.
+
+  ## Examples
+
+      iex> NumberF.Calculations.combinations(5, 2)
+      10
+
+      iex> NumberF.Calculations.combinations(30, 15)
+      155_117_520
   """
-  def combinations(n, k) when k <= n do
-    factorial(n) / (factorial(k) * factorial(n - k))
+  def combinations(n, k) when is_integer(n) and is_integer(k) and k >= 0 and k <= n do
+    # Multiplicative formula: exact in integer arithmetic, and never builds a value
+    # larger than the result itself. Each partial product is divisible by its own i.
+    k = min(k, n - k)
+
+    Enum.reduce(1..k//1, 1, fn i, acc -> div(acc * (n - k + i), i) end)
+  end
+
+  def combinations(n, k) do
+    raise ArgumentError,
+          "combinations requires integers with 0 <= k <= n, got: n=#{inspect(n)}, k=#{inspect(k)}"
   end
 
   @doc """

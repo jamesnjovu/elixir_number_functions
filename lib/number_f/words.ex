@@ -8,13 +8,14 @@ end
 defmodule NumberF.NumbersToWords do
   @moduledoc false
 
-  alias NumberF.Helper, as: Math
+  alias NumberF.Helper
 
   def parse(0, main_c, _), do: "zero #{main_c}"
 
   def parse(number, main_c, _) when is_integer(number) do
     words =
-      to_word(number)
+      number
+      |> to_word()
       |> List.flatten()
       |> Enum.filter(& &1)
       |> Enum.join(" ")
@@ -24,20 +25,26 @@ defmodule NumberF.NumbersToWords do
 
   def parse(number, main_c, sec_c) when is_float(number) do
     [whole, floating] =
-      Decimal.from_float(number) |> Decimal.round(2) |> Decimal.to_string() |> String.split(".")
+      number
+      |> Decimal.from_float()
+      |> Decimal.round(2)
+      |> Decimal.to_string()
+      |> String.split(".")
 
     whole = String.to_integer(whole)
     floating = String.to_integer(floating)
 
     amount =
-      to_word(whole)
+      whole
+      |> to_word()
       |> List.flatten()
       |> Enum.filter(& &1)
       |> Enum.join(" ")
 
     if floating > 0 do
       floating_words =
-        to_word(floating)
+        floating
+        |> to_word()
         |> List.flatten()
         |> Enum.filter(& &1)
         |> Enum.join(" ")
@@ -85,20 +92,14 @@ defmodule NumberF.NumbersToWords do
   ~w[ Thousand Million Billion Trillion Quadrillion Quintillion Sextillion Septillion Octillion Nonillion Decillion ]
   |> Enum.zip(2..13)
   |> Enum.each(fn {illion, factor} ->
-    defp to_word(n) when n < unquote(Math.int_pow10(1, factor * 3)) do
+    defp to_word(n) when n < unquote(Helper.int_pow10(1, factor * 3)) do
       [
-        to_word(div(n, unquote(Math.int_pow10(1, (factor - 1) * 3)))),
+        to_word(div(n, unquote(Helper.int_pow10(1, (factor - 1) * 3)))),
         unquote(illion),
-        to_word(rem(n, unquote(Math.int_pow10(1, (factor - 1) * 3))))
+        to_word(rem(n, unquote(Helper.int_pow10(1, (factor - 1) * 3))))
       ]
     end
   end)
-
-  def try() do
-    Decimal.new("2.5")
-    |> Decimal.to_float()
-    |> parse("Kwacha", "Ngwee")
-  end
 
   defp to_word(_), do: raise(ArgumentError, message: "number is too long")
 end

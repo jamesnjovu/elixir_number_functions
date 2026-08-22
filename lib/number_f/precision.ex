@@ -19,7 +19,16 @@ defmodule NumberF.Precision do
       3.1416
   """
   def round_with_precision(number, precision \\ 2)
-      when is_number(number) and is_integer(precision) do
+
+  # Float.round/2 only accepts a float, so the is_number/1 guard promised more than
+  # the body could deliver: round_with_precision(3, 2) raised FunctionClauseError.
+  def round_with_precision(number, precision)
+      when is_integer(number) and is_integer(precision) do
+    round_with_precision(number * 1.0, precision)
+  end
+
+  def round_with_precision(number, precision)
+      when is_float(number) and is_integer(precision) do
     Float.round(number, precision)
   end
 
