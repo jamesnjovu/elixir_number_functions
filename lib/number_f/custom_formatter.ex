@@ -171,12 +171,13 @@ defmodule NumberF.CustomFormatter do
       |> Enum.join(delimiter)
 
     # Add decimal part if precision > 0
-    result = if precision > 0 do
-      decimal_part = String.duplicate("0", precision)
-      "#{formatted_int}#{separator}#{decimal_part}"
-    else
-      formatted_int
-    end
+    result =
+      if precision > 0 do
+        decimal_part = String.duplicate("0", precision)
+        "#{formatted_int}#{separator}#{decimal_part}"
+      else
+        formatted_int
+      end
 
     # Add sign back
     "#{sign}#{result}"
@@ -188,7 +189,8 @@ defmodule NumberF.CustomFormatter do
     float_number = ensure_float(number)
 
     # Handle negative numbers
-    {sign, abs_number} = if float_number < 0, do: {"-", abs(float_number)}, else: {"", float_number}
+    {sign, abs_number} =
+      if float_number < 0, do: {"-", abs(float_number)}, else: {"", float_number}
 
     # Round the number to the required precision
     rounded_number = Float.round(abs_number, precision)

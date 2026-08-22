@@ -1,0 +1,41 @@
+name: Feature request
+description: Suggest a function or capability for NumberF
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem are you solving?
+      description: Describe the real task, not just the proposed API.
+    validations:
+      required: true
+  - type: textarea
+    id: api
+    attributes:
+      label: Proposed API
+      render: elixir
+      placeholder: |
+        NumberF.some_new_function(1234.56, "USD")
+        # => "..."
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Formatting
+        - Currency / i18n
+        - Financial
+        - Tax
+        - Statistics
+        - Precision / rounding
+        - Validation
+        - Unit conversion
+        - Dates
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Does ex_cldr, ex_money, or an existing NumberF function already cover this?

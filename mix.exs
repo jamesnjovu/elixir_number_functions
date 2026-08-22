@@ -1,8 +1,9 @@
 defmodule NumberF.MixProject do
   use Mix.Project
 
-  @version "0.1.7"
+  @version "0.2.0"
   @github_url "https://github.com/jamesnjovu/elixir_number_functions"
+  @docs_url "https://hexdocs.pm/number_f"
 
   def project do
     [
@@ -16,12 +17,11 @@ defmodule NumberF.MixProject do
       package: package(),
       docs: docs(),
       source_url: @github_url,
-      homepage_url: "https://hexdocs.pm/number_f",
+      homepage_url: @docs_url,
       xref: [exclude: [:httpc, :public_key]]
     ]
   end
 
-  # Run "mix help compile.app" to learn about applications.
   def application do
     [
       extra_applications: [:logger],
@@ -29,48 +29,42 @@ defmodule NumberF.MixProject do
     ]
   end
 
-  # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
       {:decimal, "~> 2.0"},
-      {:ex_doc, "~> 0.29", only: :dev, runtime: false},
+      {:ex_doc, "~> 0.40", only: :dev, runtime: false},
       {:mix_audit, "~> 2.0", only: [:dev, :test], runtime: false}
     ]
   end
 
+  # Shown on hex.pm and indexed by Hex search, Google, and LLM crawlers.
+  # Lead with the concrete nouns people actually search for.
   defp description do
     """
-    A comprehensive Elixir library for number formatting, calculation, and internationalization.
-    Features include currency formatting, number-to-word conversion, financial calculations,
-    statistics, unit conversion, and tax calculations.
+    Number formatting, currency and financial math for Elixir. Format currency and \
+    numbers for 22 locales, convert numbers to words and Roman numerals, calculate \
+    compound interest, EMI, VAT and income tax, run statistics, validate credit \
+    cards, and convert units. One zero-config dependency.\
     """
   end
 
   defp package do
     [
-      files: ~w(lib .formatter.exs mix.exs README.md LICENSE CHANGELOG.md),
+      name: "number_f",
+      files: ~w(lib guides priv/static/images .formatter.exs mix.exs
+                README.md LICENSE CHANGELOG.md CONTRIBUTING.md llms.txt),
+      # `mix test.numberf_*` are for developing this library, not for consumers.
+      exclude_patterns: ["lib/mix"],
       licenses: ["MIT"],
       links: %{
         "GitHub" => @github_url,
-        "Documentation" => "https://hexdocs.pm/number_f",
-        "Changelog" => "#{@github_url}/blob/main/CHANGELOG.md"
+        "Documentation" => @docs_url,
+        "Changelog" => "#{@github_url}/blob/master/CHANGELOG.md",
+        "Cheatsheet" => "#{@docs_url}/cheatsheet.html",
+        "llms.txt" => "#{@docs_url}/llms.txt",
+        "Issues" => "#{@github_url}/issues"
       },
-      maintainers: ["James Njovu"],
-      keywords: [
-        "number",
-        "currency",
-        "formatting",
-        "finance",
-        "calculation",
-        "statistics",
-        "internationalization",
-        "i18n",
-        "conversion",
-        "tax",
-        "precision",
-        "mathematics",
-        "utilities"
-      ]
+      maintainers: ["James Njovu"]
     ]
   end
 
@@ -78,24 +72,42 @@ defmodule NumberF.MixProject do
     [
       main: "readme",
       logo: "priv/static/images/logo.svg",
+      favicon: "priv/static/images/favicon.svg",
+      canonical: @docs_url,
+      language: "en",
+      api_reference: true,
+      filter_modules: fn module, _ ->
+        not match?("Elixir.Mix.Tasks." <> _, Atom.to_string(module))
+      end,
+      # "markdown" is what emits llms.txt / llms-full.txt for AI assistants.
+      formatters: ["html", "markdown"],
+      source_ref: "v#{@version}",
+      source_url_pattern: "#{@github_url}/blob/v#{@version}/%{path}#L%{line}",
+      authors: ["James Njovu"],
+      assets: %{"priv/static/images" => "assets"},
+      before_closing_head_tag: &before_closing_head_tag/1,
       extras: [
         "README.md": [title: "Overview"],
         "guides/getting-started.md": [title: "Getting Started"],
+        "guides/cheatsheet.cheatmd": [title: "Cheatsheet"],
         "guides/currency-formatting.md": [title: "Currency Formatting"],
         "guides/financial-calculations.md": [title: "Financial Calculations"],
         "guides/internationalization.md": [title: "Internationalization"],
+        "guides/faq.md": [title: "FAQ"],
         "CHANGELOG.md": [title: "Changelog"],
         "CONTRIBUTING.md": [title: "Contributing"]
       ],
       groups_for_extras: [
-        Guides: Path.wildcard("guides/*.md"),
+        Guides: [
+          "guides/getting-started.md",
+          "guides/cheatsheet.cheatmd",
+          "guides/currency-formatting.md",
+          "guides/financial-calculations.md",
+          "guides/internationalization.md",
+          "guides/faq.md"
+        ],
         Other: ["CHANGELOG.md", "CONTRIBUTING.md"]
       ],
-      authors: ["James Njovu"],
-      formatters: ["html"],
-      source_ref: "v#{@version}",
-      assets: "priv/static/images",
-      before_closing_body_tag: &before_closing_body_tag/1,
       groups_for_modules: [
         "Core Functions": [
           NumberF,
@@ -109,30 +121,21 @@ defmodule NumberF.MixProject do
           NumberF.Tax
         ],
         "Formatting Modules": [
-          NumberF.Currency,
           NumberF.Formatter,
           NumberF.CustomFormatter,
           NumberF.Currencies
         ],
         "Conversion Modules": [
-          NumberF.Metrics,
-          NumberF.NumbersToWords,
-          NumberF.NumberToWord
+          NumberF.Metrics
         ],
         "Validation & Utilities": [
-          NumberF.Validation,
-          NumberF.Memory,
-          NumberF.Randomizer,
-          NumberF.Helper
+          NumberF.Validation
         ],
         "Date Handling": [
           NumberF.DateCalculations
         ],
         Internationalization: [
           NumberF.I18n
-        ],
-        Application: [
-          NumberF.Application
         ]
       ],
       nest_modules_by_prefix: [
@@ -140,49 +143,53 @@ defmodule NumberF.MixProject do
       ],
       skip_undefined_reference_warnings_on: [
         "CHANGELOG.md"
+      ],
+      # Internal modules deliberately named in the docs as "not public API".
+      skip_code_autolink_to: [
+        "NumberF.Currency",
+        "NumberF.Memory",
+        "NumberF.Randomizer",
+        "NumberF.Helper",
+        "NumberF.NumbersToWords",
+        "NumberF.NumberToWord"
       ]
     ]
   end
 
-  defp before_closing_body_tag(:html) do
+  # Static metadata in <head>. Emitted server-side so crawlers and LLM
+  # fetchers that do not execute JavaScript still see it.
+  defp before_closing_head_tag(:html) do
     """
-    <script type="text/javascript">
-      // Enhance search engine visibility
-      document.addEventListener('DOMContentLoaded', function() {
-        // Add canonical links
-        var link = document.createElement('link');
-        link.rel = 'canonical';
-        link.href = window.location.href.split('#')[0].split('?')[0];
-        document.head.appendChild(link);
-
-        // Add meta description if none exists
-        if (!document.querySelector('meta[name="description"]')) {
-          var meta = document.createElement('meta');
-          meta.name = 'description';
-          meta.content = 'NumberF - A comprehensive Elixir library for number formatting, calculation, and manipulation with support for currency formatting, financial calculations, and internationalization.';
-          document.head.appendChild(meta);
-        }
-
-        // Add schema.org metadata for better search results
-        var script = document.createElement('script');
-        script.type = 'application/ld+json';
-        script.text = JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "SoftwareSourceCode",
-          "name": "NumberF",
-          "description": "Comprehensive Elixir library for number formatting, calculation, and internationalization",
-          "programmingLanguage": "Elixir",
-          "author": {
-            "@type": "Person",
-            "name": "James Njovu"
-          },
-          "keywords": "elixir, number, formatting, currency, financial, calculation, internationalization"
-        });
-        document.head.appendChild(script);
-      });
+    <meta name="description" content="NumberF is an Elixir library for number formatting, currency formatting across 22 locales, number-to-words conversion, financial calculations (compound interest, EMI, amortization), tax calculations (VAT, income tax), statistics, and unit conversion.">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="NumberF">
+    <meta property="og:title" content="NumberF — Number formatting, currency and financial math for Elixir">
+    <meta property="og:description" content="Format currency for 22 locales, convert numbers to words, calculate interest, EMI, VAT and tax, and run statistics in Elixir.">
+    <meta property="og:url" content="#{@docs_url}">
+    <meta property="og:image" content="#{@docs_url}/assets/logo.svg">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="NumberF — Elixir number, currency and finance library">
+    <meta name="twitter:description" content="Format currency for 22 locales, convert numbers to words, calculate interest, EMI, VAT and tax, and run statistics in Elixir.">
+    <link rel="alternate" type="text/plain" href="#{@docs_url}/llms.txt" title="llms.txt">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareSourceCode",
+      "name": "NumberF",
+      "alternateName": "number_f",
+      "description": "An Elixir library for number formatting, currency formatting, number-to-words conversion, financial and tax calculations, statistics, validation and unit conversion.",
+      "codeRepository": "#{@github_url}",
+      "url": "#{@docs_url}",
+      "programmingLanguage": {"@type": "ComputerLanguage", "name": "Elixir"},
+      "runtimePlatform": "Erlang/OTP",
+      "softwareVersion": "#{@version}",
+      "license": "https://opensource.org/licenses/MIT",
+      "author": {"@type": "Person", "name": "James Njovu"},
+      "keywords": "elixir, hex package, number formatting, currency formatting, number to words, roman numerals, ordinals, compound interest, EMI, loan amortization, VAT, income tax, statistics, standard deviation, unit conversion, internationalization, i18n, locale, credit card validation, luhn, byte size, humanize"
+    }
     </script>
     """
   end
 
-  defp before_closing_body_tag(_), do: ""
+  defp before_closing_head_tag(_), do: ""
 end

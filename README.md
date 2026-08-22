@@ -1,125 +1,192 @@
-# Getting Started with NumberF
+<p align="center">
+  <img src="https://raw.githubusercontent.com/jamesnjovu/elixir_number_functions/master/priv/static/images/logo.svg" alt="NumberF logo" width="120" height="120">
+</p>
 
-NumberF is a powerful utility library for Elixir that makes working with numbers easy and intuitive. This guide will help you get started with the most common features.
+<h1 align="center">NumberF</h1>
+
+<p align="center">
+  <strong>Number formatting, currency, and financial math for Elixir.</strong><br>
+  One zero-config dependency for the numeric work every app ends up rewriting.
+</p>
+
+<p align="center">
+  <a href="https://hex.pm/packages/number_f"><img src="https://img.shields.io/hexpm/v/number_f.svg?style=flat-square" alt="Hex.pm version"></a>
+  <a href="https://hexdocs.pm/number_f"><img src="https://img.shields.io/badge/hex-docs-informational.svg?style=flat-square" alt="HexDocs"></a>
+  <a href="https://hex.pm/packages/number_f"><img src="https://img.shields.io/hexpm/dt/number_f.svg?style=flat-square" alt="Total downloads"></a>
+  <a href="https://github.com/jamesnjovu/elixir_number_functions/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/jamesnjovu/elixir_number_functions/ci.yml?branch=master&style=flat-square" alt="CI status"></a>
+  <a href="https://github.com/jamesnjovu/elixir_number_functions/blob/master/LICENSE"><img src="https://img.shields.io/hexpm/l/number_f.svg?style=flat-square" alt="MIT license"></a>
+</p>
+
+---
+
+NumberF is an Elixir library that handles the numeric chores that show up in almost
+every real application: formatting money, printing amounts in words on an invoice,
+working out loan repayments, applying VAT, and displaying numbers the way a user's
+locale expects them.
+
+It has one runtime dependency (`decimal`), needs no configuration, and every function
+is callable directly off the top-level `NumberF` module.
+
+```elixir
+NumberF.currency(1234.567, "USD")                    # => "USD 1,234.57"
+NumberF.to_words(42.75, "Dollars", "Cents")          # => "Forty Two Dollars And Seventy Five Cents"
+NumberF.format_currency(1234.56, "fr-FR")            # => "1 234,56 €"
+NumberF.calculate_emi(100_000, 0.10, 12)             # => 8791.59
+NumberF.calculate_vat(100, 0.2)                      # => %{net: 100.0, vat: 20.0, gross: 120.0}
+NumberF.standard_deviation([2, 4, 4, 4, 5, 5, 7, 9]) # => 2.0
+```
 
 ## Installation
 
-Add `number_f` to your list of dependencies in `mix.exs`:
+Add `number_f` to your dependencies in `mix.exs`:
 
 ```elixir
 def deps do
   [
-    {:number_f, "~> 0.1.6"}
+    {:number_f, "~> 0.2.0"}
   ]
 end
 ```
 
-Then run:
+Then fetch it:
 
 ```bash
 mix deps.get
 ```
 
-## Basic Usage
+Requires Elixir 1.14 or later. No application configuration is needed.
 
-Once installed, you can start using NumberF's functionality by importing or accessing it directly:
+## What it does
+
+| Area | Functions | Example |
+|---|---|---|
+| **Currency formatting** | `currency/3`, `comma_separated/2`, `number_to_delimited/2` | `NumberF.currency(1234.5)` → `"ZMW 1,234.50"` |
+| **Numbers to words** | `to_words/3`, `spell_number/2`, `ordinal/1`, `to_roman/1`, `from_roman/1` | `NumberF.to_roman(1999)` → `"MCMXCIX"` |
+| **Financial math** | `simple_interest/3`, `compound_interest/4`, `calculate_emi/3` | `NumberF.compound_interest(1000, 0.05, 2)` → `102.5` |
+| **Tax** | `calculate_vat/3`, `calculate_sales_tax/3`, `NumberF.Tax.calculate_income_tax/2` | `NumberF.calculate_vat(100, 0.2)` |
+| **Statistics** | `mean/1`, `median/1`, `mode/1`, `standard_deviation/1`, `variance/1` | `NumberF.median([1, 3, 5, 7, 9])` → `5` |
+| **Internationalization** | `format_number/2`, `format_currency/3` across 22 locales | `NumberF.format_number(1234567.89, "de-DE")` |
+| **Unit conversion** | metric ↔ imperial, temperature | `NumberF.celsius_to_fahrenheit(25)` |
+| **Validation** | credit cards (Luhn), number formats | `NumberF.is_valid_credit_card?("4111...")` |
+| **Precision** | bankers rounding, custom thresholds, float comparison | `NumberF.bankers_round(2.5, 0)` → `2.0` |
+| **Dates** | age, business days, payment terms | `NumberF.calculate_age(~D[1990-01-15])` |
+| **Humanizing** | byte sizes, phone numbers, random strings | `NumberF.memory_size_cal(1_048_576)` → `"1.0 MB"` |
+
+Full API reference: **[hexdocs.pm/number_f](https://hexdocs.pm/number_f)**
+
+## Common tasks
+
+<details>
+<summary><strong>How do I format a number as currency in Elixir?</strong></summary>
 
 ```elixir
-# In your module
-defmodule MyApp.SomeModule do
-  # You can use NumberF functions directly
-  def format_price(price) do
-    NumberF.currency(price, "USD")
-  end
-end
+NumberF.currency(1234.567)             # => "ZMW 1,234.57"  (default unit)
+NumberF.currency(1234.567, "USD")      # => "USD 1,234.57"
+NumberF.currency(1234.567, "USD", 0)   # => "USD 1,235"
+
+# Locale-aware, with the correct symbol and placement:
+NumberF.format_currency(1234.56, "en-US")   # => "$1,234.56"
+NumberF.format_currency(1234.56, "fr-FR")   # => "1 234,56 €"
+NumberF.format_currency(1234.56, "de-DE")   # => "1.234,56 €"
 ```
 
-## Core Feature Areas
+See the [Currency Formatting guide](https://hexdocs.pm/number_f/currency-formatting.html).
+</details>
 
-### 1. Number Formatting
-
-```elixir
-# Format as currency
-NumberF.currency(1234.567)                    # => "ZMW 1,234.57"
-NumberF.currency(1234.567, "USD", 2)          # => "USD 1,234.57"
-
-# Format with commas
-NumberF.comma_separated(1234567.89)           # => "1,234,567.89"
-
-# Custom delimiters
-NumberF.number_to_delimited(1234567.89, delimiter: ".", separator: ",") # => "1.234.567,89"
-```
-
-### 2. Number to Text Conversion
+<details>
+<summary><strong>How do I convert a number to words for an invoice or cheque?</strong></summary>
 
 ```elixir
-# Convert numbers to words
-NumberF.to_words(20.0)                        # => "Twenty Kwacha and zero Ngwee"
+NumberF.to_words(42)                          # => "Forty Two Kwacha"
 NumberF.to_words(42.75, "Dollars", "Cents")   # => "Forty Two Dollars And Seventy Five Cents"
-
-# Roman numerals
-NumberF.to_roman(1999)                        # => "MCMXCIX"
-NumberF.from_roman("MCMXCIX")                 # => 1999
-
-# Ordinals
-NumberF.ordinal(21)                           # => "21st"
+NumberF.spell_number(42, "fr")                # => "Quarante-deux"
 ```
+</details>
 
-### 3. Financial Calculations
+<details>
+<summary><strong>How do I calculate a loan repayment (EMI) or compound interest?</strong></summary>
 
 ```elixir
-# Simple interest
 NumberF.simple_interest(1000, 0.05, 2)        # => 100.0
-
-# Compound interest
 NumberF.compound_interest(1000, 0.05, 2)      # => 102.5
-NumberF.compound_interest(1000, 0.05, 2, 12)  # => 104.94 (monthly compounding)
-
-# EMI calculation
-NumberF.calculate_emi(100000, 0.10, 12)       # => 8791.59
+NumberF.compound_interest(1000, 0.05, 2, 12)  # => 104.94   (monthly compounding)
+NumberF.calculate_emi(100_000, 0.10, 12)      # => 8791.59  (principal, annual rate, months)
 ```
 
-### 4. Statistical Functions
+See the [Financial Calculations guide](https://hexdocs.pm/number_f/financial-calculations.html).
+</details>
+
+<details>
+<summary><strong>How do I add or remove VAT / sales tax?</strong></summary>
 
 ```elixir
-# Basic statistics
-NumberF.mean([1, 2, 3, 4, 5])                # => 3.0
-NumberF.median([1, 3, 5, 7, 9])              # => 5
-NumberF.mode([1, 2, 2, 3, 3, 3, 4])          # => [3]
-NumberF.standard_deviation([2, 4, 4, 4, 5, 5, 7, 9])  # => 2.0
+NumberF.calculate_vat(100, 0.2)                # => %{net: 100.0, vat: 20.0, gross: 120.0}
+NumberF.calculate_vat(120, 0.2, true)          # VAT-inclusive: extracts the tax from the gross
+NumberF.Tax.calculate_income_tax(75_000, brackets)
+# => %{tax: 12248.5, effective_rate: 0.1633}   (progressive brackets)
 ```
+</details>
 
-### 5. Internationalization
+<details>
+<summary><strong>How do I format numbers for a different locale?</strong></summary>
 
 ```elixir
-# Format with locale
-NumberF.format_number(1234567.89, "en-US")           # => "1,234,567.89"
-NumberF.format_number(1234567.89, "fr-FR")           # => "1 234 567,89"
-
-# Currency with locale
-NumberF.format_currency(1234.56, "en-US")            # => "$1,234.56"
-NumberF.format_currency(1234.56, "fr-FR")            # => "1 234,56 €"
+NumberF.format_number(1234567.89, "en-US")   # => "1,234,567.89"
+NumberF.format_number(1234567.89, "fr-FR")   # => "1 234 567,89"
+NumberF.format_number(1234567.89, "de-DE")   # => "1.234.567,89"
 ```
 
-## Advanced Features
+See the [Internationalization guide](https://hexdocs.pm/number_f/internationalization.html).
+</details>
 
-NumberF includes many advanced features for specialized use cases:
+## How it compares
 
-- Tax calculations (VAT, sales tax, income tax)
-- Precision handling with multiple rounding strategies
-- Unit conversion between metric and imperial
-- Date calculations (business days, payment terms)
-- Phone number formatting
-- Credit card validation
-- Memory size humanization
+NumberF is a **breadth-first utility belt**, not a specialist library. Reach for it when
+you want one small dependency covering many numeric needs; reach elsewhere when you need
+depth in a single area:
 
-Check the module-specific documentation for details on these advanced features.
+- **[ex_cldr](https://hex.pm/packages/ex_cldr)** — full Unicode CLDR data, the right choice
+  when locale correctness across hundreds of locales is a hard requirement.
+- **[money](https://hex.pm/packages/money) / [ex_money](https://hex.pm/packages/ex_money)** —
+  a dedicated `Money` type with currency-safe arithmetic. Use these if money is a first-class
+  domain type in your system.
+- **[number](https://hex.pm/packages/number)** — a focused port of Rails' number helpers.
 
-## Getting Help
+NumberF overlaps with all three at the edges, but bundles formatting, finance, tax,
+statistics, validation, and unit conversion behind a single flat API.
 
-If you need help with NumberF, you can:
+## Documentation
 
-1. Read the [full documentation on HexDocs](https://hexdocs.pm/number_f)
-2. Open an issue if you encounter a problem or have a feature request
+- [Getting Started](https://hexdocs.pm/number_f/getting-started.html)
+- [Cheatsheet](https://hexdocs.pm/number_f/cheatsheet.html) — every function on one page
+- [Currency Formatting](https://hexdocs.pm/number_f/currency-formatting.html)
+- [Financial Calculations](https://hexdocs.pm/number_f/financial-calculations.html)
+- [Internationalization](https://hexdocs.pm/number_f/internationalization.html)
+- [FAQ](https://hexdocs.pm/number_f/faq.html)
+- [Changelog](https://github.com/jamesnjovu/elixir_number_functions/blob/master/CHANGELOG.md)
 
-We hope NumberF makes your Elixir development experience more enjoyable!
+### For AI assistants and LLM tooling
+
+The documentation is published in an LLM-readable form at
+[`hexdocs.pm/number_f/llms.txt`](https://hexdocs.pm/number_f/llms.txt), following the
+[llms.txt convention](https://llmstxt.org). Point Claude, ChatGPT, Cursor, or any
+retrieval tool at that URL for a complete, plain-text API reference. A condensed
+[`llms.txt`](https://github.com/jamesnjovu/elixir_number_functions/blob/master/llms.txt)
+also lives at the root of this repository.
+
+## Contributing
+
+Issues and pull requests are welcome. See [CONTRIBUTING.md](https://github.com/jamesnjovu/elixir_number_functions/blob/master/CONTRIBUTING.md) for
+the development workflow, and [SECURITY.md](https://github.com/jamesnjovu/elixir_number_functions/blob/master/SECURITY.md)
+for reporting vulnerabilities.
+
+```bash
+git clone https://github.com/jamesnjovu/elixir_number_functions.git
+cd elixir_number_functions
+mix deps.get
+mix test
+```
+
+## License
+
+Released under the [MIT License](https://github.com/jamesnjovu/elixir_number_functions/blob/master/LICENSE). Copyright © 2024-2026 James Njovu.

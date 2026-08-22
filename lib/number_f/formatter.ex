@@ -277,23 +277,26 @@ defmodule NumberF.Formatter do
       iex> NumberF.Formatter.format_fraction(5, 4, mixed: true)
       "1 1/4"
   """
-  def format_fraction(numerator, denominator, options \\ []) when is_integer(numerator) and is_integer(denominator) and denominator != 0 do
+  def format_fraction(numerator, denominator, options \\ [])
+      when is_integer(numerator) and is_integer(denominator) and denominator != 0 do
     reduce = Keyword.get(options, :reduce, true)
     mixed = Keyword.get(options, :mixed, false)
 
-    {num, den} = if reduce do
-      gcd_val = NumberF.Calculations.gcd(abs(numerator), abs(denominator))
-      {div(numerator, gcd_val), div(denominator, gcd_val)}
-    else
-      {numerator, denominator}
-    end
+    {num, den} =
+      if reduce do
+        gcd_val = NumberF.Calculations.gcd(abs(numerator), abs(denominator))
+        {div(numerator, gcd_val), div(denominator, gcd_val)}
+      else
+        {numerator, denominator}
+      end
 
     # Handle negative fractions
-    {num, den} = if den < 0 do
-      {-num, -den}
-    else
-      {num, den}
-    end
+    {num, den} =
+      if den < 0 do
+        {-num, -den}
+      else
+        {num, den}
+      end
 
     if mixed and abs(num) >= den do
       whole = div(num, den)
@@ -339,20 +342,21 @@ defmodule NumberF.Formatter do
     decimal = abs(decimal)
 
     # Simple approach for common fractions
-    {num, den} = case decimal do
-      0.25 -> {1, 4}
-      0.5 -> {1, 2}
-      0.75 -> {3, 4}
-      0.125 -> {1, 8}
-      0.375 -> {3, 8}
-      0.625 -> {5, 8}
-      0.875 -> {7, 8}
-      0.2 -> {1, 5}
-      0.4 -> {2, 5}
-      0.6 -> {3, 5}
-      0.8 -> {4, 5}
-      _ -> find_fraction_approximation(decimal, max_denominator)
-    end
+    {num, den} =
+      case decimal do
+        0.25 -> {1, 4}
+        0.5 -> {1, 2}
+        0.75 -> {3, 4}
+        0.125 -> {1, 8}
+        0.375 -> {3, 8}
+        0.625 -> {5, 8}
+        0.875 -> {7, 8}
+        0.2 -> {1, 5}
+        0.4 -> {2, 5}
+        0.6 -> {3, 5}
+        0.8 -> {4, 5}
+        _ -> find_fraction_approximation(decimal, max_denominator)
+      end
 
     # Apply sign
     num = num * sign
@@ -455,10 +459,11 @@ defmodule NumberF.Formatter do
     thousands_separator = Keyword.get(options, :thousands_separator, ",")
 
     # Format the number with thousands separator
-    formatted_number = NumberF.CustomFormatter.number_to_delimited(number,
-      delimiter: thousands_separator,
-      precision: precision
-    )
+    formatted_number =
+      NumberF.CustomFormatter.number_to_delimited(number,
+        delimiter: thousands_separator,
+        precision: precision
+      )
 
     prefix <> formatted_number <> suffix
   end

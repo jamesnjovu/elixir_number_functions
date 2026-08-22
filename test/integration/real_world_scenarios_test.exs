@@ -246,7 +246,10 @@ defmodule NumberF.RealWorldScenariosTest do
 
       # Format for scientific reporting
       _formatted_temp_c = NumberF.round_with_precision(temp_mean, 1)
-      _formatted_temp_f = NumberF.round_with_precision(NumberF.celsius_to_fahrenheit(temp_mean), 1)
+
+      _formatted_temp_f =
+        NumberF.round_with_precision(NumberF.celsius_to_fahrenheit(temp_mean), 1)
+
       formatted_std_dev = NumberF.round_with_precision(temp_std_dev, 2)
 
       # Assertions

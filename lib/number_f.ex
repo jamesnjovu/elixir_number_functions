@@ -115,16 +115,17 @@ defmodule NumberF do
 
   - **Core**: `NumberF`, `NumberF.Registry`
   - **Calculation**: `NumberF.Calculations`, `NumberF.Financial`, `NumberF.Statistics`, `NumberF.Precision`, `NumberF.Tax`
-  - **Formatting**: `NumberF.Currency`, `NumberF.Formatter`, `NumberF.CustomFormatter`, `NumberF.Currencies`
-  - **Conversion**: `NumberF.Metrics`, `NumberF.NumbersToWords`, `NumberF.NumberToWord`
+  - **Formatting**: `NumberF.Formatter`, `NumberF.CustomFormatter`, `NumberF.Currencies`
+  - **Conversion**: `NumberF.Metrics`
   - **Validation**: `NumberF.Validation`
-  - **Utilities**: `NumberF.Memory`, `NumberF.Randomizer`, `NumberF.Helper`
   - **Date**: `NumberF.DateCalculations`
   - **I18n**: `NumberF.I18n`
 
-  While specific functions can be accessed through their respective modules,
-  most common functionality is available directly from the main `NumberF` module
-  for convenience.
+  Every function documented on those modules is also available directly from
+  `NumberF`, which is the recommended entry point. Modules not listed above
+  (`NumberF.Currency`, `NumberF.Memory`, `NumberF.Randomizer`, `NumberF.Helper`,
+  `NumberF.NumbersToWords`, `NumberF.NumberToWord`) are internal implementation
+  details and are not part of the public API.
 
   For more information, see the [full documentation on HexDocs](https://hexdocs.pm/number_f).
   """
@@ -526,7 +527,8 @@ defmodule NumberF do
     Float.round(result, 2)
   end
 
-  def simple_interest(_, _, _), do: raise(ArgumentError, "simple_interest/3 expects numeric arguments")
+  def simple_interest(_, _, _),
+    do: raise(ArgumentError, "simple_interest/3 expects numeric arguments")
 
   @doc """
   Calculates compound interest with optional compounding frequency.
@@ -1514,7 +1516,7 @@ defmodule NumberF do
 
   ## Related Functions
   - `NumberF.format_number/3`: Format without currency symbols
-  - `NumberF.get_locale_settings/1`: Get formatting rules for a locale
+  - `NumberF.I18n.get_locale_settings/1`: Get formatting rules for a locale
   - `NumberF.spell_number/3`: Spell out numbers in different languages
 
   See also: `NumberF.I18n` for more internationalization functions.

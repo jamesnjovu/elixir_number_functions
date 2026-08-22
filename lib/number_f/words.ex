@@ -6,6 +6,8 @@ defmodule NumberF.Helper do
 end
 
 defmodule NumberF.NumbersToWords do
+  @moduledoc false
+
   alias NumberF.Helper, as: Math
 
   def parse(0, main_c, _), do: "zero #{main_c}"
@@ -102,6 +104,8 @@ defmodule NumberF.NumbersToWords do
 end
 
 defmodule NumberF.NumberToWord do
+  @moduledoc false
+
   @spec say(integer) :: String.t()
   def say(n), do: n |> say_io() |> IO.iodata_to_binary()
 

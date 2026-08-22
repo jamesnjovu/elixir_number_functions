@@ -1,0 +1,43 @@
+name: Bug report
+description: A NumberF function returns the wrong result or raises unexpectedly
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting. Please do **not** use this form for security
+        vulnerabilities — see [SECURITY.md](../blob/master/SECURITY.md).
+  - type: input
+    id: version
+    attributes:
+      label: NumberF version
+      placeholder: "0.2.0"
+    validations:
+      required: true
+  - type: input
+    id: elixir
+    attributes:
+      label: Elixir / OTP version
+      description: Output of `elixir --version`
+      placeholder: "Elixir 1.18.4 / OTP 26"
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction
+      description: A minimal snippet, ideally runnable in IEx.
+      render: elixir
+      placeholder: |
+        NumberF.currency(1234.567, "USD")
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected vs actual
+      placeholder: |
+        Expected: "USD 1,234.57"
+        Actual:   "USD 1,234.5"
+    validations:
+      required: true

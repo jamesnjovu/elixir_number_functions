@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Documentation
+    url: https://hexdocs.pm/number_f
+    about: Full API reference, guides, and cheatsheet on HexDocs.
+  - name: Question or usage help
+    url: https://github.com/jamesnjovu/elixir_number_functions/discussions
+    about: Ask how to use NumberF rather than opening an issue.
+  - name: Security vulnerability
+    url: https://github.com/jamesnjovu/elixir_number_functions/security/advisories/new
+    about: Report privately. Do not open a public issue.

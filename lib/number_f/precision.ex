@@ -130,22 +130,23 @@ defmodule NumberF.Precision do
   """
   def round_to(number, increment \\ 1.0, strategy \\ :nearest)
       when is_number(number) and is_number(increment) do
-    result = case strategy do
-      :nearest ->
-        Float.round(number / increment) * increment
+    result =
+      case strategy do
+        :nearest ->
+          Float.round(number / increment) * increment
 
-      :up ->
-        Float.ceil(number / increment) * increment
+        :up ->
+          Float.ceil(number / increment) * increment
 
-      :down ->
-        Float.floor(number / increment) * increment
+        :down ->
+          Float.floor(number / increment) * increment
 
-      :bankers ->
-        # Use banker's rounding (round to even)
-        multiplier = 1 / increment
-        bankers_division = round(number * multiplier)
-        bankers_division / multiplier
-    end
+        :bankers ->
+          # Use banker's rounding (round to even)
+          multiplier = 1 / increment
+          bankers_division = round(number * multiplier)
+          bankers_division / multiplier
+      end
 
     # Round to avoid floating point precision issues
     Float.round(result, 10)
