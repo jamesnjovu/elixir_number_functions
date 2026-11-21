@@ -69,15 +69,18 @@ jobs:
 
   test:
     name: Test (Elixir ${{ matrix.elixir }} / OTP ${{ matrix.otp }})
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os || 'ubuntu-latest' }}
     strategy:
       fail-fast: false
       matrix:
         include:
           # Floor of the `elixir: "~> 1.14"` requirement in mix.exs. If this row
           # goes red, either fix it or raise the requirement — do not just drop it.
+          # Pinned to 24.04 because builds.hex.pm publishes no OTP 25 builds for
+          # ubuntu-26.04, which ubuntu-latest now resolves to.
           - elixir: "1.15"
             otp: "25"
+            os: ubuntu-24.04
           - elixir: "1.17"
             otp: "26"
           # Primary: matches .tool-versions and the lint job.
