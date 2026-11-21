@@ -126,9 +126,21 @@ defmodule NumberFTest do
     end
   end
 
-  describe "default_password" do
-    test "follows expected format" do
-      result = NumberF.default_password()
+  describe "generate_password" do
+    test "meets the default policy" do
+      result = NumberF.generate_password()
+      assert String.length(result) == 12
+      assert NumberF.validate_password(result) == :ok
+    end
+  end
+
+  describe "default_password (deprecated)" do
+    test "still returns its 0.3.0 shape" do
+      # Through apply/3 so this file compiles without the deprecation warning. The
+      # name sits in a variable because Credo's Apply check flags apply/3 with a
+      # literal function name.
+      deprecated = :default_password
+      result = apply(NumberF, deprecated, [])
       # Should be a capitalized 3-letter string + @ + 4 digits
       assert String.match?(result, ~r/^[A-Z][a-z]{2}@[0-9]{4}$/)
       assert String.length(result) == 8

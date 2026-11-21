@@ -5,6 +5,35 @@ All notable changes to the NumberF library will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+**Passwords**: `generate_password/1`, `is_valid_password?/2` and
+`validate_password/2`, all driven by one keyword-list policy: `:min_length`,
+`:max_length`, minimum counts of uppercase, lowercase, digits and special
+characters, the alphabet specials are drawn from, and whether to leave out the
+ambiguous `I l 1 O 0`. Every key is optional; the default is 12 characters with
+at least one of each class. `validate_password/2` returns `:ok` or
+`{:error, reasons}`, where `reasons` lists every broken rule (`:too_short`,
+`:too_few_digits` and so on) in a fixed order, so a form can say what to fix. An
+invalid policy raises `ArgumentError` naming the offending key.
+
+Generation draws from `:crypto` rather than `:rand`, and leaves the calling
+process's `:rand` seed untouched.
+
+### Changed
+
+- `:crypto` is now listed in `extra_applications`. It ships with OTP, so this adds
+  no Hex dependency.
+
+### Deprecated
+
+- `default_password/0`. It always returns one fixed 8-character shape (`Abc@2345`),
+  which cannot be fitted to a site's password rules, and it draws from `:rand`,
+  which is not a cryptographically secure generator. It still works and returns
+  the same shape as before. Use `generate_password/1` instead.
+
 ## [0.3.0] - 2026-08-22
 
 Roughly 100 new functions, taking the public API from 103 arities to 261. No

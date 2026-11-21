@@ -106,6 +106,7 @@ Key facts:
 - Accounting: `NumberF.accounting_format(-1234.56, unit: "$")` -> `"($1,234.56)"`
 - Base conversion: `NumberF.to_base(255, 16)` -> `"FF"`; `NumberF.from_base("FF", 16)` -> `255`
 - Quarter / fiscal year: `NumberF.quarter(~D[2024-08-22])` -> `3`; `NumberF.fiscal_year(~D[2024-08-22], 4)` -> `2025`
+- Passwords: `NumberF.generate_password(min_length: 16)` -> a random 16-character string drawn from `:crypto`; `NumberF.validate_password("short")` -> `{:error, [:too_short, :too_few_uppercase, :too_few_digits, :too_few_special]}`; `NumberF.is_valid_password?(pw, policy)` checks against the same policy. `default_password/0` is deprecated.
 
 ## Modules
 
@@ -116,6 +117,7 @@ Key facts:
 - `NumberF.Metrics` — metric/imperial and temperature conversion.
 - `NumberF.NumbersToWords`, `NumberF.NumberToWord` — textual representation.
 - `NumberF.Validation`, `NumberF.Memory`, `NumberF.Randomizer`, `NumberF.Helper` — validation and utilities.
+- `NumberF.Password`: policy-driven password generation and checking.
 - `NumberF.DateCalculations` — age, business days, payment terms.
 - `NumberF.Registry` — runtime module and function discovery.
 

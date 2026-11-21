@@ -12,7 +12,7 @@ defmodule NumberF do
   - **Statistical Functions**: Mean, median, mode, standard deviation, variance
   - **Date Calculations**: Age calculation, business days, payment terms
   - **Validation**: Credit card validation (Luhn algorithm), number format validation
-  - **String Generation**: Random string generation, password creation
+  - **String Generation**: Random strings, plus policy-based password generation and checking
   - **Type Conversions**: Convert between numeric types and formats
   - **Memory Size**: Convert byte counts to human-readable formats
   - **Phone Formatting**: Format phone numbers based on country codes
@@ -117,7 +117,7 @@ defmodule NumberF do
   - **Calculation**: `NumberF.Calculations`, `NumberF.Financial`, `NumberF.Statistics`, `NumberF.Precision`, `NumberF.Tax`
   - **Formatting**: `NumberF.Formatter`, `NumberF.CustomFormatter`, `NumberF.Currencies`
   - **Conversion**: `NumberF.Metrics`
-  - **Validation**: `NumberF.Validation`
+  - **Validation**: `NumberF.Validation`, `NumberF.Password`
   - **Date**: `NumberF.DateCalculations`
   - **I18n**: `NumberF.I18n`
 
@@ -225,17 +225,65 @@ defmodule NumberF do
   defdelegate randomizer(length, type \\ :all), to: NumberF.Randomizer
 
   @doc """
-  Generates a default password with pre-defined complexity.
-  The pattern is: capitalized 3-letter string + @ + 4 random digits.
+  Generates a random password that satisfies a policy.
+
+  The same policy can be passed to `validate_password/2` and `is_valid_password?/2`
+  to check a password a user typed against the same rules.
+
+  ## Parameters
+    - `policy`: A keyword list. Every key is optional:
+      - `:min_length`: minimum length in graphemes (default: 12)
+      - `:max_length`: maximum length, or `nil` for no cap (default: `nil`)
+      - `:uppercase`: minimum uppercase letters (default: 1)
+      - `:lowercase`: minimum lowercase letters (default: 1)
+      - `:digits`: minimum digits (default: 1)
+      - `:special`: minimum special characters (default: 1)
+      - `:special_chars`: the alphabet specials are drawn from (default: `"!@#$%^&*-_=+?"`)
+      - `:exclude_ambiguous`: leave out `I`, `l`, `1`, `O` and `0` (default: `true`)
+
+  A class minimum of `0` leaves that class out of the password entirely. The
+  password is `max(min_length, sum of the class minimums)` long.
+
+  Characters are drawn from `:crypto`, a cryptographically secure generator, and
+  the calling process's `:rand` seed is left untouched. An invalid policy raises
+  `ArgumentError` naming the offending key.
 
   ## Examples
 
-      iex> result = NumberF.default_password()
-      iex> String.length(result) == 8 and String.contains?(result, "@")
-      true
+      iex> password = NumberF.generate_password()
+      iex> String.length(password)
+      12
 
+      iex> password = NumberF.generate_password(min_length: 20, special: 0)
+      iex> {String.length(password), String.match?(password, ~r/^[A-Za-z0-9]+$/)}
+      {20, true}
+
+      iex> policy = [min_length: 16, uppercase: 2, digits: 3]
+      iex> NumberF.generate_password(policy) |> NumberF.validate_password(policy)
+      :ok
+
+      iex> NumberF.generate_password(colour: 1)
+      ** (ArgumentError) unknown password policy key :colour, expected one of: [:digits, :exclude_ambiguous, :lowercase, :max_length, :min_length, :special, :special_chars, :uppercase]
   """
   @doc group: "Humanize"
+  defdelegate generate_password(policy \\ []), to: NumberF.Password
+
+  @doc """
+  Generates an 8-character password of one fixed shape, such as `Abc@2345`.
+
+  Deprecated: the shape cannot be changed, so it cannot meet a site's password
+  rules, and it draws from `:rand`, which is not a cryptographically secure
+  generator. Use `generate_password/1`, which takes a policy and draws from
+  `:crypto`. `generate_password(min_length: 8)` is the closest equivalent.
+
+  ## Examples
+
+      iex> password = NumberF.generate_password(min_length: 8)
+      iex> String.length(password)
+      8
+  """
+  @doc group: "Humanize"
+  @deprecated "Use generate_password/1 instead"
   defdelegate default_password(), to: NumberF.Randomizer, as: :gen_password
 
   @doc """
@@ -747,6 +795,67 @@ defmodule NumberF do
   """
   @doc group: "Validation"
   defdelegate is_valid_credit_card?(number, type \\ :any), to: NumberF.Validation
+
+  @doc """
+  Checks a password against a policy, returning `:ok` or `{:error, reasons}`.
+
+  Takes the same policy as `generate_password/1`. Uppercase, lowercase and digits
+  are counted by Unicode class; a special character is anything that is neither a
+  letter nor a digit, whether or not it appears in `:special_chars`.
+
+  ## Parameters
+    - `password`: The password to check, as a string
+    - `policy`: A keyword list, as for `generate_password/1` (default: `[]`)
+
+  `reasons` lists every rule the password breaks, drawn from `:too_short`,
+  `:too_long`, `:too_few_uppercase`, `:too_few_lowercase`, `:too_few_digits` and
+  `:too_few_special`, always in that order, so a form can say what to fix.
+  Raises `ArgumentError` if `password` is not a string or `policy` is invalid.
+
+  ## Examples
+
+      iex> NumberF.validate_password("Correct-Horse-7")
+      :ok
+
+      iex> NumberF.validate_password("short")
+      {:error, [:too_short, :too_few_uppercase, :too_few_digits, :too_few_special]}
+
+      iex> NumberF.validate_password("Tr0ub4dor&3", min_length: 8)
+      :ok
+
+      iex> NumberF.validate_password("PIN-1234", min_length: 4, max_length: 6, lowercase: 0)
+      {:error, [:too_long]}
+  """
+  @doc group: "Validation"
+  defdelegate validate_password(password, policy \\ []), to: NumberF.Password
+
+  @doc """
+  Whether a password satisfies a policy.
+
+  Takes the same policy as `generate_password/1`. Returns `false` for anything
+  that is not a string; an invalid policy still raises `ArgumentError`. Use
+  `validate_password/2` to find out which rules a password breaks.
+
+  ## Parameters
+    - `password`: The password to check
+    - `policy`: A keyword list, as for `generate_password/1` (default: `[]`)
+
+  ## Examples
+
+      iex> NumberF.is_valid_password?("Correct-Horse-7")
+      true
+
+      iex> NumberF.is_valid_password?("correct-horse-7")
+      false
+
+      iex> NumberF.is_valid_password?("abc", min_length: 3, uppercase: 0, digits: 0, special: 0)
+      true
+
+      iex> NumberF.is_valid_password?(nil)
+      false
+  """
+  @doc group: "Validation"
+  defdelegate is_valid_password?(password, policy \\ []), to: NumberF.Password
 
   ### FORMATTING ENHANCEMENTS ###
 

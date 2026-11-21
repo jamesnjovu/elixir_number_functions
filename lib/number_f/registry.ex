@@ -35,6 +35,11 @@ defmodule NumberF.Registry do
         type: :utilities
       },
       %{
+        name: "NumberF.Password",
+        description: "Policy-driven password generation and checking",
+        type: :utilities
+      },
+      %{
         name: "NumberF.NumbersToWords",
         description: "Number to words conversion",
         type: :conversion
@@ -172,7 +177,7 @@ defmodule NumberF.Registry do
       %{
         name: "Generation",
         description: "Functions for generating random strings and passwords",
-        examples: ["randomizer/2", "default_password/0"]
+        examples: ["randomizer/2", "generate_password/1"]
       },
       %{
         name: "Financial",
@@ -187,7 +192,12 @@ defmodule NumberF.Registry do
       %{
         name: "Validation",
         description: "Functions for validating numbers and formats",
-        examples: ["is_valid_number?/1", "is_valid_integer?/1", "is_valid_credit_card?/2"]
+        examples: [
+          "is_valid_number?/1",
+          "is_valid_integer?/1",
+          "is_valid_credit_card?/2",
+          "is_valid_password?/2"
+        ]
       },
       %{
         name: "Utilities",

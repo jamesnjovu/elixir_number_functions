@@ -9,6 +9,7 @@ defmodule NumberF.DoctestRunnerTest do
   doctest NumberF.DateCalculations
   doctest NumberF.Formatter
   doctest NumberF.Validation
+  doctest NumberF.Password
   doctest NumberF.Metrics
   doctest NumberF.Currencies
   doctest NumberF.Tax
@@ -30,6 +31,7 @@ defmodule NumberF.DoctestRunnerTest do
       NumberF.DateCalculations,
       NumberF.Formatter,
       NumberF.Validation,
+      NumberF.Password,
       NumberF.Metrics,
       NumberF.Currencies,
       NumberF.Tax,
