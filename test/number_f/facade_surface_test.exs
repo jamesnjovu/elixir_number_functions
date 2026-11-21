@@ -35,6 +35,7 @@ defmodule NumberF.FacadeSurfaceTest do
     NumberF.Currencies,
     NumberF.Metrics,
     NumberF.Validation,
+    NumberF.Password,
     NumberF.DateCalculations,
     NumberF.I18n,
     NumberF.Registry

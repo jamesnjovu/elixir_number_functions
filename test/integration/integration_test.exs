@@ -145,8 +145,10 @@ defmodule NumberFIntegrationTest do
       random_str = NumberF.randomizer(10)
       assert String.length(random_str) == 10
 
-      password = NumberF.default_password()
-      assert String.match?(password, ~r/^[A-Z][a-z]{2}@[0-9]{4}$/)
+      policy = [min_length: 16, special: 2]
+      password = NumberF.generate_password(policy)
+      assert String.length(password) == 16
+      assert NumberF.is_valid_password?(password, policy)
     end
 
     test "date calculations workflow" do

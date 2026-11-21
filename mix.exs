@@ -42,8 +42,10 @@ defmodule NumberF.MixProject do
   # A pure computation library needs no supervision tree. There is deliberately no
   # `mod:` key: NumberF.Application was an empty supervisor whose only effect was to
   # make `Supervisor.start_link/2` return {:error, {:already_started, _}} in tests.
+  # :crypto ships with OTP, so it adds no Hex dependency; generate_password/1 needs
+  # it because :rand is not a secure source of randomness for passwords.
   def application do
-    [extra_applications: [:logger]]
+    [extra_applications: [:logger, :crypto]]
   end
 
   # test/support holds shared test helpers; consumers always build in :prod.
@@ -195,7 +197,8 @@ defmodule NumberF.MixProject do
           NumberF.Metrics
         ],
         "Validation & Utilities": [
-          NumberF.Validation
+          NumberF.Validation,
+          NumberF.Password
         ],
         "Date Handling": [
           NumberF.DateCalculations

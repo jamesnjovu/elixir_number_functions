@@ -761,8 +761,34 @@ NumberF.format_phone("14155552671", "US")
 NumberF.randomizer(8)
 # => "RCKkn94U"  (random; yours will differ)
 
-NumberF.default_password()
+NumberF.generate_password()
+# => "2EXAZNc%z-56"  (random; yours will differ)
+
+NumberF.generate_password(min_length: 20, special: 0)
+# => "Jj39ecC8K67DAHjr7zcv"  (random; yours will differ)
+
+NumberF.generate_password(min_length: 16) |> String.length()
+# => 16
 ```
+
+`generate_password/1` draws from `:crypto` and leaves
+out `I l 1 O 0` unless `exclude_ambiguous: false`.
+
+### Checking passwords
+
+```elixir
+NumberF.is_valid_password?("Correct-Horse-7")  # => true
+NumberF.is_valid_password?("correct-horse-7")  # => false
+
+NumberF.validate_password("Tr0ub4dor&3", min_length: 8)
+# => :ok
+
+NumberF.validate_password("short")
+# => {:error, [:too_short, :too_few_uppercase, :too_few_digits, :too_few_special]}
+```
+
+Both take the same policy as `generate_password/1`, so
+the rules you generate with are the rules you check.
 
 ### Math
 
