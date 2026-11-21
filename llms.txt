@@ -5,7 +5,7 @@
 > validation, and unit conversion. Everything is exposed through a single flat `NumberF`
 > module. One runtime dependency (`decimal`), no configuration, Elixir 1.14+.
 
-Install: add `{:number_f, "~> 0.3.0"}` to `deps` in `mix.exs`, then `mix deps.get`.
+Install: add `{:number_f, "~> 0.4.0"}` to `deps` in `mix.exs`, then `mix deps.get`.
 
 Key facts:
 - Default currency unit is ZMW (Zambian Kwacha); pass a unit explicitly to override.
